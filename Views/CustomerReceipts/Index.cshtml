@@ -1,0 +1,43 @@
+﻿@model IEnumerable<CustomerReceipt>
+@{
+    ViewData["Title"] = "سندات القبض";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>سندات القبض</h3>
+    <a class="btn btn-primary" asp-action="Create">سند قبض جديد</a>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>التاريخ</th>
+            <th>العميل</th>
+            <th>المبلغ</th>
+            <th>غير موزع</th>
+            <th>الحالة</th>
+            <th style="width:120px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Id</td>
+                <td>@r.Date</td>
+                <td>@r.Customer?.Name</td>
+                <td>@r.Amount</td>
+                <td>@r.UnallocatedAmount</td>
+                <td>@(r.IsActive ? "نشط" : "معطل")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@r.Id">تفاصيل</a>
+                    @if (r.IsActive)
+                    {
+                        <a class="btn btn-sm btn-outline-danger" asp-action="Disable" asp-route-id="@r.Id">تعطيل</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

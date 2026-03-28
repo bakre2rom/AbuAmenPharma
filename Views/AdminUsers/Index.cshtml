@@ -1,0 +1,48 @@
+﻿@model List<Microsoft.AspNetCore.Identity.IdentityUser>
+@{
+    ViewData["Title"] = "إدارة المستخدمين";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">إدارة المستخدمين</h3>
+    <a class="btn btn-success" asp-action="Create">مستخدم جديد</a>
+</div>
+
+<table class="table table-striped table-bordered align-middle">
+    <thead>
+        <tr>
+            <th>البريد</th>
+            <th>الحالة</th>
+            <th style="width:180px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            var isLocked = u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.UtcNow;
+            <tr>
+                <td>@u.Email</td>
+                <td>
+                    @if (isLocked)
+                    {
+                        <span class="badge bg-danger">معطل</span>
+                    }
+                    else
+                    {
+
+                        <span class="badge bg-success">نشط</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <form asp-action="ToggleLock" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@u.Id" />
+                        <button class="btn btn-sm @(isLocked ? "btn-outline-success" : "btn-outline-danger")">
+                            @(isLocked ? "تفعيل" : "تعطيل")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

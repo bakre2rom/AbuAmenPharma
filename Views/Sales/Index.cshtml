@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "المبيعات";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>المبيعات</h3>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-action="Create">فاتورة بيع جديدة</a>
+        <a class="btn btn-outline-success" asp-controller="CustomerReceipts" asp-action="Create">سند قبض</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-striped table-bordered" id="salesTable" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>التاريخ</th>
+                    <th>العميل</th>
+                    <th>المندوب</th>
+                    <th>نوع الدفع</th>
+                    <th>الصافي</th>
+                    <th>المدفوع</th>
+                    <th>المتبقي</th>
+                    <th style="width:120px;"></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/lib/datatables/css/datatables.bootstrap.min.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="~/lib/datatables/js/jquery.datatables.min.js"></script>
+    <script src="~/lib/datatables/js/datatables.bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#salesTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '@Url.Action("GetSalesData", "Sales")',
+                    type: 'POST'
+                },
+                columns: [
+                    { data: 'id' },
+                    {
+                        data: 'saleDate',
+                    },
+                    { data: 'customerName' },
+                    { data: 'salesmanName' },
+                    {
+                        data: 'paymentMode',
+                        render: function(data) {
+                            return data === 'Cash' ? 'نقدي' : 'آجل';
+                        }
+                    },
+                    {
+                        data: 'netTotal',
+                        render: function(data) {
+                            return Number(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'paidAmount',
+                        render: function(data) {
+                            return Number(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'remainingAmount',
+                        render: function(data) {
+                            return Number(data).toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'id',
+                        render: function(data) {
+                            return `<a class="btn btn-sm btn-outline-primary" href="/Sales/Details/${data}">تفاصيل</a>`;
+                        }
+                    }
+                ],
+                order: [[0, 'desc']],
+                pageLength: 25
+            });
+        });
+    </script>
+}

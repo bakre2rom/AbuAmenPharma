@@ -1,0 +1,45 @@
+﻿@using AbuAmenPharma.ViewModels
+@model IEnumerable<ItemBatchListVM>
+@{
+    ViewData["Title"] = "دفعات الصنف";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">دفعات الصنف</h3>
+        <div class="text-muted">الصنف: @ViewBag.ItemName</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-action="Create" asp-route-itemId="@ViewBag.ItemId">إضافة دفعة</a>
+        <a class="btn btn-secondary" asp-controller="Items" asp-action="Index">رجوع للأصناف</a>
+    </div>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>رقم الدفعة</th>
+            <th>تاريخ الانتهاء</th>
+            <th>سعر الشراء</th>
+            <th>سعر البيع</th>
+            <th>الرصيد</th>
+            <th style="width:200px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var b in Model)
+        {
+            <tr>
+                <td>@b.BatchNo</td>
+                <td>@b.ExpiryDate</td>
+                <td>@b.PurchasePrice</td>
+                <td>@b.SellPrice</td>
+                <td>@b.Balance</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@b.Id">تعديل</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-action="Disable" asp-route-id="@b.Id">تعطيل</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

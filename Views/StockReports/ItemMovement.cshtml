@@ -1,0 +1,69 @@
+﻿@using AbuAmenPharma.ViewModels
+@model List<ItemMovementVM>
+@{
+    ViewData["Title"] = "تقرير حركة منتج";
+    var items = ViewBag.Items as List<Item>;
+}
+
+<h3 class="mb-3">تقرير حركة منتج</h3>
+
+<form method="get" class="card p-3 mb-3">
+    <div class="row">
+
+        <div class="col-md-4">
+            <label class="form-label">الصنف</label>
+            <select name="itemId" class="form-select" required>
+                <option value="">-- اختر الصنف --</option>
+                @foreach (var item in items)
+                {
+                    <option value="@item.Id">@item.NameAr</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">من تاريخ</label>
+            <input type="date" name="from" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">إلى تاريخ</label>
+            <input type="date" name="to" class="form-control" />
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-primary w-100">عرض</button>
+        </div>
+    </div>
+</form>
+
+@if (Model.Count > 0)
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>نوع الحركة</th>
+                <th>رقم المرجع</th>
+                <th>الدفعة</th>
+                <th class="text-center">وارد</th>
+                <th class="text-center">صادر</th>
+                <th class="text-center">الرصيد</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td>@row.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@row.RefType</td>
+                    <td>@row.RefId</td>
+                    <td>@row.BatchNo</td>
+                    <td class="text-center text-success">@row.QtyIn</td>
+                    <td class="text-center text-danger">@row.QtyOut</td>
+                    <td class="text-center"><strong>@row.BalanceAfter</strong></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

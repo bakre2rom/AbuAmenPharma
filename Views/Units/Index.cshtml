@@ -1,0 +1,30 @@
+﻿@model IEnumerable<Unit>
+@{
+    ViewData["Title"] = "الوحدات";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>الوحدات</h3>
+    <a class="btn btn-primary" asp-action="Create">إضافة وحدة</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>الاسم</th>
+            <th style="width:220px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.NameAr</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@u.Id">تعديل</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-action="Disable" asp-route-id="@u.Id">تعطيل</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

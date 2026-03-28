@@ -1,0 +1,92 @@
+﻿@model Sale
+@using System.Globalization
+@{
+    ViewData["Title"] = "تفاصيل فاتورة بيع";
+    var allocations = ViewBag.Allocations as List<SaleAllocation> ?? new List<SaleAllocation>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">تفاصيل فاتورة بيع #@Model.Id</h3>
+        <div class="text-muted">
+            العميل: <strong>@Model.Customer?.Name</strong> —
+            المندوب: <strong>@Model.Salesman?.NameAr</strong> —
+            التاريخ: <strong>@Model.SaleDate</strong>
+        </div>
+    </div>
+    <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    <a class="btn btn-success" target="_blank" asp-action="Print" asp-route-id="@Model.Id">طباعة</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <table class="table table-sm table-bordered">
+            <tr><th>نوع الدفع</th><td>@(Model.PaymentMode == SalePaymentMode.Cash ? "نقدي" : "آجل")</td></tr>
+            <tr><th>الإجمالي</th><td>@Model.SubTotal</td></tr>
+            <tr><th>الخصم</th><td>@Model.Discount</td></tr>
+            <tr><th>الصافي</th><td><strong>@Model.NetTotal</strong></td></tr>
+            <tr><th>المدفوع</th><td>@Model.PaidAmount</td></tr>
+            <tr><th>المتبقي</th><td><strong>@Model.RemainingAmount</strong></td></tr>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <div class="alert alert-info">
+            عرض الدفعات هنا توضيحي لطريقة الخصم FIFO (الأقرب انتهاء/الأقدم).
+        </div>
+    </div>
+</div>
+
+<h5 class="mt-3">بنود الفاتورة</h5>
+
+<table class="table table-bordered align-middle">
+    <thead>
+        <tr>
+            <th>الصنف</th>
+            <th class="text-end">الكمية</th>
+            <th class="text-end">السعر</th>
+            <th class="text-end">الإجمالي</th>
+            <th>توزيع FIFO (دفعات)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var line in Model.Lines)
+        {
+            var lineAllocs = allocations.Where(a => a.SaleLineId == line.Id).ToList();
+
+            <tr>
+                <td>@line.Item?.NameAr</td>
+                <td class="text-end">@line.Qty</td>
+                <td class="text-end">@line.UnitPrice</td>
+                <td class="text-end">@line.LineTotal</td>
+                <td>
+                    @if (lineAllocs.Count == 0)
+                    {
+                        <span class="text-muted">-</span>
+                    }
+                    else
+                    {
+                        <table class="table table-sm table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th>دفعة</th>
+                                    <th>انتهاء</th>
+                                    <th class="text-end">كمية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in lineAllocs)
+                                {
+                                    <tr>
+                                        <td>@a.Batch?.BatchNo</td>
+                                        <td>@(a.Batch?.ExpiryDate.ToString() ?? "-")</td>
+                                        <td class="text-end">@a.Qty</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

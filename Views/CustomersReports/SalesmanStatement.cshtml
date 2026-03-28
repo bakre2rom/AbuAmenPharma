@@ -1,0 +1,150 @@
+﻿@using AbuAmenPharma.ViewModels
+@model SalesmanStatementVM
+
+@{
+    ViewData["Title"] = "كشف مبيعات مندوب";
+}
+
+<h3 class="mb-3">كشف مبيعات مندوب</h3>
+
+<form asp-action="SalesmanStatement" method="post" class="card p-3 mb-3">
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">المندوب</label>
+            <select class="form-select" name="salesmanId" asp-items="ViewBag.SalesmanId">
+                <option value="">اختر...</option>
+            </select>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">من</label>
+            <input class="form-control" type="date" name="from"
+                   value="@Model.From.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">إلى</label>
+            <input class="form-control" type="date" name="to"
+                   value="@Model.To.ToString("yyyy-MM-dd")" />
+        </div>
+
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary">عرض</button>
+        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    </div>
+</form>
+
+@if (Model.SalesmanId > 0)
+{
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <strong>المندوب:</strong> @Model.SalesmanName
+            <span class="mx-2">|</span>
+            <strong>الفترة:</strong>
+            @Model.From.ToString("yyyy-MM-dd")
+            إلى
+            @Model.To.ToString("yyyy-MM-dd")
+        </div>
+
+        <a class="btn btn-success"
+           target="_blank"
+           asp-action="SalesmanStatementPrint"
+           asp-route-salesmanId="@Model.SalesmanId"
+           asp-route-from="@Model.From.ToString("yyyy-MM-dd")"
+           asp-route-to="@Model.To.ToString("yyyy-MM-dd")">
+            🖨 طباعة
+        </a>
+    </div>
+
+    <!-- ملخص -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <table class="table table-sm table-bordered">
+                <tr>
+                    <th>عدد الفواتير</th>
+                    <td class="text-end">@Model.SalesCount</td>
+                </tr>
+                <tr>
+                    <th>إجمالي صافي المبيعات</th>
+                    <td class="text-end">@Model.TotalNetSales.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <th>إجمالي نقدي</th>
+                    <td class="text-end text-success">
+                        @Model.TotalCash.ToString("N2")
+                    </td>
+                </tr>
+                <tr>
+                    <th>إجمالي آجل</th>
+                    <td class="text-end text-danger">
+                        @Model.TotalCredit.ToString("N2")
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- جدول التفاصيل -->
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th># الفاتورة</th>
+                <th>العميل</th>
+                <th>طريقة الدفع</th>
+                <th class="text-end">الصافي</th>
+                <th class="text-end">المدفوع</th>
+                <th class="text-end">المتبقي</th>
+                <th>ملاحظات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model.Lines)
+            {
+                <tr>
+                    <td>@l.Date.ToString("yyyy-MM-dd")</td>
+
+                    <td>
+                        <a asp-controller="Sales"
+                           asp-action="Details"
+                           asp-route-id="@l.SaleId">
+                            @l.SaleId
+                        </a>
+                    </td>
+
+                    <td>@l.CustomerName</td>
+
+                    <td>
+                        @if (l.PaymentMode.Contains("Cash"))
+                        {
+                            <span class="badge bg-success">نقدي</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">آجل</span>
+                        }
+                    </td>
+
+                    <td class="text-end">
+                        @l.NetTotal.ToString("N2")
+                    </td>
+
+                    <td class="text-end">
+                        @l.PaidAmount.ToString("N2")
+                    </td>
+
+                    <td class="text-end">
+                        @l.RemainingAmount.ToString("N2")
+                    </td>
+
+                    <td>@l.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

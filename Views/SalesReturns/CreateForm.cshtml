@@ -1,0 +1,66 @@
+﻿@using AbuAmenPharma.ViewModels
+@model SaleReturnCreateVM
+@{
+    ViewData["Title"] = "إنشاء مرتجع مبيعات";
+}
+<h3 class="mb-3">إنشاء مرتجع مبيعات</h3>
+<div class="text-muted mb-2">
+    العميل: <strong>@Model.CustomerName</strong> — فاتورة: <strong>@Model.SaleId</strong>
+</div>
+
+<form asp-action="CreateFromSale" method="post" class="card p-3">
+    <input type="hidden" asp-for="SaleId" />
+
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">تاريخ المرتجع</label>
+            <input asp-for="ReturnDate" class="form-control" type="datetime-local" />
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">الخصم</label>
+            <input asp-for="Discount" class="form-control" type="number" step="0.01" value="0" />
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">ملاحظات</label>
+            <input asp-for="Notes" class="form-control" />
+        </div>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>الصنف</th>
+                <th class="text-end">المباع</th>
+                <th class="text-end">مرتجع سابق</th>
+                <th class="text-end">المتاح</th>
+                <th class="text-end">السعر</th>
+                <th style="width:160px;">مرتجع الآن</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Lines.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model.Lines[i].ItemName
+                        <input type="hidden" name="Lines[@i].SaleLineId" value="@Model.Lines[i].SaleLineId" />
+                    </td>
+                    <td class="text-end">@Model.Lines[i].SoldQty</td>
+                    <td class="text-end">@Model.Lines[i].AlreadyReturnedQty</td>
+                    <td class="text-end"><strong>@Model.Lines[i].AvailableToReturn</strong></td>
+                    <td class="text-end">@Model.Lines[i].UnitPrice</td>
+                    <td>
+                        <input name="Lines[@i].ReturnQty" class="form-control" type="number" step="0.01" value="0" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-success">حفظ المرتجع</button>
+        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    </div>
+</form>

@@ -1,0 +1,43 @@
+﻿@model ItemBatch
+@{
+    ViewData["Title"] = "تعديل دفعة";
+}
+
+<h3 class="mb-3">تعديل دفعة - @ViewBag.ItemName</h3>
+
+<form asp-action="Edit" method="post" class="card p-3">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ItemId" />
+
+    <div class="mb-3">
+        <label class="form-label">رقم الدفعة</label>
+        <input asp-for="BatchNo" class="form-control" />
+        <span asp-validation-for="BatchNo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">تاريخ الانتهاء</label>
+        <input asp-for="ExpiryDate" class="form-control" type="date" />
+        <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">سعر الشراء</label>
+            <input asp-for="PurchasePrice" class="form-control" />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">سعر البيع</label>
+            <input asp-for="SellPrice" class="form-control" />
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary">حفظ</button>
+        <a class="btn btn-secondary" asp-action="Index" asp-route-itemId="@Model.ItemId">رجوع</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

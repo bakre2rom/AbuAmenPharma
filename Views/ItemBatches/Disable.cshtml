@@ -1,0 +1,16 @@
+﻿@model ItemBatch
+@{
+    ViewData["Title"] = "تعطيل دفعة";
+}
+
+<h3 class="mb-3">تعطيل دفعة - @ViewBag.ItemName</h3>
+
+<div class="alert alert-warning">
+    هل أنت متأكد من تعطيل الدفعة: <strong>@Model.BatchNo</strong> ؟
+</div>
+
+<form asp-action="Disable" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">تعطيل</button>
+    <a class="btn btn-secondary" asp-action="Index" asp-route-itemId="@Model.ItemId">رجوع</a>
+</form>

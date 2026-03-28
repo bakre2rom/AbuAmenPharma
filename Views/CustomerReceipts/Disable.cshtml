@@ -1,0 +1,17 @@
+﻿@model CustomerReceipt
+@{
+    ViewData["Title"] = "تعطيل سند قبض";
+}
+
+<h3 class="mb-3">تعطيل سند قبض</h3>
+
+<div class="alert alert-warning">
+    هل أنت متأكد من تعطيل سند القبض رقم <strong>@Model.Id</strong>
+    للعميل <strong>@Model.Customer?.Name</strong> بمبلغ <strong>@Model.Amount</strong>؟
+</div>
+
+<form asp-action="Disable" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">تعطيل</button>
+    <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+</form>

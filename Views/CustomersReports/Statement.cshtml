@@ -1,0 +1,103 @@
+﻿@using AbuAmenPharma.ViewModels
+@model CustomerStatementVM
+@{
+    ViewData["Title"] = "كشف حساب عميل";
+}
+
+<h3 class="mb-3">كشف حساب عميل</h3>
+
+<form asp-action="Statement" method="post" class="card p-3 mb-3">
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">العميل</label>
+            <select class="form-select" name="CustomerId" asp-items="ViewBag.CustomerId">
+                <option value="">اختر...</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">من</label>
+            <input class="form-control" type="date" name="From" value="@Model.From.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">إلى</label>
+            <input class="form-control" type="date" name="To" value="@Model.To.ToString("yyyy-MM-dd")" />
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary">عرض</button>
+        <a class="btn btn-secondary" asp-action="Balances">ملخص الأرصدة</a>
+    </div>
+</form>
+
+<a asp-action="StatementPrint"
+   asp-route-customerId="@Model.CustomerId"
+   asp-route-from="@Model.From.ToString("yyyy-MM-dd")"
+   asp-route-to="@Model.To.ToString("yyyy-MM-dd")"
+   target="_blank"
+   class="btn btn-success">
+    🖨 طباعة
+</a>
+
+@if (!string.IsNullOrWhiteSpace(Model.CustomerName))
+{
+    <div class="mb-2">
+        <strong>العميل:</strong> @Model.CustomerName
+        <span class="mx-2">|</span>
+        <strong>الفترة:</strong> @Model.From.ToString("yyyy-MM-dd") إلى @Model.To.ToString("yyyy-MM-dd")
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-sm table-bordered">
+                <tr><th>رصيد افتتاحي</th><td class="text-end">@Model.OpeningBalance</td></tr>
+                <tr><th>إجمالي مدين</th><td class="text-end">@Model.TotalDebit</td></tr>
+                <tr><th>إجمالي دائن</th><td class="text-end">@Model.TotalCredit</td></tr>
+                <tr><th>رصيد ختامي</th><td class="text-end"><strong>@Model.ClosingBalance</strong></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>النوع</th>
+                <th>#</th>
+                <th>ملاحظات</th>
+                <th class="text-end">مدين</th>
+                <th class="text-end">دائن</th>
+                <th class="text-end">الرصيد</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model.Lines)
+            {
+                <tr>
+                    <td>@l.Date</td>
+                    <td>@l.TypeName</td>
+                    <td>
+                        @if (l.TypeName == "سند قبض")
+                        {
+                            <a asp-controller="CustomerReceipts" asp-action="Details" asp-route-id="@l.RefId">@l.RefId</a>
+                        }
+                        else if (l.TypeName == "فاتورة بيع")
+                        {
+                            <a asp-controller="Sales" asp-action="Details" asp-route-id="@l.RefId">@l.RefId</a>
+                        }
+                        else
+                        {
+                            @l.RefId
+                        }
+                    </td>
+                    <td>@l.Notes</td>
+                    <td class="text-end">@l.Debit</td>
+                    <td class="text-end">@l.Credit</td>
+                    <td class="text-end"><strong>@l.RunningBalance</strong></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

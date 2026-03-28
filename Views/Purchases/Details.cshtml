@@ -1,0 +1,71 @@
+﻿@model Purchase
+@{
+    ViewData["Title"] = $"تفاصيل فاتورة شراء #{Model.Id}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">تفاصيل فاتورة شراء #@Model.Id</h3>
+        <div class="text-muted">
+            المورد: <strong>@Model.Supplier?.Name</strong> —
+            التاريخ: <strong>@Model.PurchaseDate</strong>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary" asp-action="Print" asp-route-id="@Model.Id" target="_blank">طباعة</a>
+        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <table class="table table-sm table-bordered">
+            <tr><th style="width:220px;">رقم فاتورة المورد</th><td>@(string.IsNullOrWhiteSpace(Model.InvoiceNo) ? "-" : Model.InvoiceNo)</td></tr>
+            <tr><th>ملاحظات</th><td>@(string.IsNullOrWhiteSpace(Model.Notes) ? "-" : Model.Notes)</td></tr>
+            <tr><th>تم الترحيل للمخزون؟</th><td>@(Model.IsPosted ? "نعم" : "لا")</td></tr>
+        </table>
+    </div>
+
+    <div class="col-md-6">
+        <table class="table table-sm table-bordered">
+            <tr><th style="width:220px;">الإجمالي</th><td>@Model.SubTotal</td></tr>
+            <tr><th>الخصم</th><td>@Model.Discount</td></tr>
+            <tr><th>الصافي</th><td><strong>@Model.NetTotal</strong></td></tr>
+        </table>
+    </div>
+</div>
+
+<h5 class="mt-3">بنود الفاتورة</h5>
+
+<table class="table table-bordered align-middle">
+    <thead>
+        <tr>
+            <th style="width:5%;">م</th>
+            <th>الصنف</th>
+            <th style="width:12%;" class="text-center">الكمية</th>
+            <th style="width:12%;" class="text-center">سعر الشراء</th>
+            <th style="width:15%;" class="text-center">الإجمالي</th>
+            <th style="width:15%;" class="text-center">رقم الدفعة</th>
+            <th style="width:15%;" class="text-center">تاريخ الانتهاء</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            var i = 1;
+            foreach (var line in Model.Lines)
+            {
+                <tr>
+                    <td class="text-center">@i</td>
+                    <td>@line.Item?.NameAr</td>
+                    <td class="text-center">@line.Qty</td>
+                    <td class="text-center">@line.UnitCost</td>
+                    <td class="text-center">@line.LineTotal</td>
+                    <td class="text-center">@line.Batch?.BatchNo</td>
+                    <td class="text-center">@((line.Batch?.ExpiryDate.ToString() ?? "-"))</td>
+                </tr>
+                i++;
+            }
+        }
+    </tbody>
+</table>

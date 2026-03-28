@@ -1,0 +1,35 @@
+﻿@model IEnumerable<Purchase>
+@{
+    ViewData["Title"] = "مرتجع مشتريات";
+}
+
+<h3 class="mb-3">مرتجع مشتريات</h3>
+<div class="alert alert-info">اختر فاتورة شراء لعمل مرتجع منها</div>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>التاريخ</th>
+            <th>المورد</th>
+            <th>الإجمالي</th>
+            <th style="width:160px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Id</td>
+                <td>@p.PurchaseDate</td>
+                <td>@p.Supplier?.Name</td>
+                <td>@p.NetTotal</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-primary"
+                       asp-action="CreateFromPurchase"
+                       asp-route-purchaseId="@p.Id">اختيار</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

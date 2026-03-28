@@ -1,0 +1,94 @@
+﻿@model CustomerReceipt
+@{
+    ViewData["Title"] = $"تفاصيل سند قبض #{Model.Id}";
+    var allocs = ViewBag.Allocations as List<CustomerReceiptAllocation> ?? new List<CustomerReceiptAllocation>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">تفاصيل سند قبض #@Model.Id</h3>
+        <div class="text-muted">
+            العميل: <strong>@Model.Customer?.Name</strong> —
+            التاريخ: <strong>@Model.Date</strong>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        @if (Model.IsActive)
+        {
+            <a class="btn btn-outline-danger" asp-action="Disable" asp-route-id="@Model.Id">تعطيل</a>
+        }
+        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <table class="table table-sm table-bordered">
+            <tr>
+                <th style="width:220px;">الحالة</th>
+                <td>@(Model.IsActive ? "نشط" : "معطل")</td>
+            </tr>
+            <tr>
+                <th>المبلغ</th>
+                <td><strong>@Model.Amount</strong></td>
+            </tr>
+            <tr>
+                <th>غير موزع (رصيد دائن)</th>
+                <td>@Model.UnallocatedAmount</td>
+            </tr>
+            <tr>
+                <th>ملاحظات</th>
+                <td>@(string.IsNullOrWhiteSpace(Model.Notes) ? "-" : Model.Notes)</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="col-md-6">
+        <div class="alert alert-info">
+            هذا الجدول يوضح كيف تم توزيع السند على الفواتير، وما تبقى غير موزع يصبح رصيد دائن للعميل.
+        </div>
+    </div>
+</div>
+
+<h5 class="mt-3">توزيع السند على فواتير البيع</h5>
+
+@if (allocs.Count == 0)
+{
+    <div class="alert alert-warning">لا توجد تخصيصات (قد يكون السند غير موزع بالكامل أو تم تعطيله).</div>
+}
+else
+{
+    <table class="table table-striped table-bordered align-middle">
+        <thead>
+            <tr>
+                <th style="width:120px;">رقم الفاتورة</th>
+                <th>تاريخ الفاتورة</th>
+                <th class="text-end">المبلغ المخصوم</th>
+                <th class="text-end">المتبقي في الفاتورة الآن</th>
+                <th style="width:140px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in allocs)
+            {
+                <tr>
+                    <td>#@a.SaleId</td>
+                    <td>@a.Sale?.SaleDate</td>
+                    <td class="text-end">@a.Amount</td>
+                    <td class="text-end">@a.Sale?.RemainingAmount</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary"
+                           asp-controller="Sales"
+                           asp-action="Details"
+                           asp-route-id="@a.SaleId">فتح الفاتورة</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="text-end">
+        <strong>إجمالي الموزع:</strong> @allocs.Sum(x => x.Amount)
+    </div>
+}

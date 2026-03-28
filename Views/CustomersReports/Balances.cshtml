@@ -1,0 +1,92 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    ViewData["Title"] = "ملخص أرصدة العملاء";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">ملخص أرصدة العملاء</h3>
+    <a class="btn btn-outline-primary" asp-action="Statement">كشف حساب عميل</a>
+</div>
+
+<table id="tblBalances" class="table table-striped table-bordered w-100">
+    <thead>
+        <tr>
+            <th>العميل</th>
+            <th class="text-end">مدين</th>
+            <th class="text-end">دائن</th>
+            <th class="text-end">الرصيد</th>
+            <th style="width:140px;"></th>
+        </tr>
+    </thead>
+</table>
+
+@section Scripts {
+    <!-- ✅ استخدم ملفات محلية داخل wwwroot (بدون CDN) -->
+    <script src="~/lib/datatables/js/jquery.datatables.min.js"></script>
+    <script src="~/lib/datatables/js/datatables.bootstrap4.min.js"></script>
+
+    <script>
+                $(function () {
+                    $('#tblBalances').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        searching: true,
+                        lengthMenu: [10, 25, 50, 100],
+                        pageLength: 25,
+                        order: [[3, 'desc']], // الرصيد تنازلي
+                        ajax: {
+                            url: '@Url.Action("BalancesData")',
+                            type: 'POST'
+                        },
+                        columns: [
+                            { data: 'customerName' },
+                            { data: 'debit', className: 'text-end' },
+                            { data: 'credit', className: 'text-end' },
+                            {
+                                data: 'balance',
+                                className: 'text-end',
+                                render: function (data) { return '<strong>' + data + '</strong>'; }
+                            },
+                            {
+                                data: 'customerId',
+                                orderable: false,
+                                searchable: false,
+                                className: 'text-end',
+                                render: function (id) {
+                                    // نفس الفورم القديم (POST) لكن بدون Razor داخل render
+                                    const from = new Date(); from.setDate(from.getDate() - 30);
+                                    const to = new Date();
+
+                                    const f = from.toISOString().slice(0, 10);
+                                    const t = to.toISOString().slice(0, 10);
+
+                                    return `
+        <form action="@Url.Action("Statement")" method="post" class="m-0">
+          <input name="__RequestVerificationToken" type="hidden" value="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+          <input type="hidden" name="CustomerId" value="${id}" />
+          <input type="hidden" name="From" value="${f}" />
+          <input type="hidden" name="To" value="${t}" />
+          <button class="btn btn-sm btn-outline-secondary">كشف حساب</button>
+        </form>`;
+                                }
+                            }
+                        ],
+                        language: {
+                            processing: "جارِ التحميل...",
+                            search: "بحث:",
+                            lengthMenu: "عرض _MENU_",
+                            info: "عرض _START_ إلى _END_ من _TOTAL_",
+                            infoEmpty: "لا توجد بيانات",
+                            emptyTable: "لا توجد بيانات",
+                            paginate: {
+                                first: "الأول",
+                                last: "الأخير",
+                                next: "التالي",
+                                previous: "السابق"
+                            }
+                        }
+                    });
+                });
+    </script>
+}

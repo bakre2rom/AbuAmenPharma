@@ -1,0 +1,459 @@
+﻿@using AbuAmenPharma.ViewModels
+@model SaleCreateVM
+@{
+    ViewData["Title"] = "فاتورة بيع";
+}
+
+<h3 class="mb-3">فاتورة بيع</h3>
+
+<form asp-action="Create" method="post" class="card p-3" id="saleForm">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">التاريخ</label>
+            <input asp-for="SaleDate" class="form-control" type="datetime-local" />
+            <span asp-validation-for="SaleDate" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">العميل</label>
+            <select asp-for="CustomerId" class="form-control" id="customerSelect" style="width:100%"></select>
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">مندوب المبيعات</label>
+            <select asp-for="SalesmanId" class="form-control" asp-items="ViewBag.SalesmanId"></select>
+            <span asp-validation-for="SalesmanId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row align-items-end">
+        <div class="col-md-3 mb-3">
+            <label class="form-label">نوع الدفع</label>
+            <select asp-for="PaymentMode" class="form-control" id="paymentMode">
+                <option value="Cash">نقدي</option>
+                <option value="Credit">آجل</option>
+            </select>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <label class="form-label">الخصم</label>
+            <input asp-for="Discount" class="form-control" id="discount" type="number" step="0.01" value="0" />
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <label class="form-label">المدفوع</label>
+            <input asp-for="PaidAmount" class="form-control" id="paidAmount" type="number" step="0.01" value="0" />
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <label class="form-label">ملاحظات</label>
+            <input asp-for="Notes" class="form-control" />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">بنود الفاتورة</h5>
+        <button type="button" class="btn btn-sm btn-primary" id="addRowBtn">إضافة بند</button>
+    </div>
+
+    <table class="table table-bordered align-middle" id="linesTable">
+        <thead>
+            <tr>
+                <th style="width:35%;">الصنف</th>
+                <th style="width:10%;">الكمية المتاحة</th>
+                <th style="width:15%;">الكمية</th>
+                <th style="width:15%;">سعر البيع</th>
+                <th style="width:15%;">الإجمالي</th>
+                <th style="width:10%;"></th>
+            </tr>
+        </thead>
+        <tbody id="linesTableBody">
+            <!-- الصفوف تضاف هنا ديناميكياً -->
+        </tbody>
+    </table>
+
+    <div class="row mt-3">
+        <div class="col-md-6"></div>
+        <div class="col-md-6">
+            <table class="table table-sm table-bordered">
+                <tr>
+                    <th>الإجمالي قبل الخصم</th>
+                    <td class="text-end"><span id="subTotalLabel">0.00</span></td>
+                </tr>
+                <tr>
+                    <th>الخصم</th>
+                    <td class="text-end"><span id="discountLabel">0.00</span></td>
+                </tr>
+                <tr>
+                    <th>الصافي</th>
+                    <td class="text-end"><strong><span id="netTotalLabel">0.00</span></strong></td>
+                </tr>
+                <tr>
+                    <th>المدفوع</th>
+                    <td class="text-end"><span id="paidLabel">0.00</span></td>
+                </tr>
+                <tr>
+                    <th>المتبقي</th>
+                    <td class="text-end"><strong><span id="remainingLabel">0.00</span></strong></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-2">
+        <button class="btn btn-success" type="submit">حفظ وترحيل</button>
+        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    </div>
+</form>
+
+@section Scripts {
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 36px;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 36px;
+            }
+
+        .select2-dropdown {
+            z-index: 99999;
+        }
+
+        .available-quantity {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 4px;
+        }
+    </style>
+
+    <script>
+        let rowCounter = 0;
+
+        function parseNumber(value) {
+            if (!value) return 0;
+            return parseFloat(value.toString().replace(/[^\d.-]/g, '')) || 0;
+        }
+
+        function formatMoney(value) {
+            return parseNumber(value).toFixed(2);
+        }
+
+        // تهيئة Select2 للعملاء
+        function initCustomerSelect2() {
+            $('#customerSelect').select2({
+                placeholder: 'اختر عميل...',
+                allowClear: true,
+                dir: 'rtl',
+                ajax: {
+                    url: '@Url.Action("SearchCustomers", "Sales")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { term: params.term };
+                    },
+                    processResults: function(data) {
+                        return { results: data };
+                    }
+                }
+            });
+        }
+
+        // تهيئة Select2 للعناصر
+        function initItemSelect2(selector) {
+            $(selector).select2({
+                placeholder: 'اختر صنف...',
+                allowClear: true,
+                dir: 'rtl',
+                ajax: {
+                    url: '@Url.Action("SearchItems", "Sales")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { term: params.term };
+                    },
+                    processResults: function(data) {
+                        return { results: data };
+                    }
+                }
+            }).on('select2:select', function(e) {
+                // عند اختيار صنف
+                const $row = $(this).closest('tr');
+                const itemId = e.params.data.id;
+                const itemText = e.params.data.text;
+
+                // عرض مؤشر تحميل
+                $row.find('.availableQuantity').html('<span class="spinner-border spinner-border-sm"></span>');
+
+                // جلب الكميات المتاحة
+                $.get('@Url.Action("GetItemAvailability", "Sales")', { id: itemId }, function(res) {
+                    let totalAvailable = 0;
+                    let detailsHtml = '';
+
+                    if (res && res.batches && res.batches.length > 0) {
+                        totalAvailable = res.totalAvailable || 0;
+
+                        // تجهيز نص التفاصيل
+                        detailsHtml = '<div class="small text-muted">';
+                        res.batches.forEach(function(b) {
+                            detailsHtml += '<div>';
+                            detailsHtml += '<span class="badge bg-info">' + (b.batchNo || 'بدون دفعة') + '</span>';
+                            detailsHtml += '<span class="mx-1">' + formatMoney(b.balance) + '</span>';
+                            if (b.expiry) {
+                                detailsHtml += '<span class="text-secondary"> (' + b.expiry + ')</span>';
+                            }
+                            detailsHtml += '</div>';
+                        });
+                        detailsHtml += '</div>';
+                    }
+
+                    // عرض الكمية المتاحة في العمود المخصص
+                    $row.find('.availableQuantity').html(`
+                        <div class="available-quantity" title="${detailsHtml.replace(/"/g, '&quot;')}">
+                            ${formatMoney(totalAvailable)}
+                        </div>
+                    `);
+
+                    // جلب سعر الصنف
+                    $.get('@Url.Action("GetItemPrice", "Sales")', { id: itemId }, function(priceRes) {
+                        if (priceRes && priceRes.price) {
+                            $row.find('.priceInput').val(formatMoney(priceRes.price));
+                            calculateRowTotal($row);
+                            calculateTotals();
+                        }
+                    });
+                });
+            });
+        }
+
+        // إنشاء صف جديد
+        function createNewRow() {
+            const rowId = rowCounter++;
+            const html = `
+                <tr data-row="${rowId}">
+                    <td>
+                        <input type="hidden" name="Lines.Index" value="${rowId}" />
+                        <select name="Lines[${rowId}].ItemId" class="form-control itemSelect" style="width:100%"></select>
+                    </td>
+                    <td class="availableQuantity text-center align-middle">
+                        <span class="text-muted">-</span>
+                    </td>
+                    <td>
+                        <input type="number" name="Lines[${rowId}].Qty" class="form-control qtyInput" step="0.01" min="0" value="0" />
+                    </td>
+                    <td>
+                        <input type="number" name="Lines[${rowId}].UnitPrice" class="form-control priceInput" step="0.01" min="0" value="0" />
+                    </td>
+                    <td class="text-end align-middle">
+                        <span class="rowTotal">0.00</span>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-danger removeRow">×</button>
+                    </td>
+                </tr>
+            `;
+
+            $('#linesTableBody').append(html);
+
+            // تهيئة Select2 للصف الجديد
+            initItemSelect2(`#linesTableBody tr:last .itemSelect`);
+        }
+
+        // حساب إجمالي الصف
+        function calculateRowTotal($row) {
+            const qty = parseNumber($row.find('.qtyInput').val());
+            const price = parseNumber($row.find('.priceInput').val());
+            const total = qty * price;
+            $row.find('.rowTotal').text(formatMoney(total));
+            return total;
+        }
+
+        // التحقق من الكمية
+        function validateQuantity($row) {
+            const qty = parseNumber($row.find('.qtyInput').val());
+            const availText = $row.find('.availableQuantity').text().trim();
+            const available = parseNumber(availText);
+
+            if (available > 0 && qty > available) {
+                $row.find('.qtyInput').addClass('is-invalid');
+                return false;
+            } else {
+                $row.find('.qtyInput').removeClass('is-invalid');
+                return true;
+            }
+        }
+
+        // حساب الإجماليات الكلية
+        function calculateTotals() {
+            let subtotal = 0;
+            let hasErrors = false;
+
+            $('#linesTableBody tr').each(function() {
+                const $row = $(this);
+                subtotal += parseNumber($row.find('.rowTotal').text());
+
+                // التحقق من صحة الكميات
+                if (!validateQuantity($row)) {
+                    hasErrors = true;
+                }
+            });
+
+            const discount = parseNumber($('#discount').val());
+            const netTotal = Math.max(0, subtotal - discount);
+
+            // تحديث نوع الدفع
+            if ($('#paymentMode').val() === 'Cash') {
+                $('#paidAmount').val(formatMoney(netTotal)).prop('readonly', true);
+            } else {
+                $('#paidAmount').prop('readonly', false);
+            }
+
+            const paid = parseNumber($('#paidAmount').val());
+            const remaining = netTotal - paid;
+
+            // تحديث العرض
+            $('#subTotalLabel').text(formatMoney(subtotal));
+            $('#discountLabel').text(formatMoney(discount));
+            $('#netTotalLabel').text(formatMoney(netTotal));
+            $('#paidLabel').text(formatMoney(paid));
+            $('#remainingLabel').text(formatMoney(remaining));
+
+            // تمكين/تعطيل زر الإرسال بناءً على وجود أخطاء
+            if (hasErrors) {
+                $('#saleForm button[type="submit"]').prop('disabled', true);
+            } else {
+                $('#saleForm button[type="submit"]').prop('disabled', false);
+            }
+        }
+
+        // إعادة ترقيم الصفوف بعد الحذف
+        function reindexRows() {
+            let index = 0;
+            $('#linesTableBody tr').each(function() {
+                const $row = $(this);
+                $row.attr('data-row', index);
+                $row.find('input[name="Lines.Index"]').val(index);
+                $row.find('.itemSelect').attr('name', `Lines[${index}].ItemId`);
+                $row.find('.qtyInput').attr('name', `Lines[${index}].Qty`);
+                $row.find('.priceInput').attr('name', `Lines[${index}].UnitPrice`);
+                index++;
+            });
+            rowCounter = index;
+        }
+
+        // أحداث الصفحة
+        $(document).ready(function() {
+            // تهيئة Select2 للعملاء
+            initCustomerSelect2();
+
+            // إضافة أول صف
+            createNewRow();
+
+            // زر إضافة صف
+            $('#addRowBtn').click(function() {
+                createNewRow();
+            });
+
+            // حذف صف
+            $('#linesTable').on('click', '.removeRow', function() {
+                if ($('#linesTableBody tr').length > 1) {
+                    const $select = $(this).closest('tr').find('.itemSelect');
+                    if ($select.data('select2')) {
+                        $select.select2('destroy');
+                    }
+                    $(this).closest('tr').remove();
+                    reindexRows();
+                    calculateTotals();
+                } else {
+                    alert('لا يمكن حذف كل البنود، يجب وجود بند واحد على الأقل');
+                }
+            });
+
+            // حساب عند تغيير الكمية أو السعر
+            $('#linesTable').on('input', '.qtyInput, .priceInput', function() {
+                const $row = $(this).closest('tr');
+                calculateRowTotal($row);
+                validateQuantity($row);
+                calculateTotals();
+            });
+
+            // تغيير نوع الدفع
+            $('#paymentMode').change(function() {
+                calculateTotals();
+            });
+
+            // تغيير الخصم
+            $('#discount').on('input', function() {
+                calculateTotals();
+            });
+
+            // تغيير المدفوع
+            $('#paidAmount').on('input', function() {
+                calculateTotals();
+            });
+
+            // قبل إرسال النموذج
+            $('#saleForm').submit(function(e) {
+                // التحقق من وجود عناصر
+                if ($('#linesTableBody tr').length === 0) {
+                    e.preventDefault();
+                    alert('يجب إضافة بند واحد على الأقل');
+                    return false;
+                }
+
+                // التحقق من اختيار العناصر
+                let hasError = false;
+                $('#linesTableBody tr').each(function() {
+                    const $row = $(this);
+                    if (!$row.find('.itemSelect').val()) {
+                        hasError = true;
+                        alert('يجب اختيار صنف لكل بند');
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    // التحقق من الكميات
+                    if (!validateQuantity($row)) {
+                        hasError = true;
+                        alert('الكمية المدخلة أكبر من الكمية المتاحة');
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+
+                if (hasError) {
+                    return false;
+                }
+
+                // تنسيق الأرقام
+                $('#discount').val(formatMoney($('#discount').val()));
+                $('#paidAmount').val(formatMoney($('#paidAmount').val()));
+
+                // إزالة formatting من حقول الجدول للإرسال
+                $('#linesTableBody tr').each(function() {
+                    const $row = $(this);
+                    $row.find('.qtyInput').val(parseNumber($row.find('.qtyInput').val()));
+                    $row.find('.priceInput').val(parseNumber($row.find('.priceInput').val()));
+                });
+            });
+        });
+    </script>
+}

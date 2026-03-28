@@ -1,0 +1,33 @@
+﻿@model Unit
+@{
+    ViewData["Title"] = "إضافة وحدة";
+}
+
+<h3 class="mb-3">إضافة وحدة</h3>
+
+<form asp-action="Create" method="post" class="card p-3">
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">اسم الدواء</label>
+            <input asp-for="NameAr" class="form-control" placeholder="unit name" />
+            <span asp-validation-for="NameAr" class="text-danger"></span>
+        </div>
+
+    </div>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input" asp-for="IsActive" />
+        <label class="form-check-label">نشط</label>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">حفظ</button>
+        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

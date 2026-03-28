@@ -1,0 +1,146 @@
+﻿@using AbuAmenPharma.ViewModels
+@model CustomerReceiptCreateVM
+@{
+    ViewData["Title"] = "سند قبض";
+}
+
+<h3 class="mb-3">سند قبض</h3>
+
+<form asp-action="Create" method="post" class="card p-3">
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">التاريخ</label>
+            <input asp-for="Date" class="form-control" type="datetime-local" />
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">العميل</label>
+            <select asp-for="CustomerId" class="form-control" id="customerSelect" style="width:100%"></select>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">المبلغ</label>
+            <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">ملاحظات</label>
+        <input asp-for="Notes" class="form-control" />
+    </div>
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" asp-for="AutoAllocate" id="autoAllocateChk" />
+        <label class="form-check-label" for="autoAllocateChk">توزيع تلقائي على أقدم الفواتير (FIFO)</label>
+    </div>
+
+    <div class="mb-3" id="invoiceBox" style="display:none;">
+        <label class="form-label">اختيار فاتورة</label>
+        <select asp-for="SaleId" class="form-select" id="invoiceSelect">
+            <option value="">اختر فاتورة...</option>
+        </select>
+        <span asp-validation-for="SaleId" class="text-danger"></span>
+        <div class="small text-muted mt-1">سيتم الخصم من الفاتورة المختارة فقط.</div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-success">حفظ</button>
+        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    </div>
+</form>
+
+@section Scripts {
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 38px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 36px;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 36px;
+            }
+
+        .select2-dropdown {
+            z-index: 99999;
+        }
+
+        .available-quantity {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 4px;
+        }
+    </style>
+
+    <script>
+        function toggleInvoiceBox() {
+            const auto = $('#autoAllocateChk').is(':checked');
+            $('#invoiceBox').toggle(!auto);
+        }
+
+        async function loadInvoices(customerId) {
+            if (!customerId) return;
+
+            const res = await $.get('@Url.Action("GetOpenInvoices", "CustomerReceipts")', { customerId });
+            const $sel = $('#invoiceSelect');
+            $sel.empty();
+            $sel.append(`<option value="">اختر فاتورة...</option>`);
+
+            (res || []).forEach(x => {
+                $sel.append(`<option value="${x.id}">${x.text}</option>`);
+            });
+        }
+
+        // تهيئة Select2 للعملاء
+        function initCustomerSelect2() {
+            $('#customerSelect').select2({
+                placeholder: 'اختر عميل...',
+                allowClear: true,
+                dir: 'rtl',
+                ajax: {
+                    url: '@Url.Action("SearchCustomers", "CustomerReceipts")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return { term: params.term };
+                    },
+                    processResults: function(data) {
+                        return { results: data };
+                    }
+                }
+            });
+        }
+
+        $(function(){
+            toggleInvoiceBox();
+
+            $('#autoAllocateChk').on('change', function(){
+                toggleInvoiceBox();
+            });
+
+            $('#customerSelect').on('change', function(){
+                loadInvoices($(this).val());
+            });
+
+            // تحميل أولي لو كان العميل مختار
+            const initialCustomer = $('#customerSelect').val();
+            if(initialCustomer) loadInvoices(initialCustomer);
+        });
+
+        $(document).ready(function() {
+            initCustomerSelect2();
+        })
+    </script>
+}

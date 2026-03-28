@@ -1,0 +1,96 @@
+﻿@model List<PurchaseReturn>
+@{
+    ViewData["Title"] = "مرتجعات المشتريات";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">مرتجعات المشتريات</h3>
+
+    <a class="btn btn-success" asp-action="Create">
+        <i class="bi bi-plus-circle"></i> إضافة مرتجع
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-striped table-bordered align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:80px;">رقم</th>
+                    <th>التاريخ</th>
+                    <th>المورد</th>
+                    <th style="width:120px;">فاتورة شراء</th>
+                    <th class="text-end">الإجمالي</th>
+                    @* <th style="width:120px;">الحالة</th> *@
+                    <th style="width:220px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="9" class="text-center text-muted p-4">
+                            لا توجد بيانات.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var r in Model)
+                    {
+                        <tr>
+                            <td>@r.Id</td>
+                            <td>@r.ReturnDate.ToString("yyyy-MM-dd")</td>
+                            <td>@r.Supplier?.Name</td>
+                            <td class="text-center">#@r.PurchaseId</td>
+                            <td class="text-end"><strong>@r.Total</strong></td>
+                            @* <td>
+                                @if (r.IsActive)
+                                {
+                                    <span class="badge bg-success">نشط</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">معطل</span>
+                                }
+                            </td> *@
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="Details"
+                                   asp-route-id="@r.Id">
+                                    تفاصيل
+                                </a>
+
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   asp-action="Print"
+                                   asp-route-id="@r.Id"
+                                   target="_blank">
+                                    طباعة
+                                </a>
+
+                                @* @if (r.IsActive)
+                                {
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       asp-action="Disable"
+                                       asp-route-id="@r.Id">
+                                        تعطيل
+                                    </a>
+                                } *@
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+
+            @* <tfoot class="table-dark">
+                <tr>
+                    <th colspan="4">الإجمالي</th>
+                    <th class="text-end">@Model.Sum(x => x.SubTotal)</th>
+                    <th class="text-end">@Model.Sum(x => x.Discount)</th>
+                    <th class="text-end">@Model.Sum(x => x.NetTotal)</th>
+                    <th colspan="2"></th>
+                </tr>
+            </tfoot> *@
+        </table>
+    </div>
+</div>

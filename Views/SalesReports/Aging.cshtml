@@ -1,0 +1,140 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    ViewData["Title"] = "الفواتير غير المسددة";
+}
+
+<h3 class="mb-3">الفواتير غير المسددة (Aging Report)</h3>
+
+<form id="filterForm" class="card p-3 mb-3">
+    <div class="row">
+        <div class="col-md-4">
+            <label class="form-label">العميل</label>
+            <select id="customerId" class="form-select" asp-items="ViewBag.CustomerId">
+                <option value="">كل العملاء</option>
+            </select>
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="button" id="btnSearch" class="btn btn-primary w-100">عرض</button>
+        </div>
+    </div>
+</form>
+
+<table id="tblAging" class="table table-striped table-bordered w-100">
+    <thead>
+        <tr>
+            <th>فاتورة</th>
+            <th>العميل</th>
+            <th>التاريخ</th>
+            <th>عدد الأيام</th>
+            <th class="text-end">المتبقي</th>
+            <th class="text-end">0-30</th>
+            <th class="text-end">31-60</th>
+            <th class="text-end">61-90</th>
+            <th class="text-end">+90</th>
+        </tr>
+    </thead>
+    <tfoot>
+        <tr class="table-dark">
+            <th colspan="4">الإجمالي</th>
+            <th class="text-end" id="tRemaining">0</th>
+            <th class="text-end" id="t0_30">0</th>
+            <th class="text-end" id="t31_60">0</th>
+            <th class="text-end" id="t61_90">0</th>
+            <th class="text-end" id="t90p">0</th>
+        </tr>
+    </tfoot>
+</table>
+
+@section Scripts {
+    <script src="~/lib/datatables/js/jquery.datatables.min.js"></script>
+    <script src="~/lib/datatables/js/datatables.bootstrap4.min.js"></script>
+
+    <script>
+        const anti = '@Antiforgery.GetAndStoreTokens(Context).RequestToken';
+
+        function fmtDate(d) {
+            if (!d) return '';
+            // DataTables يرجّع ISO غالباً
+            return ('' + d).substring(0, 10);
+        }
+
+        $(function () {
+            const table = $('#tblAging').DataTable({
+                processing: true,
+                serverSide: true,
+                searching: true,
+                pageLength: 25,
+                order: [[3, 'desc']],
+                ajax: {
+                    url: '@Url.Action("AgingData")',
+                    type: 'POST',
+                    data: function (d) {
+                        d.customerId = $('#customerId').val() || null;
+                        d.__RequestVerificationToken = anti;
+                    }
+                },
+                columns: [
+                    {
+                        data: 'saleId',
+                        render: function (id) {
+                            return `<a href="/Sales/Details/${id}">#${id}</a>`;
+                        }
+                    },
+                    { data: 'customerName' },
+                    {
+                        data: 'saleDate',
+                        render: function (d) { return fmtDate(d); }
+                    },
+                    { data: 'days' },
+                    {
+                        data: 'remaining',
+                        className: 'text-end',
+                        render: function (x) { return `<strong>${x}</strong>`; }
+                    },
+                    { data: 'b0_30', className: 'text-end' },
+                    { data: 'b31_60', className: 'text-end' },
+                    { data: 'b61_90', className: 'text-end' },
+                    { data: 'b90p', className: 'text-end' }
+                ],
+                drawCallback: function (settings) {
+                    // totals للصفحة الحالية (ليس كل النتائج) — بسيط وسريع
+                    const api = this.api();
+                    const rows = api.rows({ page: 'current' }).data().toArray();
+
+                    let tR = 0, t0 = 0, t31 = 0, t61 = 0, t90 = 0;
+                    rows.forEach(r => {
+                        tR += Number(r.remaining || 0);
+                        t0 += Number(r.b0_30 || 0);
+                        t31 += Number(r.b31_60 || 0);
+                        t61 += Number(r.b61_90 || 0);
+                        t90 += Number(r.b90p || 0);
+                    });
+
+                    $('#tRemaining').text(tR.toFixed(2));
+                    $('#t0_30').text(t0.toFixed(2));
+                    $('#t31_60').text(t31.toFixed(2));
+                    $('#t61_90').text(t61.toFixed(2));
+                    $('#t90p').text(t90.toFixed(2));
+                },
+                language: {
+                    processing: "جارِ التحميل...",
+                    search: "بحث:",
+                    lengthMenu: "عرض _MENU_",
+                    info: "عرض _START_ إلى _END_ من _TOTAL_",
+                    infoEmpty: "لا توجد بيانات",
+                    emptyTable: "لا توجد بيانات",
+                    paginate: { next: "التالي", previous: "السابق", first: "الأول", last: "الأخير" }
+                }
+            });
+
+            $('#btnSearch').on('click', function () {
+                table.ajax.reload();
+            });
+
+            $('#customerId').on('change', function () {
+                table.ajax.reload();
+            });
+        });
+    </script>
+}

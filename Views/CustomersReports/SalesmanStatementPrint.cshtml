@@ -1,0 +1,105 @@
+﻿@using AbuAmenPharma.ViewModels
+@model SalesmanStatementVM
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>كشف مندوب</title>
+    <style>
+        body {
+            direction: rtl;
+            font-family: Arial;
+            font-size: 13px;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 6px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .summary {
+            width: 55%;
+            margin-top: 12px;
+        }
+
+        .text-end {
+            text-align: left;
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="header">
+        <h3>شركة أبو آمن للأدوية</h3>
+        <div>كشف مبيعات مندوب</div>
+        <div>المندوب: @Model.SalesmanName</div>
+        <div>الفترة: @Model.From.ToString("yyyy-MM-dd") إلى @Model.To.ToString("yyyy-MM-dd")</div>
+        <hr />
+    </div>
+
+    <table class="summary">
+        <tr><td>عدد الفواتير</td><td class="text-end">@Model.SalesCount</td></tr>
+        <tr><td>إجمالي صافي المبيعات</td><td class="text-end">@Model.TotalNetSales.ToString("N2")</td></tr>
+        <tr><td>إجمالي نقدي</td><td class="text-end">@Model.TotalCash.ToString("N2")</td></tr>
+        <tr><td>إجمالي آجل</td><td class="text-end">@Model.TotalCredit.ToString("N2")</td></tr>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th>التاريخ</th>
+                <th>#</th>
+                <th>العميل</th>
+                <th>الدفع</th>
+                <th class="text-end">الصافي</th>
+                <th class="text-end">المدفوع</th>
+                <th class="text-end">المتبقي</th>
+                <th>ملاحظات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in Model.Lines)
+            {
+                <tr>
+                    <td>@l.Date.ToString("yyyy-MM-dd")</td>
+                    <td>@l.SaleId</td>
+                    <td>@l.CustomerName</td>
+                    <td>@l.PaymentMode</td>
+                    <td class="text-end">@l.NetTotal.ToString("N2")</td>
+                    <td class="text-end">@l.PaidAmount.ToString("N2")</td>
+                    <td class="text-end">@l.RemainingAmount.ToString("N2")</td>
+                    <td>@l.Notes</td>
+                </tr>
+            }
+        </tbody>
+
+        <tfoot>
+            <tr style="font-weight:bold; background:#f2f2f2;">
+                <td colspan="4" class="text-end">الإجمالي</td>
+                <td class="text-end">@Model.TotalNetSales.ToString("N2")</td>
+                <td class="text-end">@Model.TotalPaid.ToString("N2")</td>
+                <td class="text-end">@Model.TotalRemaining.ToString("N2")</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

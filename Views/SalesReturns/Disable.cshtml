@@ -1,0 +1,25 @@
+﻿@model SaleReturn
+@{
+    ViewData["Title"] = "تعطيل مرتجع مبيعات";
+}
+
+<h3 class="mb-3">تعطيل مرتجع مبيعات</h3>
+
+<div class="alert alert-warning">
+    هل أنت متأكد من تعطيل مرتجع مبيعات رقم <strong>#@Model.Id</strong>؟
+    <br />
+    سيتم عكس تأثيره على المخزون وعلى حساب العميل وعلى الفاتورة.
+</div>
+
+<table class="table table-sm table-bordered">
+    <tr><th style="width:220px;">فاتورة</th><td>#@Model.SaleId</td></tr>
+    <tr><th>العميل</th><td>@Model.Customer?.Name</td></tr>
+    <tr><th>الصافي</th><td><strong>@Model.NetTotal</strong></td></tr>
+</table>
+
+<form asp-action="Disable" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">تعطيل</button>
+    <a class="btn btn-secondary" asp-action="Details" asp-route-id="@Model.Id">رجوع</a>
+</form>

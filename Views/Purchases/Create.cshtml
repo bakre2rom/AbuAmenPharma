@@ -1,0 +1,133 @@
+﻿@using AbuAmenPharma.ViewModels
+@model PurchaseCreateVM
+@{
+    ViewData["Title"] = "فاتورة شراء";
+}
+
+<h3 class="mb-3">فاتورة شراء</h3>
+
+<form asp-action="Create" method="post" class="card p-3">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">التاريخ</label>
+            <input asp-for="PurchaseDate" class="form-control" type="datetime-local" />
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">المورد</label>
+            <select asp-for="SupplierId" class="form-select" asp-items="ViewBag.SupplierId"></select>
+            <span asp-validation-for="SupplierId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="form-label">رقم فاتورة المورد (اختياري)</label>
+            <input asp-for="InvoiceNo" class="form-control" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <label class="form-label">خصم</label>
+            <input asp-for="Discount" class="form-control" />
+        </div>
+        <div class="col-md-9 mb-3">
+            <label class="form-label">ملاحظات</label>
+            <input asp-for="Notes" class="form-control" />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">بنود الفاتورة</h5>
+        <button type="button" class="btn btn-sm btn-primary" id="addRowBtn">إضافة بند</button>
+    </div>
+
+    <table class="table table-bordered" id="linesTable">
+        <thead>
+            <tr>
+                <th style="width:40%;">الصنف</th>
+                <th>تاريخ الانتهاء</th>
+                <th>الكمية</th>
+                <th>سعر الشراء</th>
+                <th style="width:60px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-success">حفظ وترحيل للمخزون</button>
+        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/select2/js/select2.min.js"></script>
+
+    <script>
+        let rowIndex = 0;
+
+        function createRow(i) {
+            return `
+            <tr>
+                <td>
+                    <select name="Lines[${i}].ItemId" class="form-select itemSelect" style="width:100%"></select>
+                </td>
+                <td>
+                    <input name="Lines[${i}].ExpiryDate" type="date" class="form-control" required />
+                </td>
+                <td>
+                    <input name="Lines[${i}].Qty" type="number" step="0.01" class="form-control" required />
+                </td>
+                <td>
+                    <input name="Lines[${i}].UnitCost" type="number" step="0.01" class="form-control" required />
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger removeRow">×</button>
+                </td>
+            </tr>`;
+        }
+
+        function initSelect2($el) {
+            $el.select2({
+                placeholder: "اختر صنف...",
+                allowClear: true,
+                ajax: {
+                    url: '@Url.Action("SearchItems", "Purchases")',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { term: params.term };
+                    },
+                    processResults: function (data) {
+                        return { results: data };
+                    },
+                    cache: true
+                }
+            });
+        }
+
+        $(function () {
+            // أول سطر
+            $('#linesTable tbody').append(createRow(rowIndex));
+            initSelect2($('.itemSelect').last());
+            rowIndex++;
+
+            $('#addRowBtn').on('click', function () {
+                $('#linesTable tbody').append(createRow(rowIndex));
+                initSelect2($('.itemSelect').last());
+                rowIndex++;
+            });
+
+            $('#linesTable').on('click', '.removeRow', function () {
+                $(this).closest('tr').remove();
+            });
+        });
+    </script>
+}

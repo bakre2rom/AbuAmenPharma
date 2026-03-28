@@ -1,0 +1,15 @@
+﻿@model Manufacturer
+@{
+    ViewData["Title"] = "تعطيل شركة";
+}
+
+<h3 class="mb-3">تعطيل وحدة</h3>
+<div class="alert alert-warning">
+    هل أنت متأكد من تعطيل الوحدة: <strong>@Model.NameAr</strong> ؟
+</div>
+
+<form asp-action="Disable" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">تعطيل</button>
+    <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+</form>
