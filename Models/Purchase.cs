@@ -49,7 +49,7 @@ namespace AbuAmenPharma.Models
         public Item? Item { get; set; }
 
         public int BatchId { get; set; }
-        public ItemBatch Batch { get; set; }
+        public ItemBatch Batch { get; set; } = null!;
 
         [Required]
         public DateOnly ExpiryDate { get; set; }
@@ -73,6 +73,7 @@ namespace AbuAmenPharma.Models
         [StringLength(50)]
         public string? Phone { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Balance { get; set; }
 
         public bool IsActive { get; set; } = true;

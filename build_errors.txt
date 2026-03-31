@@ -1,0 +1,17 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(264,48): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(281,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(298,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(306,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+
+Build FAILED.
+
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(264,48): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(281,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(298,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(306,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+    0 Warning(s)
+    4 Error(s)
+
+Time Elapsed 00:00:05.28

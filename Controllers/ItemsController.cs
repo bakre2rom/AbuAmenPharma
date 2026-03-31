@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +52,7 @@ public class ItemsController : Controller
 
         _context.Add(item);
         await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "تم حفظ الدواء بنجاح!";
         return RedirectToAction(nameof(Index));
     }
 
@@ -89,6 +90,7 @@ public class ItemsController : Controller
         db.ReorderLevel = item.ReorderLevel;
 
         await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
 
@@ -114,7 +116,52 @@ public class ItemsController : Controller
             item.IsActive = false;
             await _context.SaveChangesAsync();
         }
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> LowStock()
+    {
+        var balances = await _context.StockMovements
+            .GroupBy(x => x.ItemId)
+            .Select(g => new { ItemId = g.Key, Balance = g.Sum(x => x.QtyIn - x.QtyOut) })
+            .ToDictionaryAsync(x => x.ItemId, x => x.Balance);
+
+        var items = await _context.Items
+            .AsNoTracking()
+            .Where(x => x.IsActive && x.ReorderLevel > 0)
+            .Include(x => x.Unit)
+            .Include(x => x.Manufacturer)
+            .ToListAsync();
+
+        var lowStockItems = items.Where(x => (balances.TryGetValue(x.Id, out decimal b) ? b : 0) <= x.ReorderLevel).ToList();
+        
+        ViewBag.Balances = balances;
+        return View(lowStockItems);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Expiring()
+    {
+        var next3Months = DateOnly.FromDateTime(DateTime.Now.AddMonths(3));
+        var today = DateOnly.FromDateTime(DateTime.Now);
+
+        var batches = await _context.ItemBatches
+            .AsNoTracking()
+            .Include(b => b.Item)
+            .Where(b => b.IsActive && b.ExpiryDate <= next3Months && b.ExpiryDate >= today)
+            .ToListAsync();
+
+        var balances = await _context.StockMovements
+            .GroupBy(x => x.BatchId)
+            .Select(g => new { BatchId = g.Key, Balance = g.Sum(x => x.QtyIn - x.QtyOut) })
+            .ToDictionaryAsync(x => x.BatchId, x => x.Balance);
+
+        var expiringBatches = batches.Where(b => balances.TryGetValue(b.Id, out decimal bal) && bal > 0).ToList();
+
+        ViewBag.Balances = balances;
+        return View(expiringBatches);
     }
 
     [HttpPost]

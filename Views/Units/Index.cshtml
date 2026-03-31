@@ -1,30 +1,198 @@
-﻿@model IEnumerable<Unit>
+@model IEnumerable<Unit>
 @{
-    ViewData["Title"] = "الوحدات";
+    ViewData["Title"] = "إدارة الوحدات";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>الوحدات</h3>
-    <a class="btn btn-primary" asp-action="Create">إضافة وحدة</a>
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-2 mt-1">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-tag me-1"></i> إدارة الوحدات</h5>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createUnitModal">
+                    <i class="bi bi-plus-lg"></i> إضافة وحدة
+                </button>
+            </div>
+        </div>
+
+        <!-- Card Container -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-3">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="unitsTable" style="margin-top: 15px;">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="fw-semibold pb-3">اسم الوحدة</th>
+                                <th class="fw-semibold pb-3 text-center" style="width:180px;">العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in Model)
+                            {
+                                <tr>
+                                    <td><span class="fw-bold text-dark">@u.NameAr</span></td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary floating-action-btn edit-unit-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editUnitModal"
+                                                    data-id="@u.Id"
+                                                    data-namear="@u.NameAr"
+                                                    data-nameen="@u.NameEn"
+                                                    title="تعديل">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-outline-danger floating-action-btn disable-unit-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#disableUnitModal"
+                                                    data-id="@u.Id"
+                                                    data-namear="@u.NameAr"
+                                                    title="تعطيل">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>الاسم</th>
-            <th style="width:220px;"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var u in Model)
-        {
-            <tr>
-                <td>@u.NameAr</td>
-                <td class="text-end">
-                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@u.Id">تعديل</a>
-                    <a class="btn btn-sm btn-outline-danger" asp-action="Disable" asp-route-id="@u.Id">تعطيل</a>
-                </td>
-            </tr>
+<!-- Create Modal -->
+<div class="modal fade" id="createUnitModal" tabindex="-1" aria-labelledby="createUnitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title" id="createUnitModalLabel">إضافة وحدة جديدة</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">اسم الوحدة <span class="text-danger">*</span></label>
+                        <input name="NameAr" class="form-control bg-light" placeholder="مثال: شريط، علبة، الخ..." required oninvalid="this.setCustomValidity('حقل الاسم مطلوب')" oninput="this.setCustomValidity('')" />
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editUnitModal" tabindex="-1" aria-labelledby="editUnitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-secondary text-white border-0">
+                <h5 class="modal-title" id="editUnitModalLabel">تعديل وحدة</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editUnitId" name="Id" />
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">اسم الوحدة <span class="text-danger">*</span></label>
+                        <input id="editUnitNameAr" name="NameAr" class="form-control bg-light" required />
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold">الاسم الإنجليزي</label>
+                        <input id="editUnitNameEn" name="NameEn" class="form-control bg-light" />
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-secondary px-4 shadow-sm">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Disable Modal -->
+<div class="modal fade" id="disableUnitModal" tabindex="-1" aria-labelledby="disableUnitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title" id="disableUnitModalLabel">تعطيل وحدة</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Disable" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" id="disableUnitId" name="Id" />
+                    <p class="mb-0">هل أنت متأكد من تعطيل الوحدة: <strong id="disableUnitName"></strong> ؟</p>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">تعطيل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/lib/datatables/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .table > :not(caption) > * > * {
+            padding: 1rem 0.5rem;
+            color: #495057;
         }
-    </tbody>
-</table>
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+        table.dataTable.table-striped > tbody > tr.odd > * {
+            box-shadow: none;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#unitsTable').DataTable({
+                order: [[0, 'asc']],
+                pageLength: 5,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ابحث عن أي شيء هنا...",
+                    lengthMenu: "عرض _MENU_ سجل",
+                    info: "عرض _START_ إلى _END_ من إجمالي _TOTAL_ سجل",
+                    infoEmpty: "تعرض 0 إلى 0 من أصل 0 سجل",
+                    zeroRecords: "لم يتم العثور على سجلات متطابقة",
+                    paginate: { first: "الأول", last: "الأخير", next: "التالي", previous: "السابق" }
+                }
+            });
+
+            $('.edit-unit-btn').on('click', function () {
+                const btn = $(this);
+                $('#editUnitId').val(btn.data('id'));
+                $('#editUnitNameAr').val(btn.data('namear'));
+                $('#editUnitNameEn').val(btn.data('nameen'));
+            });
+
+            $('.disable-unit-btn').on('click', function () {
+                const btn = $(this);
+                $('#disableUnitId').val(btn.data('id'));
+                $('#disableUnitName').text(btn.data('namear'));
+            });
+        });
+    </script>
+}

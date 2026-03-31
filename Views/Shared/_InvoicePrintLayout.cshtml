@@ -1,0 +1,20 @@
+@{
+    var pageTitle = ViewData["PrintPageTitle"]?.ToString() ?? "فاتورة";
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@pageTitle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/invoice-print.css" asp-append-version="true" />
+    @RenderSection("PrintHead", required: false)
+</head>
+<body data-close-url="@ViewData["PrintCloseUrl"]">
+    <partial name="_InvoicePrintActions" />
+    @RenderBody()
+    <script src="~/js/invoice-print.js" asp-append-version="true"></script>
+    @RenderSection("PrintScripts", required: false)
+</body>
+</html>

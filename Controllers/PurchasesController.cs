@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -52,7 +52,7 @@ public class PurchasesController : Controller
             {
                 query = query.Where(x =>
                     x.Id.ToString().Contains(searchValue) ||
-                    x.Supplier.Name.Contains(searchValue) ||
+                    (x.Supplier != null && x.Supplier.Name.Contains(searchValue)) ||
                     x.NetTotal.ToString().Contains(searchValue)
                 );
             }
@@ -68,7 +68,7 @@ public class PurchasesController : Controller
                 {
                     id = (int)x.Id,
                     purchaseDate = x.PurchaseDate.ToString("yyyy-MM-dd"),
-                    supplierName = x.Supplier.Name,
+                    supplierName = x.Supplier != null ? x.Supplier.Name : "-",
                     netTotal = x.NetTotal,
                     isPosted = x.IsPosted
                 })
@@ -77,7 +77,7 @@ public class PurchasesController : Controller
             // تجهيز الاستجابة
             var response = new PurchaseDataTableResponse
             {
-                draw = int.Parse(draw),
+                draw = int.TryParse(draw, out var drawValue) ? drawValue : 1,
                 recordsTotal = totalRecords,
                 recordsFiltered = filteredRecords,
                 data = data
@@ -85,11 +85,15 @@ public class PurchasesController : Controller
 
             return Ok(response);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
+            var fallbackDraw = int.TryParse(Request.Form["draw"].FirstOrDefault(), out var parsedDraw)
+                ? parsedDraw
+                : 1;
+
             return Ok(new PurchaseDataTableResponse
             {
-                draw = int.Parse(Request.Form["draw"].FirstOrDefault() ?? "1"),
+                draw = fallbackDraw,
                 recordsTotal = 0,
                 recordsFiltered = 0,
                 data = new List<PurchaseRow>()
@@ -158,6 +162,26 @@ public class PurchasesController : Controller
         return Json(items);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetItemPrice(int id)
+    {
+        var price = await _context.Items.Where(x => x.Id == id).Select(x => x.DefaultPurchasePrice).FirstOrDefaultAsync();
+        return Json(new { price });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateSupplierAjax(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return BadRequest("اسم المورد مطلوب");
+
+        var supplier = new Supplier { Name = name.Trim(), IsActive = true };
+        _context.Suppliers.Add(supplier);
+        await _context.SaveChangesAsync();
+
+        return Json(new { id = supplier.Id, text = supplier.Name }); // Return text for Select2 compatibility
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(PurchaseCreateVM vm)
@@ -187,7 +211,9 @@ public class PurchasesController : Controller
         };
 
         // 2) إنشاء Lines + Batch كـ Entity وربطه بالـ Line (بدون BatchId)
-        foreach (var line in vm.Lines)
+        var lines = vm.Lines ?? new List<PurchaseLineVM>();
+
+        foreach (var line in lines)
         {
             if (line.ItemId <= 0 || line.Qty <= 0 || line.UnitCost < 0)
                 continue;
@@ -248,11 +274,12 @@ public class PurchasesController : Controller
         await _context.SaveChangesAsync();
 
         await trx.CommitAsync();
+        TempData["SuccessMessage"] = $"تم حفظ الفاتورة بنجاح - المورد: {(await _context.Suppliers.FindAsync(vm.SupplierId))?.Name} | إجمالي: {purchase.NetTotal:N2}";
         return RedirectToAction(nameof(Index));
     }
 
     // ✅ إنشاء BatchNo تلقائي (1,2,3...) لكل صنف
-    private async Task<ItemBatch> BuildNextBatchAsync(int itemId, DateOnly? expiry, decimal purchasePrice)
+    private async Task<ItemBatch> BuildNextBatchAsync(int itemId, DateOnly expiry, decimal purchasePrice)
     {
         // آخر رقم دفعة لنفس الصنف
         var lastBatchNoStr = await _context.ItemBatches
@@ -274,10 +301,11 @@ public class PurchasesController : Controller
         {
             ItemId = itemId,
             BatchNo = next.ToString(),
-            ExpiryDate = (DateOnly)expiry,
+            ExpiryDate = expiry,
             PurchasePrice = purchasePrice,
             SellPrice = sellPrice,
             IsActive = true
         };
     }
 }
+

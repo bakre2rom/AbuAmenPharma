@@ -1,50 +1,237 @@
-﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     ViewData["Title"] = "الفواتير غير المسددة";
 }
 
-<h3 class="mb-3">الفواتير غير المسددة (Aging Report)</h3>
-
-<form id="filterForm" class="card p-3 mb-3">
-    <div class="row">
-        <div class="col-md-4">
-            <label class="form-label">العميل</label>
-            <select id="customerId" class="form-select" asp-items="ViewBag.CustomerId">
-                <option value="">كل العملاء</option>
-            </select>
-        </div>
-
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="button" id="btnSearch" class="btn btn-primary w-100">عرض</button>
+<section class="aging-page">
+    <div class="aging-hero card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <h2 class="mb-1">الفواتير غير المسددة</h2>
+                    <p class="mb-0 text-muted">متابعة أعمار الذمم المدينة حسب الفترات الزمنية لتحديد أولويات التحصيل.</p>
+                </div>
+                <span class="hero-chip">Aging Report</span>
+            </div>
         </div>
     </div>
-</form>
 
-<table id="tblAging" class="table table-striped table-bordered w-100">
-    <thead>
-        <tr>
-            <th>فاتورة</th>
-            <th>العميل</th>
-            <th>التاريخ</th>
-            <th>عدد الأيام</th>
-            <th class="text-end">المتبقي</th>
-            <th class="text-end">0-30</th>
-            <th class="text-end">31-60</th>
-            <th class="text-end">61-90</th>
-            <th class="text-end">+90</th>
-        </tr>
-    </thead>
-    <tfoot>
-        <tr class="table-dark">
-            <th colspan="4">الإجمالي</th>
-            <th class="text-end" id="tRemaining">0</th>
-            <th class="text-end" id="t0_30">0</th>
-            <th class="text-end" id="t31_60">0</th>
-            <th class="text-end" id="t61_90">0</th>
-            <th class="text-end" id="t90p">0</th>
-        </tr>
-    </tfoot>
-</table>
+    <form id="filterForm" class="card border-0 shadow-sm mb-3 filter-card">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-8 col-md-7">
+                    <label class="form-label fw-semibold">العميل</label>
+                    <select id="customerId" class="form-select" asp-items="ViewBag.CustomerId">
+                        <option value="">كل العملاء</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-4 col-md-5 d-grid">
+                    <button type="button" id="btnSearch" class="btn btn-primary btn-filter">عرض النتائج</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="row g-3 mb-3 summary-grid">
+        <div class="col-md-4 col-sm-6">
+            <div class="summary-card">
+                <span class="summary-label">إجمالي المتبقي</span>
+                <strong id="kpiRemaining">0.00</strong>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="summary-card">
+                <span class="summary-label">إجمالي 0-30</span>
+                <strong id="kpi0_30">0.00</strong>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="summary-card">
+                <span class="summary-label">إجمالي +90</span>
+                <strong id="kpi90p">0.00</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm table-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="tblAging" class="table table-hover w-100 aging-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>فاتورة</th>
+                            <th>العميل</th>
+                            <th>التاريخ</th>
+                            <th>عدد الأيام</th>
+                            <th class="text-end">المتبقي</th>
+                            <th class="text-end">0-30</th>
+                            <th class="text-end">31-60</th>
+                            <th class="text-end">61-90</th>
+                            <th class="text-end">+90</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4">الإجمالي (الصفحة الحالية)</th>
+                            <th class="text-end" id="tRemaining">0</th>
+                            <th class="text-end" id="t0_30">0</th>
+                            <th class="text-end" id="t31_60">0</th>
+                            <th class="text-end" id="t61_90">0</th>
+                            <th class="text-end" id="t90p">0</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .aging-page {
+            --aging-primary: #1f7a64;
+            --aging-soft: #edf8f3;
+            --aging-border: #e5e7eb;
+            --aging-ink: #334155;
+        }
+
+        .aging-page .aging-hero {
+            background: linear-gradient(135deg, #ffffff 0%, #f7fbff 58%, #eef9f3 100%);
+            border: 1px solid var(--aging-border);
+            border-radius: 16px;
+        }
+
+        .aging-page .aging-hero h2 {
+            font-size: 2rem;
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .aging-page .hero-chip {
+            display: inline-block;
+            background: #eef2ff;
+            color: #3730a3;
+            border: 1px solid #c7d2fe;
+            border-radius: 999px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .aging-page .filter-card,
+        .aging-page .table-card {
+            border-radius: 14px;
+            border: 1px solid var(--aging-border);
+        }
+
+        .aging-page .btn-filter {
+            font-weight: 700;
+        }
+
+        .aging-page .summary-card {
+            border-radius: 12px;
+            border: 1px solid var(--aging-border);
+            background: #fff;
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            min-height: 74px;
+        }
+
+        .aging-page .summary-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .aging-page .summary-card strong {
+            color: #0f5132;
+            font-size: 1.25rem;
+        }
+
+        .aging-page .aging-table thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            border-bottom: 1px solid var(--aging-border);
+        }
+
+        .aging-page .aging-table tbody tr:hover {
+            background: #f9fcfb;
+        }
+
+        .aging-page .aging-table tfoot th {
+            background: #f7fafc;
+            color: var(--aging-ink);
+            font-weight: 700;
+            border-top: 2px solid #d7e2ea;
+        }
+
+        .aging-page .invoice-link {
+            display: inline-block;
+            text-decoration: none;
+            font-weight: 700;
+            color: #1d4ed8;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 999px;
+            padding: 0.1rem 0.55rem;
+        }
+
+        .aging-page .invoice-link:hover {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .aging-page .age-pill {
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+            border-radius: 999px;
+            padding: 0.15rem 0.55rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+
+        .aging-page .age-normal {
+            color: #14532d;
+            background: #ecfdf5;
+            border-color: #bbf7d0;
+        }
+
+        .aging-page .age-warning {
+            color: #92400e;
+            background: #fffbeb;
+            border-color: #fde68a;
+        }
+
+        .aging-page .age-danger {
+            color: #9f1239;
+            background: #fff1f2;
+            border-color: #fecdd3;
+        }
+
+        .aging-page .dataTables_wrapper .dataTables_filter {
+            padding-inline: 1rem;
+            padding-top: 0.75rem;
+        }
+
+        .aging-page .dataTables_wrapper .dataTables_info,
+        .aging-page .dataTables_wrapper .dataTables_paginate {
+            padding: 0.85rem 1rem 1rem;
+        }
+
+        @@media (max-width: 768px) {
+            .aging-page .aging-hero h2 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+}
 
 @section Scripts {
     <script src="~/lib/datatables/js/jquery.datatables.min.js"></script>
@@ -55,8 +242,18 @@
 
         function fmtDate(d) {
             if (!d) return '';
-            // DataTables يرجّع ISO غالباً
             return ('' + d).substring(0, 10);
+        }
+
+        function fmtNum(value) {
+            return Number(value || 0).toFixed(2);
+        }
+
+        function agePill(days) {
+            const d = Number(days || 0);
+            if (d > 90) return `<span class="age-pill age-danger">${d}</span>`;
+            if (d > 30) return `<span class="age-pill age-warning">${d}</span>`;
+            return `<span class="age-pill age-normal">${d}</span>`;
         }
 
         $(function () {
@@ -64,7 +261,7 @@
                 processing: true,
                 serverSide: true,
                 searching: true,
-                pageLength: 25,
+                pageLength: 10,
                 order: [[3, 'desc']],
                 ajax: {
                     url: '@Url.Action("AgingData")',
@@ -78,27 +275,29 @@
                     {
                         data: 'saleId',
                         render: function (id) {
-                            return `<a href="/Sales/Details/${id}">#${id}</a>`;
+                            return `<a class="invoice-link" href="/Sales/Details/${id}">#${id}</a>`;
                         }
                     },
-                    { data: 'customerName' },
+                    { data: 'customerName', defaultContent: '-' },
                     {
                         data: 'saleDate',
                         render: function (d) { return fmtDate(d); }
                     },
-                    { data: 'days' },
+                    {
+                        data: 'days',
+                        render: function (d) { return agePill(d); }
+                    },
                     {
                         data: 'remaining',
-                        className: 'text-end',
-                        render: function (x) { return `<strong>${x}</strong>`; }
+                        className: 'text-end fw-bold',
+                        render: function (x) { return fmtNum(x); }
                     },
-                    { data: 'b0_30', className: 'text-end' },
-                    { data: 'b31_60', className: 'text-end' },
-                    { data: 'b61_90', className: 'text-end' },
-                    { data: 'b90p', className: 'text-end' }
+                    { data: 'b0_30', className: 'text-end', render: function (x) { return fmtNum(x); } },
+                    { data: 'b31_60', className: 'text-end', render: function (x) { return fmtNum(x); } },
+                    { data: 'b61_90', className: 'text-end', render: function (x) { return fmtNum(x); } },
+                    { data: 'b90p', className: 'text-end', render: function (x) { return fmtNum(x); } }
                 ],
-                drawCallback: function (settings) {
-                    // totals للصفحة الحالية (ليس كل النتائج) — بسيط وسريع
+                drawCallback: function () {
                     const api = this.api();
                     const rows = api.rows({ page: 'current' }).data().toArray();
 
@@ -111,11 +310,21 @@
                         t90 += Number(r.b90p || 0);
                     });
 
-                    $('#tRemaining').text(tR.toFixed(2));
-                    $('#t0_30').text(t0.toFixed(2));
-                    $('#t31_60').text(t31.toFixed(2));
-                    $('#t61_90').text(t61.toFixed(2));
-                    $('#t90p').text(t90.toFixed(2));
+                    const r = fmtNum(tR);
+                    const v0 = fmtNum(t0);
+                    const v31 = fmtNum(t31);
+                    const v61 = fmtNum(t61);
+                    const v90 = fmtNum(t90);
+
+                    $('#tRemaining').text(r);
+                    $('#t0_30').text(v0);
+                    $('#t31_60').text(v31);
+                    $('#t61_90').text(v61);
+                    $('#t90p').text(v90);
+
+                    $('#kpiRemaining').text(r);
+                    $('#kpi0_30').text(v0);
+                    $('#kpi90p').text(v90);
                 },
                 language: {
                     processing: "جارِ التحميل...",

@@ -11,7 +11,7 @@
     public class PurchaseRow
     {
         public int id { get; set; }
-        public string purchaseDate { get; set; }
+        public string purchaseDate { get; set; } = string.Empty;
         public string? supplierName { get; set; }
         public decimal netTotal { get; set; }
         public bool isPosted { get; set; }

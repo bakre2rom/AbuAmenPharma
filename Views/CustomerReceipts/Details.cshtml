@@ -1,4 +1,4 @@
-﻿@model CustomerReceipt
+@model CustomerReceipt
 @{
     ViewData["Title"] = $"تفاصيل سند قبض #{Model.Id}";
     var allocs = ViewBag.Allocations as List<CustomerReceiptAllocation> ?? new List<CustomerReceiptAllocation>();
@@ -27,15 +27,28 @@
         <table class="table table-sm table-bordered">
             <tr>
                 <th style="width:220px;">الحالة</th>
-                <td>@(Model.IsActive ? "نشط" : "معطل")</td>
+                <td>
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success">نشط</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">معطل</span>
+                    }
+                </td>
             </tr>
             <tr>
-                <th>المبلغ</th>
-                <td><strong>@Model.Amount</strong></td>
+                <th>المبلغ الكلي</th>
+                <td><strong>@Model.Amount.ToString("N2") SDG</strong></td>
+            </tr>
+            <tr>
+                <th>الموزع على الفواتير</th>
+                <td class="text-success fw-bold">@((Model.Amount - Model.UnallocatedAmount).ToString("N2")) SDG</td>
             </tr>
             <tr>
                 <th>غير موزع (رصيد دائن)</th>
-                <td>@Model.UnallocatedAmount</td>
+                <td class="@(Model.UnallocatedAmount > 0 ? "text-warning fw-bold" : "text-muted")">@Model.UnallocatedAmount.ToString("N2") SDG</td>
             </tr>
             <tr>
                 <th>ملاحظات</th>
@@ -45,9 +58,29 @@
     </div>
 
     <div class="col-md-6">
-        <div class="alert alert-info">
-            هذا الجدول يوضح كيف تم توزيع السند على الفواتير، وما تبقى غير موزع يصبح رصيد دائن للعميل.
-        </div>
+        @if (Model.UnallocatedAmount > 0 && Model.IsActive)
+        {
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                <strong>يوجد رصيد دائن غير موزع بقيمة @Model.UnallocatedAmount.ToString("N2") SDG.</strong>
+                <br />
+                هذا المبلغ سيُخصم تلقائياً عند إنشاء فاتورة بيع جديدة لهذا العميل مع استخدام التوزيع التلقائي.
+            </div>
+        }
+        else if (allocs.Count > 0)
+        {
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                تم توزيع كامل مبلغ السند على الفواتير بنجاح.
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle-fill me-1"></i>
+                هذا الجدول يوضح كيف تم توزيع السند على الفواتير، وما تبقى غير موزع يصبح رصيد دائن للعميل.
+            </div>
+        }
     </div>
 </div>
 

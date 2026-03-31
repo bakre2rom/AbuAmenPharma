@@ -1,0 +1,117 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   AbuAmenPharma.csproj
+	modified:   Controllers/CustomerReceiptsController.cs
+	modified:   Controllers/CustomersReportsController.cs
+	modified:   Controllers/HomeController.cs
+	modified:   Controllers/ItemBatchesController.cs
+	modified:   Controllers/ItemsController.cs
+	modified:   Controllers/ManufacturersController.cs
+	modified:   Controllers/PurchaseReturnsController.cs
+	modified:   Controllers/PurchasesController.cs
+	modified:   Controllers/SalesController.cs
+	modified:   Controllers/SalesReturnsController.cs
+	deleted:    Controllers/SalesmenController.cs
+	modified:   Controllers/StockReportsController.cs
+	modified:   Controllers/UnitsController.cs
+	modified:   Data/ApplicationDbContext.cs
+	modified:   Data/Migrations/ApplicationDbContextModelSnapshot.cs
+	modified:   Models/Item.cs
+	modified:   Models/Manufacturer.cs
+	modified:   Models/Purchase.cs
+	modified:   Models/Sale.cs
+	deleted:    Models/Salesman.cs
+	modified:   Models/Unit.cs
+	modified:   Program.cs
+	modified:   ViewModels/BatchStockVM.cs
+	modified:   ViewModels/DataTableResponse.cs
+	modified:   ViewModels/InventoryStocktakeVM.cs
+	modified:   ViewModels/PurchaseDataTableResponse.cs
+	modified:   ViewModels/SaleCreateVM.cs
+	modified:   Views/CustomerReceipts/Create.cshtml
+	modified:   Views/CustomerReceipts/Details.cshtml
+	modified:   Views/CustomerReceipts/Index.cshtml
+	modified:   Views/CustomersReports/Balances.cshtml
+	modified:   Views/Home/Index.cshtml
+	modified:   Views/ItemBatches/Create.cshtml
+	modified:   Views/ItemBatches/Edit.cshtml
+	modified:   Views/ItemBatches/Index.cshtml
+	modified:   Views/Items/Create.cshtml
+	modified:   Views/Items/Edit.cshtml
+	modified:   Views/Items/Index.cshtml
+	modified:   Views/Manufacturers/Create.cshtml
+	modified:   Views/Manufacturers/Edit.cshtml
+	modified:   Views/Manufacturers/Index.cshtml
+	modified:   Views/PurchaseReturns/Create.cshtml
+	modified:   Views/PurchaseReturns/Details.cshtml
+	modified:   Views/PurchaseReturns/Index.cshtml
+	modified:   Views/PurchaseReturns/Print.cshtml
+	modified:   Views/Purchases/Create.cshtml
+	modified:   Views/Purchases/Details.cshtml
+	modified:   Views/Purchases/Index.cshtml
+	modified:   Views/Purchases/Print.cshtml
+	modified:   Views/Sales/Create.cshtml
+	modified:   Views/Sales/Details.cshtml
+	modified:   Views/Sales/Index.cshtml
+	modified:   Views/Sales/Print.cshtml
+	modified:   Views/SalesReports/Aging.cshtml
+	modified:   Views/SalesReturns/Create.cshtml
+	modified:   Views/SalesReturns/Details.cshtml
+	modified:   Views/SalesReturns/Index.cshtml
+	modified:   Views/SalesReturns/Print.cshtml
+	modified:   Views/Shared/_Layout.cshtml
+	modified:   Views/StockReports/ExpiryAlert.cshtml
+	modified:   Views/StockReports/Inventory.cshtml
+	modified:   Views/StockReports/ItemMovement.cshtml
+	modified:   Views/StockReports/StockByBatch.cshtml
+	modified:   Views/Units/Create.cshtml
+	modified:   Views/Units/Edit.cshtml
+	modified:   Views/Units/Index.cshtml
+	modified:   appsettings.Development.json
+	modified:   wwwroot/css/site.css
+	modified:   wwwroot/js/site.js
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.dotnet/
+	Controllers/CustomersController.cs
+	Controllers/SuppliersController.cs
+	Data/ApplicationDbContextFactory.cs
+	Data/Migrations/20260329112424_Local_Clone_Setup.Designer.cs
+	Data/Migrations/20260329112424_Local_Clone_Setup.cs
+	Data/Migrations/20260330134851_AddCustomerAddress.Designer.cs
+	Data/Migrations/20260330134851_AddCustomerAddress.cs
+	Properties/PublishProfiles/
+	Scripts/
+	ViewModels/CustomerAccountDetailsVM.cs
+	Views/Customers/
+	Views/Items/Expiring.cshtml
+	Views/Items/LowStock.cshtml
+	Views/Salesmen/
+	Views/Shared/_InvoicePrintActions.cshtml
+	Views/Shared/_InvoicePrintFooter.cshtml
+	Views/Shared/_InvoicePrintLayout.cshtml
+	Views/Suppliers/
+	appsettings.Production.json
+	build.log
+	build_output.txt
+	run_stderr.log
+	run_stderr2.log
+	run_stderr3.log
+	run_stdout.log
+	run_stdout2.log
+	run_stdout3.log
+	sql/
+	status.txt
+	wwwroot/css/invoice-print.css
+	wwwroot/css/layout-custom.css
+	wwwroot/fonts/
+	wwwroot/js/invoice-print.js
+	wwwroot/lib/bootstrap-icons/
+	wwwroot/lib/sweetalert2/
+
+no changes added to commit (use "git add" and/or "git commit -a")

@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -137,7 +137,7 @@ public class SalesReturnsController : Controller
         // نجلب allocations الأصلية للفواتير (لتحديد الدفعات التي خرجت منها)
         var saleAllocs = await _context.SaleAllocations
             .AsNoTracking()
-            .Where(a => a.SaleLine.SaleId == sale.Id)
+            .Where(a => a.SaleLine != null && a.SaleLine.SaleId == sale.Id)
             .OrderBy(a => a.Id)
             .ToListAsync();
 
@@ -247,6 +247,7 @@ public class SalesReturnsController : Controller
         await _context.SaveChangesAsync();
         await trx.CommitAsync();
 
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction("Details", new { id = ret.Id });
     }
 
@@ -367,6 +368,7 @@ public class SalesReturnsController : Controller
         await _context.SaveChangesAsync();
         await trx.CommitAsync();
 
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction("Details", "Sales", new { id = sale.Id });
     }
 }

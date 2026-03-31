@@ -63,25 +63,23 @@
                     }
                     else
                     {
-                        <table class="table table-sm table-bordered mb-0">
-                            <thead>
-                                <tr>
-                                    <th>دفعة</th>
-                                    <th>انتهاء</th>
-                                    <th class="text-end">كمية</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var a in lineAllocs)
-                                {
-                                    <tr>
-                                        <td>@a.Batch?.BatchNo</td>
-                                        <td>@(a.Batch?.ExpiryDate.ToString() ?? "-")</td>
-                                        <td class="text-end">@a.Qty</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                <table class="table table-sm table-bordered mb-0">
+                                    <tbody>
+                                        <tr class="table-light fw-semibold">
+                                            <td>دفعة</td>
+                                            <td>تاريخ الانتهاء</td>
+                                            <td class="text-end">كمية</td>
+                                        </tr>
+                                        @foreach (var a in lineAllocs)
+                                        {
+                                            <tr>
+                                                <td>@a.Batch?.BatchNo</td>
+                                                <td>@(a.Batch != null ? a.Batch.ExpiryDate.ToString("yyyy-MM-dd") : "-")</td>
+                                                <td class="text-end">@a.Qty</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
                     }
                 </td>
             </tr>

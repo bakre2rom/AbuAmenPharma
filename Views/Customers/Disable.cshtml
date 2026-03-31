@@ -1,0 +1,20 @@
+@model Customer
+@{
+    ViewData["Title"] = "تعطيل عميل";
+}
+
+<h3 class="mb-3">تعطيل عميل</h3>
+<div class="alert alert-warning">
+    هل أنت متأكد من تعطيل العميل: <strong>@Model.Name</strong> ؟
+    @if (!string.IsNullOrWhiteSpace(Model.Phone))
+    {
+        <div class="mt-2">الهاتف: <strong>@Model.Phone</strong></div>
+    }
+</div>
+
+<form asp-action="Disable" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">تعطيل</button>
+    <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+</form>

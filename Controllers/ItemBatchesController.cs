@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -11,117 +11,90 @@ public class ItemBatchesController : Controller
     private readonly ApplicationDbContext _context;
     public ItemBatchesController(ApplicationDbContext context) => _context = context;
 
-    // قائمة دفعات صنف محدد
-    // /ItemBatches?itemId=5
-    public async Task<IActionResult> Index(int itemId)
-    {
-        var item = await _context.Items
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == itemId && x.IsActive);
+    [HttpGet("/ItemBatches/Index.cshtml")]
+    public IActionResult LegacyIndex(int? itemId)
+        => RedirectToAction(nameof(Index), new { itemId });
 
-        if (item == null) return NotFound();
+    // /ItemBatches?itemId=5
+    // If itemId is omitted, show all active batches.
+    public async Task<IActionResult> Index(int? itemId)
+    {
+        var batchesQuery = _context.ItemBatches
+            .AsNoTracking()
+            .Where(b => b.IsActive);
+
+        string viewTitle;
+        if (itemId.HasValue)
+        {
+            var item = await _context.Items
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == itemId.Value && x.IsActive);
+
+            if (item == null) return NotFound();
+
+            batchesQuery = batchesQuery.Where(b => b.ItemId == itemId.Value);
+            viewTitle = $"دفعات الصنف: {item.NameAr}";
+            ViewBag.ItemId = item.Id;
+            ViewBag.ItemName = item.NameAr;
+        }
+        else
+        {
+            batchesQuery = batchesQuery.Where(b => b.Item != null && b.Item.IsActive);
+            viewTitle = "إدارة الدفعات";
+            ViewBag.ItemId = null;
+            ViewBag.ItemName = "كل الدفعات";
+        }
 
         // دفعات + رصيد كل دفعة
-        var batches = await _context.ItemBatches
-            .AsNoTracking()
-            .Where(b => b.ItemId == itemId && b.IsActive)
+        var batches = await batchesQuery
             .OrderBy(b => b.ExpiryDate)
+            .ThenBy(b => b.Item!.NameAr)
+            .ThenBy(b => b.BatchNo)
             .Select(b => new ItemBatchListVM
             {
                 Id = b.Id,
                 ItemId = b.ItemId,
-                ItemNameAr = item.NameAr,
+                ItemNameAr = b.Item!.NameAr,
                 BatchNo = b.BatchNo,
                 ExpiryDate = b.ExpiryDate,
                 PurchasePrice = b.PurchasePrice,
                 SellPrice = b.SellPrice,
                 Balance = _context.StockMovements
                     .Where(m => m.BatchId == b.Id)
-                    .Select(m => m.QtyIn - m.QtyOut)
-                    .Sum()
+                    .Select(m => (decimal?)(m.QtyIn - m.QtyOut))
+                    .Sum() ?? 0m
             })
             .ToListAsync();
 
-        ViewBag.ItemId = itemId;
-        ViewBag.ItemName = item.NameAr;
-
+        ViewData["Title"] = viewTitle;
+        ViewBag.HasItemFilter = itemId.HasValue;
         return View(batches);
     }
 
     public async Task<IActionResult> Create(int itemId)
     {
-        var item = await _context.Items
+        var itemExists = await _context.Items
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == itemId && x.IsActive);
+            .AnyAsync(x => x.Id == itemId && x.IsActive);
 
-        if (item == null) return NotFound();
+        if (!itemExists) return NotFound();
 
-        // الحصول على آخر Batch للصنف
-        var lastBatch = await _context.ItemBatches
-            .Where(x => x.ItemId == itemId)
-            .OrderByDescending(x => x.Id)
-            .Select(x => x.BatchNo)
-            .FirstOrDefaultAsync();
-
-        int nextBatchNo = 1;
-
-        if (!string.IsNullOrEmpty(lastBatch) && int.TryParse(lastBatch, out int lastNo))
-            nextBatchNo = lastNo + 1;
-
-        var model = new ItemBatch
-        {
-            ItemId = itemId,
-            BatchNo = nextBatchNo.ToString(),
-            ExpiryDate = DateOnly.FromDateTime(DateTime.Today.AddYears(1))
-        };
-
-        ViewBag.ItemName = item.NameAr;
-        return View(model);
+        TempData["ErrorMessage"] = "أفضل ممارسة: إنشاء الدفعة يتم من خلال فاتورة شراء/توريد فقط، وليس من شاشة الدفعات مباشرة.";
+        return RedirectToAction("Create", "Purchases");
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ItemBatch batch)
     {
-        // تأكيد أن الصنف موجود ونشط
-        var item = await _context.Items.FirstOrDefaultAsync(x => x.Id == batch.ItemId && x.IsActive);
-        if (item == null) return NotFound();
+        var itemExists = await _context.Items
+            .AsNoTracking()
+            .AnyAsync(x => x.Id == batch.ItemId && x.IsActive);
 
-        // توليد رقم الدفعة مرة أخرى (لمنع التكرار)
-        var lastBatch = await _context.ItemBatches
-            .Where(x => x.ItemId == batch.ItemId)
-            .OrderByDescending(x => x.Id)
-            .Select(x => x.BatchNo)
-            .FirstOrDefaultAsync();
+        if (!itemExists) return NotFound();
 
-        int nextBatchNo = 1;
-        if (!string.IsNullOrEmpty(lastBatch) && int.TryParse(lastBatch, out int lastNo))
-            nextBatchNo = lastNo + 1;
-
-        batch.BatchNo = nextBatchNo.ToString();
-
-        // Validation بسيط
-        batch.BatchNo = batch.BatchNo.Trim();
-
-        // منع تكرار نفس BatchNo لنفس الصنف (مع IsActive)
-        var exists = await _context.ItemBatches.AnyAsync(x =>
-            x.ItemId == batch.ItemId &&
-            x.BatchNo == batch.BatchNo &&
-            x.IsActive);
-
-        if (exists)
-            ModelState.AddModelError(nameof(batch.BatchNo), "رقم الدفعة موجود مسبقاً لهذا الصنف.");
-
-        if (!ModelState.IsValid)
-        {
-            ViewBag.ItemName = item.NameAr;
-            return View(batch);
-        }
-
-        _context.ItemBatches.Add(batch);
-        await _context.SaveChangesAsync();
-
-        return RedirectToAction(nameof(Index), new { itemId = batch.ItemId });
+        TempData["ErrorMessage"] = "تم إيقاف إنشاء الدفعات يدويًا. أنشئ الدفعة عبر فاتورة شراء لضمان ترحيل المخزون والمحاسبة بشكل صحيح.";
+        return RedirectToAction("Create", "Purchases");
     }
 
     public async Task<IActionResult> Edit(int? id)
@@ -151,6 +124,9 @@ public class ItemBatchesController : Controller
         if (db == null) return NotFound();
 
         batch.BatchNo = batch.BatchNo.Trim();
+        var hasMovements = await _context.StockMovements
+            .AsNoTracking()
+            .AnyAsync(m => m.BatchId == id);
 
         // منع التكرار (لو تغير الرقم)
         var exists = await _context.ItemBatches.AnyAsync(x =>
@@ -161,6 +137,9 @@ public class ItemBatchesController : Controller
 
         if (exists)
             ModelState.AddModelError(nameof(batch.BatchNo), "رقم الدفعة موجود مسبقاً لهذا الصنف.");
+
+        if (hasMovements && batch.PurchasePrice != db.PurchasePrice)
+            ModelState.AddModelError(nameof(batch.PurchasePrice), "لا يمكن تعديل سعر الشراء بعد وجود حركات مخزون على الدفعة.");
 
         if (!ModelState.IsValid)
         {
@@ -174,6 +153,7 @@ public class ItemBatchesController : Controller
         db.SellPrice = batch.SellPrice;
 
         await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index), new { itemId = db.ItemId });
     }
 
@@ -187,7 +167,13 @@ public class ItemBatchesController : Controller
 
         if (batch == null) return NotFound();
 
-        // لو عليها رصيد لاحقًا ممكن نمنع التعطيل - الآن نخليها عادي
+        var balance = await GetBatchBalanceAsync(batch.Id);
+        if (balance > 0)
+        {
+            TempData["ErrorMessage"] = $"لا يمكن تعطيل الدفعة ({batch.BatchNo}) لأن عليها رصيد {balance:N2}.";
+            return RedirectToAction(nameof(Index), new { itemId = batch.ItemId });
+        }
+
         ViewBag.ItemName = batch.Item!.NameAr;
         return View(batch);
     }
@@ -199,10 +185,24 @@ public class ItemBatchesController : Controller
         var batch = await _context.ItemBatches.FindAsync(id);
         if (batch != null)
         {
+            var balance = await GetBatchBalanceAsync(batch.Id);
+            if (balance > 0)
+            {
+                TempData["ErrorMessage"] = $"لا يمكن تعطيل الدفعة ({batch.BatchNo}) لأن عليها رصيد {balance:N2}.";
+                return RedirectToAction(nameof(Index), new { itemId = batch.ItemId });
+            }
+
             batch.IsActive = false;
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "تمت العملية بنجاح";
             return RedirectToAction(nameof(Index), new { itemId = batch.ItemId });
         }
         return RedirectToAction("Index", "Items");
     }
+
+    private async Task<decimal> GetBatchBalanceAsync(int batchId)
+        => await _context.StockMovements
+            .Where(m => m.BatchId == batchId)
+            .Select(m => m.QtyIn - m.QtyOut)
+            .SumAsync();
 }

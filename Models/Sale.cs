@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AbuAmenPharma.Models
@@ -14,8 +14,7 @@ namespace AbuAmenPharma.Models
         public int CustomerId { get; set; }
         public Customer? Customer { get; set; }
 
-        [Required]
-        public int SalesmanId { get; set; }
+        public int? SalesmanId { get; set; }
         public Salesman? Salesman { get; set; }
 
         public SalePaymentMode PaymentMode { get; set; } = SalePaymentMode.Cash;

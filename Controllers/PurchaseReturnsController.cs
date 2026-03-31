@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -135,7 +135,7 @@ public class PurchaseReturnsController : Controller
 
         // ✅ المرتجع السابق لكل PurchaseLine (نشط فقط)
         var returnedByLine = await _context.PurchaseReturnLines
-            .Where(x => x.PurchaseLine.PurchaseId == vm.PurchaseId)
+            .Where(x => x.PurchaseLine != null && x.PurchaseLine.PurchaseId == vm.PurchaseId)
             .GroupBy(x => x.PurchaseLineId)
             .Select(g => new { PurchaseLineId = g.Key, Qty = g.Sum(x => x.Qty) })
             .ToDictionaryAsync(x => x.PurchaseLineId, x => x.Qty);
@@ -243,6 +243,7 @@ public class PurchaseReturnsController : Controller
             await _context.SaveChangesAsync();
             await trx.CommitAsync();
 
+            TempData["SuccessMessage"] = "تمت العملية بنجاح";
             return RedirectToAction(nameof(Index));
         }
         catch

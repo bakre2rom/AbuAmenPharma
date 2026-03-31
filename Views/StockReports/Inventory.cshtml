@@ -57,10 +57,10 @@
                 <tr class="@rowClass">
                     <td>@x.ItemName</td>
                     <td class="text-center">@x.BatchNo</td>
-                    <td class="text-center">@((x.ExpiryDate?.ToString() ?? "-"))</td>
+                    <td class="text-center">@x.ExpiryDate.ToString("yyyy-MM-dd")</td>
                     <td class="text-end"><strong>@x.Balance</strong></td>
                     <td class="text-center">@x.Status</td>
-                    <td class="text-center">@((x.DaysToExpiry == null) ? "-" : x.DaysToExpiry.ToString())</td>
+                    <td class="text-center">@x.DaysToExpiry</td>
                 </tr>
             }
         }

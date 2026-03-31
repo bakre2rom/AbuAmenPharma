@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 <!DOCTYPE html>
@@ -8,101 +8,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - أبو أمن for Pharma</title>
     <link href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/sweetalert2/dist/sweetalert2.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout-custom.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/AbuAmenPharma.styles.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Styles", required: false)
-
-    <style>
-        .navbar {
-            padding: 0.5rem 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-            color: #0d6efd !important;
-            font-size: 1.25rem;
-        }
-
-        .nav-item {
-            margin: 0 2px;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-            .nav-link:hover {
-                background-color: #f8f9fa;
-                color: #0d6efd !important;
-            }
-
-            .nav-link i {
-                margin-left: 6px;
-                font-size: 1.1rem;
-            }
-
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,.15);
-            border-radius: 8px;
-            padding: 0.5rem 0;
-            margin-top: 0.5rem;
-        }
-
-        .dropdown-item {
-            padding: 0.6rem 1.5rem;
-            font-weight: 500;
-        }
-
-            .dropdown-item i {
-                margin-left: 8px;
-                width: 20px;
-                color: #6c757d;
-            }
-
-            .dropdown-item:hover {
-                background-color: #f8f9fa;
-                color: #0d6efd;
-            }
-
-                .dropdown-item:hover i {
-                    color: #0d6efd;
-                }
-
-        .dropdown-header {
-            color: #6c757d;
-            font-size: 0.85rem;
-            font-weight: bold;
-            padding: 0.5rem 1.5rem;
-            text-transform: uppercase;
-        }
-
-        .navbar-nav .dropdown-toggle::after {
-            margin-right: 6px;
-            vertical-align: middle;
-        }
-
-        .badge-notification {
-            position: relative;
-            top: -8px;
-            right: -5px;
-            font-size: 0.6rem;
-            padding: 0.2rem 0.4rem;
-        }
-    </style>
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-capsule"></i> أبو أمن
+                    <i class="bi bi-capsule"></i> أبو امن
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
@@ -111,98 +30,109 @@
                 <div class="navbar-collapse collapse">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-                        <!-- الرئيسية -->
+                        <!-- 1. الرئيسية -->
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-house-door"></i>الرئيسية
+                                <i class="bi bi-speedometer2"></i>الرئيسية
                             </a>
                         </li>
 
-                        <!-- المخزون -->
+                        <!-- 2. العمليات اليومية -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-box-seam"></i>المخزون
+                                <i class="bi bi-arrow-left-right"></i>العمليات
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-controller="Items" asp-action="Index"><i class="bi bi-capsule"></i>الأدوية</a></li>
+                                <li><h6 class="dropdown-header">فواتير المشتريات</h6></li>
+                                <li><a class="dropdown-item" asp-controller="Purchases" asp-action="Index"><i class="bi bi-cart-check"></i>فواتير المشتريات</a></li>
+                                <li><a class="dropdown-item" asp-controller="PurchaseReturns" asp-action="Index"><i class="bi bi-arrow-return-right"></i>مرتجعات المشتريات</a></li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">فواتير المبيعات</h6></li>
+                                <li><a class="dropdown-item" asp-controller="Sales" asp-action="Index"><i class="bi bi-receipt"></i>فواتير المبيعات</a></li>
+                                <li><a class="dropdown-item" asp-controller="SalesReturns" asp-action="Index"><i class="bi bi-receipt-cutoff"></i>مرتجعات المبيعات</a></li>
+                                
+                            </ul>
+                        </li>
+
+                        <!-- 3. سندات القبض -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="CustomerReceipts" asp-action="Index">
+                                <i class="bi bi-wallet2"></i>سندات القبض
+                            </a>
+                        </li>
+
+                        <!-- 4. البيانات الأساسية -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-collection"></i>البيانات الأساسية
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Items" asp-action="Index"><i class="bi bi-capsule"></i>الأصناف والأدوية</a></li>
+                                <li><a class="dropdown-item" asp-controller="ItemBatches" asp-action="Index"><i class="bi bi-boxes"></i>إدارة الدفعات</a></li>
+                                <li><a class="dropdown-item" asp-controller="Customers" asp-action="Index"><i class="bi bi-person-heart"></i>العملاء</a></li>
+                                <li><a class="dropdown-item" asp-controller="Suppliers" asp-action="Index"><i class="bi bi-truck"></i>الموردين</a></li>
+                                <li><a class="dropdown-item" asp-controller="Salesmen" asp-action="Index"><i class="bi bi-person-badge"></i>المناديب</a></li>
                                 @if (User.IsInRole("Admin"))
                                 {
+                                    <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-controller="Manufacturers" asp-action="Index"><i class="bi bi-building"></i>الشركات المصنعة</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Units" asp-action="Index"><i class="bi bi-rulers"></i>الوحدات</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Units" asp-action="Index"><i class="bi bi-rulers"></i>وحدات القياس</a></li>
                                 }
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" asp-controller="Items" asp-action="LowStock"><i class="bi bi-exclamation-triangle"></i>الأدوية تحت الحد الأدنى</a></li>
-                                <li><a class="dropdown-item" asp-controller="Items" asp-action="Expiring"><i class="bi bi-calendar-exclamation"></i>الأدوية قاربة الإنتهاء</a></li>
                             </ul>
                         </li>
 
-                        <!-- المشتريات -->
+                        <!-- 5. المتابعة والرقابة -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-cart-plus"></i>المشتريات
+                                <i class="bi bi-binoculars"></i>المتابعة
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-controller="Purchases" asp-action="Index"><i class="bi bi-cart-check"></i>فواتير المشتريات</a></li>
-                                <li><a class="dropdown-item" asp-controller="PurchaseReturns" asp-action="Index"><i class="bi bi-cart-dash"></i>مرتجعات المشتريات</a></li>
-                                <li><a class="dropdown-item" asp-controller="Suppliers" asp-action="Index"><i class="bi bi-people"></i>الموردين</a></li>
+                                <li><a class="dropdown-item" asp-controller="Items" asp-action="LowStock"><i class="bi bi-exclamation-triangle-fill text-warning"></i>نواقص الأدوية</a></li>
+                                <li><a class="dropdown-item" asp-controller="Items" asp-action="Expiring"><i class="bi bi-calendar-x-fill text-danger"></i>أدوية قاربة الانتهاء</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" asp-controller="Purchases" asp-action="Create"><i class="bi bi-plus-circle"></i>فاتورة مشتريات جديدة</a></li>
+                                <li><a class="dropdown-item" asp-controller="SalesReports" asp-action="Aging"><i class="bi bi-clock-history"></i>فواتير غير مسددة</a></li>
                             </ul>
                         </li>
 
-                        <!-- المبيعات -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-cart"></i>المبيعات
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-controller="Sales" asp-action="Index"><i class="bi bi-receipt"></i>فواتير البيع</a></li>
-                                <li><a class="dropdown-item" asp-controller="SalesReturns" asp-action="Index"><i class="bi bi-receipt-cutoff"></i>مرتجعات المبيعات</a></li>
-                                <li><a class="dropdown-item" asp-controller="Customers" asp-action="Index"><i class="bi bi-people"></i>العملاء</a></li>
-                                <li><a class="dropdown-item" asp-controller="CustomerReceipts" asp-action="Index"><i class="bi bi-wallet2"></i>سندات القبض</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" asp-controller="Sales" asp-action="Create"><i class="bi bi-plus-circle"></i>فاتورة بيع جديدة</a></li>
-                                <li><a class="dropdown-item" asp-controller="CustomerReceipts" asp-action="Create"><i class="bi bi-cash-coin"></i>سند قبض جديد</a></li>
-                            </ul>
-                        </li>
-
-                        <!-- التقارير -->
+                        <!-- 6. التقارير والتحليل -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-file-bar-graph"></i>التقارير
+                                <i class="bi bi-file-earmark-bar-graph"></i>التقارير
                             </a>
-                            <ul class="dropdown-menu">
-                                <li class="dropdown-header">تقارير العملاء</li>
-                                <li><a class="dropdown-item" asp-controller="CustomersReports" asp-action="Balances"><i class="bi bi-people"></i>أرصدة العملاء</a></li>
-                                <li><a class="dropdown-item" asp-controller="CustomersReports" asp-action="Statement"><i class="bi bi-file-text"></i>كشف حساب عميل</a></li>
-                                <li><a class="dropdown-item" asp-controller="CustomersReports" asp-action="SalesmanStatement"><i class="bi bi-file-text"></i>كشف حساب مندوب</a></li>
-
-                                <li class="dropdown-header">تقارير المبيعات</li>
-                                <li><a class="dropdown-item" asp-controller="SalesReports" asp-action="Aging"><i class="bi bi-clock-history"></i>الفواتير غير المسددة</a></li>
-                                <li><a class="dropdown-item" asp-controller="SalesReports" asp-action="Daily"><i class="bi bi-calendar-day"></i>تقرير مبيعات يومي</a></li>
-                                <li><a class="dropdown-item" asp-controller="SalesReports" asp-action="Monthly"><i class="bi bi-calendar-month"></i>تقرير مبيعات شهري</a></li>
-
-                                <li class="dropdown-header">تقارير المخزون</li>
-                                <li><a class="dropdown-item" asp-controller="InventoryReports" asp-action="Stock"><i class="bi bi-boxes"></i>حركة المخزون</a></li>
-                                <li><a class="dropdown-item" asp-controller="StockReports" asp-action="ItemMovement"><i class="bi bi-boxes"></i>حركة منتج</a></li>
-                                <li><a class="dropdown-item" asp-controller="StockReports" asp-action="Inventory"><i class="bi bi-boxes"></i>جرد المخزن</a></li>
-                                <li><a class="dropdown-item" asp-controller="InventoryReports" asp-action="Valuation"><i class="bi bi-currency-dollar"></i>تقييم المخزون</a></li>
+                            <ul class="dropdown-menu shadow-lg" style="min-width: 250px;">
+                                <li><h6 class="dropdown-header">تقارير الحسابات</h6></li>
+                                <li><a class="dropdown-item" asp-controller="CustomersReports" asp-action="Balances"><i class="bi bi-calculator"></i>أرصدة العملاء</a></li>
+                                <li><a class="dropdown-item" asp-controller="CustomersReports" asp-action="Statement"><i class="bi bi-file-earmark-text"></i>كشف حساب عميل</a></li>
+                                <li><a class="dropdown-item" asp-controller="CustomersReports" asp-action="SalesmanStatement"><i class="bi bi-person-badge"></i>حسابات المناديب</a></li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">تحليل المبيعات</h6></li>
+                                <li><a class="dropdown-item" asp-controller="SalesReports" asp-action="Daily"><i class="bi bi-calendar-event"></i>تقرير المبيعات اليومي</a></li>
+                                <li><a class="dropdown-item" asp-controller="SalesReports" asp-action="Monthly"><i class="bi bi-calendar-check"></i>تقرير المبيعات الشهري</a></li>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">تقارير المخزون</h6></li>
+                                <li><a class="dropdown-item" asp-controller="InventoryReports" asp-action="Stock"><i class="bi bi-layers"></i>حركة المخزون العامة</a></li>
+                                <li><a class="dropdown-item" asp-controller="StockReports" asp-action="ItemMovement"><i class="bi bi-box-arrow-in-right"></i>حركة صنف محدد</a></li>
+                                <li><a class="dropdown-item" asp-controller="StockReports" asp-action="Inventory"><i class="bi bi-check2-square"></i>جرد المستودع</a></li>
+                                <li><a class="dropdown-item" asp-controller="InventoryReports" asp-action="Valuation"><i class="bi bi-currency-dollar"></i>تقييم قيمة المخزون</a></li>
                             </ul>
                         </li>
 
-                        <!-- النظام (للمشرف فقط) -->
+                        <!-- 7. النظام وصيانة البيانات -->
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    <i class="bi bi-gear"></i>النظام
+                                    <i class="bi bi-shield-check"></i>النظام
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-controller="AdminUsers" asp-action="Index"><i class="bi bi-person-badge"></i>المستخدمين</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Roles" asp-action="Index"><i class="bi bi-shield-lock"></i>الصلاحيات</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-controller="AdminUsers" asp-action="Index"><i class="bi bi-people-fill"></i>إدارة المستخدمين</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Roles" asp-action="Index"><i class="bi bi-lock-fill"></i>الأدوار والصلاحيات</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Settings" asp-action="Index"><i class="bi bi-sliders2"></i>إعدادات النظام</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Backup" asp-action="Index"><i class="bi bi-database"></i>النسخ الاحتياطي</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Settings" asp-action="Index"><i class="bi bi-sliders"></i>إعدادات النظام</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Backup" asp-action="Index"><i class="bi bi-database-fill-up"></i>النسخ الاحتياطي</a></li>
                                 </ul>
                             </li>
                         }
@@ -213,27 +143,27 @@
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-bill"></i>
-                            <span class="badge bg-danger badge-notification">المستخدم</span>
+                            <i class="bi bi-person-circle"></i>
+                            <span class="ms-1">الحساب</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
-                            <li><hr class="dropdown-divider"></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
                             @if (SignInManager.IsSignedIn(User))
                             {
-                                <li class="nav-item">
-                                    <span class="nav-link">مرحباً: @User.Identity?.Name</span>
+                                <li class="px-3 py-2 text-muted border-bottom">
+                                    <small class="d-block text-uppercase fw-bold" style="font-size: 0.7rem;">المستخدم الحالي</small>
+                                    <div class="fw-bold text-dark">@User.Identity?.Name</div>
                                 </li>
-                                <li class="nav-item">
-                                    <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" method="post">
-                                        <button class="btn btn-link nav-link" type="submit">خروج</button>
+                                <li><a class="dropdown-item py-2" asp-area="Identity" asp-page="/Account/Manage/Index"><i class="bi bi-person-vcard"></i>الملف الشخصي</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button type="submit" class="dropdown-item text-danger py-2"><i class="bi bi-box-arrow-right"></i>تسجيل الخروج</button>
                                     </form>
                                 </li>
                             }
                             else
                             {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">دخول</a>
-                                </li>
+                                <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Login"><i class="bi bi-box-arrow-in-left"></i>دخول النظام</a></li>
                             }
                         </ul>
                     </li>
@@ -249,7 +179,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">بحث</h5>
+                    <h5 class="modal-title">بحث سريع</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -259,22 +189,22 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container-fluid px-lg-5">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    &copy; 2026 - أبو أمن للصيدليات - جميع الحقوق محفوظة
+    <footer class="border-top footer text-muted bg-light">
+        <div class="container-fluid px-lg-5">
+            <div class="row align-items-center">
+                <div class="col-md-6 py-3">
+                    &copy; @DateTime.Now.Year - أبو أمن للصيدليات - نظام الإدارة المتكامل
                 </div>
-                <div class="col-md-6 text-start">
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted">سياسة الخصوصية</a>
-                    <span class="mx-2">|</span>
-                    <a asp-area="" asp-controller="Home" asp-action="Contact" class="text-muted">اتصل بنا</a>
+                <div class="col-md-6 text-md-start py-3">
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none text-muted">الخصوصية</a>
+                    <span class="mx-2 text-secondary">|</span>
+                    <a asp-area="" asp-controller="Home" asp-action="Contact" class="text-decoration-none text-muted">الدعم الفني</a>
                 </div>
             </div>
         </div>
@@ -282,22 +212,83 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/sweetalert2/dist/sweetalert2.all.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>
-        // تفعيل القائمة النشطة
+        /**
+         * نظام الربط الذكي للقائمة النشطة
+         * يقوم بتمييز الصفحة الحالية والقائمة الأب بشكل تلقائي ودقيق
+         */
         $(document).ready(function() {
-            var currentUrl = window.location.pathname.toLowerCase();
-
-            $('.navbar-nav .nav-link').each(function() {
-                var linkUrl = $(this).attr('href');
-                if (linkUrl && currentUrl.includes(linkUrl.toLowerCase()) && linkUrl !== '#') {
+            const currentPath = window.location.pathname.toLowerCase();
+            
+            // تنظيف الحالات السابقة
+            $('.navbar-nav .nav-link, .navbar-nav .dropdown-item').removeClass('active');
+            
+            $('.navbar-nav .nav-link, .navbar-nav .dropdown-item').each(function() {
+                const href = $(this).attr('href');
+                if (!href || href === '#' || href === 'javascript:void(0)') return;
+                
+                const linkPath = href.toLowerCase();
+                
+                // مطابقة دقيقة أو مطابقة المسار الأساسي (لتجنب التظليل المتعدد)
+                const isExactMatch = currentPath === linkPath;
+                const isControllerMatch = currentPath.split('/')[1] === linkPath.split('/')[1] && currentPath.split('/')[1] !== "";
+                
+                if (isExactMatch || (isControllerMatch && linkPath.split('/').length > 2 && linkPath.includes(currentPath.split('/')[2]))) {
                     $(this).addClass('active');
+                    
+                    // تفعيل القائمة الأب (Dropdown)
+                    $(this).closest('.dropdown').find('.nav-link.dropdown-toggle').addClass('active');
                 }
+            });
+            
+            // حالة خاصة للصفحة الرئيسية
+            if (currentPath === '/' || currentPath === '/home' || currentPath === '/home/index') {
+                $('.nav-link[asp-controller="Home"]').addClass('active');
+            }
+
+            // General Tooltip Initialization
+            $('body').tooltip({
+                selector: '[data-bs-toggle="tooltip"]',
+                trigger: 'hover'
             });
         });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تمت العملية بنجاح',
+                    html: '<div dir="rtl" style="text-align: right; font-size: 15px;">@Html.Raw(TempData["SuccessMessage"])</div>',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#198754',
+                    timer: 4000,
+                    timerProgressBar: true
+                });
+            });
+        </script>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'حدث خطأ',
+                    html: '<div dir="rtl" style="text-align: right; font-size: 15px;">@Html.Raw(TempData["ErrorMessage"])</div>',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#dc3545'
+                });
+            });
+        </script>
+    }
 </body>
 </html>

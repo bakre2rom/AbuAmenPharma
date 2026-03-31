@@ -1,0 +1,8 @@
+@{
+    var closeUrl = ViewData["PrintCloseUrl"]?.ToString() ?? Url.Action("Index", "Home");
+}
+
+<div class="print-actions">
+    <button type="button" class="btn btn-print js-print-invoice">طباعة الفاتورة</button>
+    <button type="button" class="btn btn-close js-close-invoice" data-close-url="@closeUrl">إغلاق</button>
+</div>

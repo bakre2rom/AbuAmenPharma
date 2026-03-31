@@ -1,0 +1,248 @@
+@model IEnumerable<Customer>
+@{
+    ViewData["Title"] = "إدارة العملاء";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        <div class="d-flex justify-content-between align-items-center mb-2 mt-1">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-people me-1"></i> إدارة العملاء</h5>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createCustomerModal">
+                    <i class="bi bi-plus-lg"></i> إضافة عميل
+                </button>
+            </div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success py-2 px-3 small border-0 shadow-sm rounded-3">@TempData["SuccessMessage"]</div>
+        }
+
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-2">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle w-100" id="customersTable" style="margin-top: 5px; font-size: 0.88rem;">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="fw-semibold pb-3">اسم العميل</th>
+                                <th class="fw-semibold pb-3">المندوب</th>
+                                <th class="fw-semibold pb-3">الهاتف</th>
+                                <th class="fw-semibold pb-3">العنوان</th>
+                                <th class="fw-semibold pb-3 text-center" style="width:180px;">العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model)
+                            {
+                                <tr>
+                                    <td><span class="fw-bold text-dark">@c.Name</span></td>
+                                    <td>@(c.Salesman?.NameAr ?? "-")</td>
+                                    <td>@(string.IsNullOrWhiteSpace(c.Phone) ? "-" : c.Phone)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(c.Address) ? "-" : c.Address)</td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a class="btn btn-outline-info floating-action-btn" asp-action="Details" asp-route-id="@c.Id" data-bs-toggle="tooltip" title="تفاصيل"><i class="bi bi-card-text"></i></a>
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary floating-action-btn edit-customer-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editCustomerModal"
+                                                    data-id="@c.Id"
+                                                    data-name="@c.Name"
+                                                    data-phone="@c.Phone"
+                                                    data-address="@(c.Address ?? "")"
+                                                    data-salesman-id="@(c.SalesmanId?.ToString() ?? "")"
+                                                    data-is-active="@(c.IsActive ? "true" : "false")"
+                                                    title="تعديل">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-outline-danger floating-action-btn disable-customer-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#disableCustomerModal"
+                                                    data-id="@c.Id"
+                                                    data-name="@c.Name"
+                                                    title="تعطيل">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createCustomerModal" tabindex="-1" aria-labelledby="createCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title" id="createCustomerModalLabel">إضافة عميل جديد</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">اسم العميل <span class="text-danger">*</span></label>
+                        <input name="Name" class="form-control bg-light" placeholder="مثال: صيدلية الشفاء" required oninvalid="this.setCustomValidity('حقل الاسم مطلوب')" oninput="this.setCustomValidity('')" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">الهاتف</label>
+                        <input name="Phone" class="form-control bg-light" placeholder="01xxxxxxxxx" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">العنوان</label>
+                        <input name="Address" class="form-control bg-light" placeholder="عنوان العميل" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">المندوب المسؤول <span class="text-danger">*</span></label>
+                        <select name="SalesmanId" class="form-select bg-light" asp-items="ViewBag.SalesmanId" required>
+                            <option value="">اختر المندوب...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-secondary text-white border-0">
+                <h5 class="modal-title" id="editCustomerModalLabel">تعديل بيانات العميل</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editCustomerId" name="Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">اسم العميل <span class="text-danger">*</span></label>
+                        <input id="editCustomerName" name="Name" class="form-control bg-light" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">الهاتف</label>
+                        <input id="editCustomerPhone" name="Phone" class="form-control bg-light" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">العنوان</label>
+                        <input id="editCustomerAddress" name="Address" class="form-control bg-light" placeholder="عنوان العميل" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">المندوب المسؤول <span class="text-danger">*</span></label>
+                        <select id="editCustomerSalesmanId" name="SalesmanId" class="form-select bg-light" asp-items="ViewBag.SalesmanId" required>
+                            <option value="">اختر المندوب...</option>
+                        </select>
+                    </div>
+
+                    <input type="hidden" name="IsActive" value="false" />
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="editCustomerIsActive" name="IsActive" value="true" />
+                        <label class="form-check-label fw-semibold ms-2" for="editCustomerIsActive">تفعيل العميل</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-secondary px-4 shadow-sm">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="disableCustomerModal" tabindex="-1" aria-labelledby="disableCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title" id="disableCustomerModalLabel">تعطيل عميل</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Disable" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" id="disableCustomerId" name="Id" />
+                    <p class="mb-0">هل أنت متأكد من تعطيل العميل: <strong id="disableCustomerName"></strong> ؟</p>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">تعطيل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/lib/datatables/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .table > :not(caption) > * > * {
+            padding: 1rem 0.5rem;
+            color: #495057;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+
+        table.dataTable.table-striped > tbody > tr.odd > * {
+            box-shadow: none;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#customersTable').DataTable({
+                order: [[0, 'asc']],
+                pageLength: 5,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ابحث عن أي شيء هنا...",
+                    lengthMenu: "عرض _MENU_ سجل",
+                    info: "عرض _START_ إلى _END_ من إجمالي _TOTAL_ سجل",
+                    infoEmpty: "تعرض 0 إلى 0 من أصل 0 سجل",
+                    zeroRecords: "لم يتم العثور على سجلات متطابقة",
+                    paginate: { first: "الأول", last: "الأخير", next: "التالي", previous: "السابق" }
+                }
+            });
+
+            $('.edit-customer-btn').on('click', function () {
+                const btn = $(this);
+                $('#editCustomerId').val(btn.data('id'));
+                $('#editCustomerName').val(btn.data('name'));
+                $('#editCustomerPhone').val(btn.data('phone'));
+                $('#editCustomerAddress').val((btn.data('address') ?? '').toString());
+                $('#editCustomerSalesmanId').val((btn.data('salesman-id') ?? '').toString());
+                $('#editCustomerIsActive').prop('checked', btn.data('is-active') === 'true' || btn.data('is-active') === true);
+            });
+
+            $('.disable-customer-btn').on('click', function () {
+                const btn = $(this);
+                $('#disableCustomerId').val(btn.data('id'));
+                $('#disableCustomerName').text(btn.data('name'));
+            });
+        });
+    </script>
+}

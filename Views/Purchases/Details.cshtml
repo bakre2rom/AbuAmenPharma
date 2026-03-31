@@ -55,15 +55,15 @@
             var i = 1;
             foreach (var line in Model.Lines)
             {
-                <tr>
-                    <td class="text-center">@i</td>
-                    <td>@line.Item?.NameAr</td>
-                    <td class="text-center">@line.Qty</td>
-                    <td class="text-center">@line.UnitCost</td>
-                    <td class="text-center">@line.LineTotal</td>
-                    <td class="text-center">@line.Batch?.BatchNo</td>
-                    <td class="text-center">@((line.Batch?.ExpiryDate.ToString() ?? "-"))</td>
-                </tr>
+            <tr>
+                <td class="text-center">@i</td>
+                <td>@line.Item?.NameAr</td>
+                <td class="text-center">@line.Qty</td>
+                <td class="text-center">@line.UnitCost</td>
+                <td class="text-center">@line.LineTotal</td>
+                <td class="text-center">@line.Batch?.BatchNo</td>
+                <td class="text-center">@((line.Batch != null) ? line.Batch.ExpiryDate.ToString("yyyy-MM-dd") : "-")</td>
+            </tr>
                 i++;
             }
         }

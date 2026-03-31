@@ -1,205 +1,127 @@
-﻿@model Sale
+@model Sale
 @{
-    Layout = null; // ✅ صفحة طباعة بدون Layout
+    Layout = "~/Views/Shared/_InvoicePrintLayout.cshtml";
+    ViewData["PrintPageTitle"] = $"فاتورة بيع #{Model.Id}";
+    ViewData["PrintCloseUrl"] = Url.Action("Index", "Sales");
     var allocations = ViewBag.Allocations as List<SaleAllocation> ?? new List<SaleAllocation>();
 }
 
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="utf-8" />
-    <title>فاتورة بيع #@Model.Id</title>
-    <style>
-        body {
-            font-family: Tahoma, Arial;
-            margin: 20px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .company {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .sub {
-            color: #444;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .box {
-            border: 1px solid #000;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            border: 1px solid #000;
-            padding: 6px;
-            font-size: 12px;
-        }
-
-        th {
-            background: #f2f2f2;
-        }
-
-        .text-end {
-            text-align: left;
-        }
-        /* RTL: left is end */
-        .text-center {
-            text-align: center;
-        }
-
-        .totals td {
-            border: none;
-        }
-
-        .totals .label {
-            width: 60%;
-        }
-
-        .totals .val {
-            width: 40%;
-            border: 1px solid #000;
-            padding: 6px;
-        }
-
-        .print-btn {
-            margin-bottom: 12px;
-        }
-        @@media print {
-            .print-btn
-
-        {
-            display: none;
-        }
-
-        body {
-            margin: 0;
-        }
-
-        }
-    </style>
-</head>
-<body>
-
-    <div class="print-btn">
-        <button onclick="window.print()">🖨 طباعة</button>
-        <button onclick="window.close()">إغلاق</button>
-    </div>
-
+<div class="container">
     <div class="header">
-        <div>
-            <div class="company">شركة أبو أمين للأدوية</div>
-            <div class="sub">فاتورة بيع</div>
+        <div class="company-info">
+            <div class="company-name">شركة أبو أمن للأدوية</div>
+            <div class="invoice-title">فاتورة بيع</div>
         </div>
-        <div class="text-end">
-            <div><strong>رقم الفاتورة:</strong> @Model.Id</div>
-            <div><strong>التاريخ:</strong> @Model.SaleDate</div>
+        <div class="invoice-details">
+            <div><strong>رقم الفاتورة:</strong> #@Model.Id</div>
+            <div><strong>التاريخ:</strong> @Model.SaleDate.ToString("yyyy-MM-dd")</div>
         </div>
     </div>
 
-    <div class="box">
-        <table>
-            <tr>
-                <td><strong>العميل:</strong> @Model.Customer?.Name</td>
-                <td><strong>المندوب:</strong> @Model.Salesman?.NameAr</td>
-            </tr>
-            <tr>
-                <td><strong>نوع الدفع:</strong> @(Model.PaymentMode == SalePaymentMode.Cash ? "نقدي" : "آجل")</td>
-                <td><strong>ملاحظات:</strong> @Model.Notes</td>
-            </tr>
-        </table>
+    <div class="info-grid">
+        <div class="info-item">
+            <strong>العميل</strong>
+            @Model.Customer?.Name
+        </div>
+        <div class="info-item">
+            <strong>نوع الدفع</strong>
+            @(Model.PaymentMode == SalePaymentMode.Cash ? "نقدي" : "آجل")
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <div class="info-item" style="grid-column: span 2;">
+                <strong>ملاحظات</strong>
+                @Model.Notes
+            </div>
+        }
     </div>
 
-    <table>
+    <table class="items-table">
         <thead>
             <tr>
-                <th style="width:5%;">م</th>
+                <th class="text-center" style="width: 50px;">#</th>
                 <th>الصنف</th>
-                <th style="width:12%;" class="text-center">الكمية</th>
-                <th style="width:12%;" class="text-center">السعر</th>
-                <th style="width:15%;" class="text-center">الإجمالي</th>
+                <th style="width: 220px;">الدفعات</th>
+                <th style="width: 220px;">تاريخ الانتهاء</th>
+                <th class="text-center" style="width: 80px;">الكمية</th>
+                <th class="text-center" style="width: 100px;">السعر</th>
+                <th class="text-center" style="width: 120px;">الإجمالي</th>
             </tr>
         </thead>
         <tbody>
             @{
-                var i = 1;
+                int count = 1;
                 foreach (var line in Model.Lines)
                 {
+                    var lineAllocs = allocations.Where(x => x.SaleLineId == line.Id).ToList();
                     <tr>
-                        <td class="text-center">@i</td>
+                        <td class="text-center">@(count++)</td>
+                        <td>@line.Item?.NameAr</td>
                         <td>
-                            @line.Item?.NameAr
-                            <div class="sub">
-                                @{
-                                    var lineAllocs = allocations.Where(a => a.SaleLineId == line.Id).ToList();
-                                    if (lineAllocs.Count > 0)
+                            @if (lineAllocs.Count == 0)
+                            {
+                                <span class="muted">-</span>
+                            }
+                            else
+                            {
+                                <div class="line-list">
+                                    @foreach (var a in lineAllocs)
                                     {
-                                        <span><strong>FIFO دفعات:</strong> </span>
-                                        foreach (var a in lineAllocs)
-                                        {
-                                            <span>
-                                                دفعة @a.Batch?.BatchNo
-                                                (انتهاء: @(a.Batch?.ExpiryDate.ToString() ?? "-"))
-                                                كمية: @a.Qty
-                                                &nbsp; | &nbsp;
-                                            </span>
-                                        }
+                                        <div>@a.Batch?.BatchNo</div>
                                     }
-                                }
-                            </div>
+                                </div>
+                            }
                         </td>
-                        <td class="text-center">@line.Qty</td>
-                        <td class="text-center">@line.UnitPrice</td>
-                        <td class="text-center">@line.LineTotal</td>
+                        <td>
+                            @if (lineAllocs.Count == 0)
+                            {
+                                <span class="muted">-</span>
+                            }
+                            else
+                            {
+                                <div class="line-list">
+                                    @foreach (var a in lineAllocs)
+                                    {
+                                        <div>@(a.Batch != null ? a.Batch.ExpiryDate.ToString("yyyy-MM-dd") : "-")</div>
+                                    }
+                                </div>
+                            }
+                        </td>
+                        <td class="text-center">@line.Qty.ToString("N0")</td>
+                        <td class="text-center">@line.UnitPrice.ToString("N2")</td>
+                        <td class="text-center">@line.LineTotal.ToString("N2")</td>
                     </tr>
-                    i++;
                 }
             }
         </tbody>
     </table>
 
-    <br />
-
-    <table class="totals" style="width: 320px; margin-right:auto;">
-        <tr>
-            <td class="label"><strong>الإجمالي:</strong></td>
-            <td class="val text-center">@Model.SubTotal</td>
-        </tr>
-        <tr>
-            <td class="label"><strong>الخصم:</strong></td>
-            <td class="val text-center">@Model.Discount</td>
-        </tr>
-        <tr>
-            <td class="label"><strong>الصافي:</strong></td>
-            <td class="val text-center"><strong>@Model.NetTotal</strong></td>
-        </tr>
-        <tr>
-            <td class="label"><strong>المدفوع:</strong></td>
-            <td class="val text-center">@Model.PaidAmount</td>
-        </tr>
-        <tr>
-            <td class="label"><strong>المتبقي:</strong></td>
-            <td class="val text-center"><strong>@Model.RemainingAmount</strong></td>
-        </tr>
-    </table>
-
-    <div class="sub" style="margin-top:12px;">
-        شكراً لتعاملكم معنا.
+    <div class="totals-section">
+        <table class="totals-table">
+            <tr>
+                <td class="label">الإجمالي</td>
+                <td class="value">@Model.SubTotal.ToString("N2")</td>
+            </tr>
+            @if (Model.Discount > 0)
+            {
+                <tr>
+                    <td class="label">الخصم</td>
+                    <td class="value">- @Model.Discount.ToString("N2")</td>
+                </tr>
+            }
+            <tr class="grand-total">
+                <td class="label">الصافي النهائي</td>
+                <td class="value">@Model.NetTotal.ToString("N2")</td>
+            </tr>
+            @if (Model.RemainingAmount > 0 && Model.PaymentMode == SalePaymentMode.Credit)
+            {
+                <tr>
+                    <td class="label">المتبقي المطلوب</td>
+                    <td class="value">@Model.RemainingAmount.ToString("N2")</td>
+                </tr>
+            }
+        </table>
     </div>
 
-</body>
-</html>
+    <partial name="_InvoicePrintFooter" />
+</div>

@@ -1,152 +1,243 @@
-﻿@using AbuAmenPharma.ViewModels
+@using AbuAmenPharma.ViewModels
 @model SaleCreateVM
 @{
     ViewData["Title"] = "فاتورة بيع";
 }
 
-<h3 class="mb-3">فاتورة بيع</h3>
-
-<form asp-action="Create" method="post" class="card p-3" id="saleForm">
+<form asp-action="Create" method="post" id="saleForm">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="All" class="text-danger mb-2"></div>
+    <input type="hidden" name="UseCustomerCredit" value="false" />
+    <input type="hidden" name="CustomerCreditUsed" value="0" />
 
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <label class="form-label">التاريخ</label>
-            <input asp-for="SaleDate" class="form-control" type="datetime-local" />
-            <span asp-validation-for="SaleDate" class="text-danger"></span>
+    <div class="row g-3" style="min-height: calc(100vh - 120px);">
+
+        <!-- ===== RIGHT PANEL: Invoice Lines (appears right in RTL) ===== -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-2 px-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-receipt-cutoff me-1 text-primary"></i>بنود الفاتورة</h5>
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" id="addRowBtn">
+                        <i class="bi bi-plus-lg me-1"></i>إضافة بند
+                    </button>
+                </div>
+                <div class="card-body p-2 pt-0">
+                    <div class="table-responsive" style="max-height: calc(100vh - 280px); overflow-y: auto;">
+                        <table class="table table-sm table-hover align-middle mb-0" id="linesTable">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 2;">
+                                <tr>
+                                    <th style="width:35%; min-width:200px;">الصنف</th>
+                                    <th style="width:12%;" class="text-center">المتاح</th>
+                                    <th style="width:13%;" class="text-center">الكمية</th>
+                                    <th style="width:15%;" class="text-center">السعر</th>
+                                    <th style="width:15%;" class="text-center">الإجمالي</th>
+                                    <th style="width:10%;" class="text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="linesTableBody">
+                                <!-- rows added dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <label class="form-label">العميل</label>
-            <select asp-for="CustomerId" class="form-control" id="customerSelect" style="width:100%"></select>
-            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        <!-- ===== LEFT PANEL: Sidebar (appears left in RTL) ===== -->
+        <div class="col-lg-4">
+            <div class="position-lg-sticky" style="top: 80px;">
+
+                <!-- Merged Sidebar Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-2">
+                    <div class="card-header bg-primary bg-gradient text-white border-0 rounded-top-4 py-2 px-3">
+                        <h6 class="mb-0 fw-bold small"><i class="bi bi-receipt me-2"></i>ملخص الفاتورة</h6>
+                    </div>
+                    <div class="card-body p-2 mt-n1">
+                        <div class="row g-1 mb-2">
+                            <div class="col-6">
+                                <label class="form-label tiny-label fw-semibold mb-0">التاريخ</label>
+                                <input asp-for="SaleDate" class="form-control form-control-sm rounded-2 bg-light py-0" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label tiny-label fw-semibold mb-0">العميل</label>
+                                <div class="d-flex gap-1">
+                                    <select asp-for="CustomerId" class="form-control form-control-sm rounded-2" id="customerSelect" style="width:100%"></select>
+                                    <button type="button" class="btn btn-sm btn-primary px-2" data-bs-toggle="modal" data-bs-target="#createCustomerModal"><i class="bi bi-plus-lg"></i></button>
+                                </div>
+                                <div class="form-text mt-1">سيتم اعتماد مندوب العميل تلقائياً من بيانات العميل.</div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label tiny-label fw-semibold mb-0">الخصم</label>
+                                <input asp-for="Discount" class="form-control form-control-sm rounded-2" id="discount" type="number" step="0.01" value="0" />
+                            </div>
+                             <div class="col-6 text-end align-self-end">
+                                <div class="text-muted tiny-label mb-0">المتبقي</div>
+                                <div class="fw-bold text-danger fs-6" id="remainingLabel" style="line-height:1">0.00</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-1 opacity-25">
+
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small">الإجمالي:</span>
+                            <span id="subTotalLabel" class="small fw-semibold">0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small">الخصم:</span>
+                            <span id="discountLabel" class="small text-danger fw-semibold">0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-1 border-top">
+                            <span class="fw-bold">الصافي:</span>
+                            <span id="netTotalLabel" class="fw-bold text-primary fs-6 mb-0">0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" asp-for="PaidAmount" value="0" id="paidAmount" />
+                <input type="hidden" asp-for="Notes" value="" />
+                <input type="hidden" asp-for="PaymentMode" value="Credit" id="paymentMode" />
+
+                <!-- Action Buttons: Side by side -->
+                <div class="row g-2">
+                    <div class="col-8">
+                        <button class="btn btn-success w-100 shadow-sm rounded-3 py-2 fw-bold" type="submit">
+                            <i class="bi bi-check-lg me-1"></i>حفظ وترحيل
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <a class="btn btn-outline-secondary w-100 rounded-3 py-2" asp-action="Index">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <label class="form-label">مندوب المبيعات</label>
-            <select asp-for="SalesmanId" class="form-control" asp-items="ViewBag.SalesmanId"></select>
-            <span asp-validation-for="SalesmanId" class="text-danger"></span>
-        </div>
-    </div>
-
-    <div class="row align-items-end">
-        <div class="col-md-3 mb-3">
-            <label class="form-label">نوع الدفع</label>
-            <select asp-for="PaymentMode" class="form-control" id="paymentMode">
-                <option value="Cash">نقدي</option>
-                <option value="Credit">آجل</option>
-            </select>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <label class="form-label">الخصم</label>
-            <input asp-for="Discount" class="form-control" id="discount" type="number" step="0.01" value="0" />
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <label class="form-label">المدفوع</label>
-            <input asp-for="PaidAmount" class="form-control" id="paidAmount" type="number" step="0.01" value="0" />
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <label class="form-label">ملاحظات</label>
-            <input asp-for="Notes" class="form-control" />
-        </div>
-    </div>
-
-    <hr />
-
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0">بنود الفاتورة</h5>
-        <button type="button" class="btn btn-sm btn-primary" id="addRowBtn">إضافة بند</button>
-    </div>
-
-    <table class="table table-bordered align-middle" id="linesTable">
-        <thead>
-            <tr>
-                <th style="width:35%;">الصنف</th>
-                <th style="width:10%;">الكمية المتاحة</th>
-                <th style="width:15%;">الكمية</th>
-                <th style="width:15%;">سعر البيع</th>
-                <th style="width:15%;">الإجمالي</th>
-                <th style="width:10%;"></th>
-            </tr>
-        </thead>
-        <tbody id="linesTableBody">
-            <!-- الصفوف تضاف هنا ديناميكياً -->
-        </tbody>
-    </table>
-
-    <div class="row mt-3">
-        <div class="col-md-6"></div>
-        <div class="col-md-6">
-            <table class="table table-sm table-bordered">
-                <tr>
-                    <th>الإجمالي قبل الخصم</th>
-                    <td class="text-end"><span id="subTotalLabel">0.00</span></td>
-                </tr>
-                <tr>
-                    <th>الخصم</th>
-                    <td class="text-end"><span id="discountLabel">0.00</span></td>
-                </tr>
-                <tr>
-                    <th>الصافي</th>
-                    <td class="text-end"><strong><span id="netTotalLabel">0.00</span></strong></td>
-                </tr>
-                <tr>
-                    <th>المدفوع</th>
-                    <td class="text-end"><span id="paidLabel">0.00</span></td>
-                </tr>
-                <tr>
-                    <th>المتبقي</th>
-                    <td class="text-end"><strong><span id="remainingLabel">0.00</span></strong></td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <div class="d-flex gap-2 mt-2">
-        <button class="btn btn-success" type="submit">حفظ وترحيل</button>
-        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
     </div>
 </form>
 
-@section Scripts {
-    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
-    <script src="~/lib/select2/js/select2.min.js"></script>
-    <partial name="_ValidationScriptsPartial" />
+<!-- Create Customer Modal -->
+<div class="modal fade" id="createCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title">إضافة عميل جديد</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">اسم العميل <span class="text-danger">*</span></label>
+                    <input type="text" id="newCustomerName" class="form-control bg-light" placeholder="اسم العميل..." required />
+                </div>
 
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary px-4 shadow-sm" id="saveCustomerBtn">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
     <style>
         .select2-container--default .select2-selection--single {
-            height: 38px;
+            height: 31px;
             border: 1px solid #ced4da;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 0.875rem;
         }
-
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 36px;
-            }
-
-            .select2-container--default .select2-selection--single .select2-selection__arrow {
-                height: 36px;
-            }
-
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 29px;
+            font-size: 0.875rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 29px;
+        }
         .select2-dropdown {
             z-index: 99999;
         }
-
         .available-quantity {
-            background-color: #f8f9fa;
+            background-color: #e8f5e9;
             text-align: center;
             font-weight: bold;
-            padding: 8px;
-            border-radius: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #2e7d32;
+        }
+        #linesTable th {
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        #linesTable td {
+            vertical-align: middle;
+            padding: 0.35rem 0.4rem;
+        }
+        #linesTable .form-control-sm {
+            font-size: 0.85rem;
+        }
+        .rowTotal {
+            font-weight: bold;
+            color: #198754;
+        }
+
+        /* Sticky sidebar on large screens */
+        @@media (min-width: 992px) {
+            .position-lg-sticky {
+                position: sticky !important;
+                top: 80px;
+            }
+        }
+        .tiny-label {
+            font-size: 0.75rem;
+            color: #6c757d;
         }
     </style>
+}
+
+@section Scripts {
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 
     <script>
         let rowCounter = 0;
+        let customerAvailableCredit = 0;
+        const stockCache = {};
+
+        // Save Customer via AJAX
+        $(document).ready(function() {
+            $('#saveCustomerBtn').click(function () {
+                var cName = $('#newCustomerName').val();
+                if (!cName) {
+                    Swal.fire('خطأ', 'يرجى إدخال اسم العميل', 'error');
+                    return;
+                }
+
+                $.post('@Url.Action("CreateCustomerAjax", "Sales")', { name: cName }, function (res) {
+                    if (res && res.id) {
+                        var newOption = new Option(res.text, res.id, true, true);
+                        $('#customerSelect').append(newOption).trigger('change');
+                        $('#createCustomerModal').modal('hide');
+                        $('#newCustomerName').val('');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'نجاح',
+                            text: 'تمت إضافة العميل بنجاح',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('خطأ', 'حدث خطأ غير متوقع', 'error');
+                    }
+                }).fail(function (xhr) {
+                    Swal.fire('خطأ', xhr.responseText || 'تعذر الاتصال بالخادم', 'error');
+                });
+            });
+        });
 
         function parseNumber(value) {
             if (!value) return 0;
@@ -156,6 +247,56 @@
         function formatMoney(value) {
             return parseNumber(value).toFixed(2);
         }
+
+        function getRowItemId($row) {
+            const raw = $row.find('.itemSelect').val();
+            const id = parseInt(raw, 10);
+            return Number.isNaN(id) ? 0 : id;
+        }
+
+        function getRowQty($row) {
+            return parseNumber($row.find('.qtyInput').val());
+        }
+
+        function updateStockDisplayForAllRows() {
+            const requestedByItem = {};
+
+            $('#linesTableBody tr').each(function () {
+                const $row = $(this);
+                const itemId = getRowItemId($row);
+                if (!itemId) return;
+
+                const qty = getRowQty($row);
+                requestedByItem[itemId] = (requestedByItem[itemId] || 0) + qty;
+            });
+
+            $('#linesTableBody tr').each(function () {
+                const $row = $(this);
+                const itemId = getRowItemId($row);
+                if (!itemId) {
+                    $row.data('availableForRow', 0);
+                    $row.find('.availableQuantity').html('<span class="text-muted">-</span>');
+                    return;
+                }
+
+                const info = stockCache[itemId] || { totalAvailable: 0, detailsHtml: '' };
+                const rowQty = getRowQty($row);
+                const usedInOtherRows = (requestedByItem[itemId] || 0) - rowQty;
+                const availableForRow = info.totalAvailable - usedInOtherRows;
+                const safeAvailable = Math.max(0, availableForRow);
+
+                $row.data('availableForRow', availableForRow);
+                $row.find('.availableQuantity').html(`
+                    <div class="available-quantity" title="${(info.detailsHtml || '').replace(/"/g, '&quot;')}">
+                        ${formatMoney(safeAvailable)}
+                    </div>
+                `);
+            });
+        }
+
+
+
+
 
         // تهيئة Select2 للعملاء
         function initCustomerSelect2() {
@@ -195,23 +336,17 @@
                     }
                 }
             }).on('select2:select', function(e) {
-                // عند اختيار صنف
                 const $row = $(this).closest('tr');
                 const itemId = e.params.data.id;
-                const itemText = e.params.data.text;
 
-                // عرض مؤشر تحميل
                 $row.find('.availableQuantity').html('<span class="spinner-border spinner-border-sm"></span>');
 
-                // جلب الكميات المتاحة
                 $.get('@Url.Action("GetItemAvailability", "Sales")', { id: itemId }, function(res) {
                     let totalAvailable = 0;
                     let detailsHtml = '';
 
                     if (res && res.batches && res.batches.length > 0) {
                         totalAvailable = res.totalAvailable || 0;
-
-                        // تجهيز نص التفاصيل
                         detailsHtml = '<div class="small text-muted">';
                         res.batches.forEach(function(b) {
                             detailsHtml += '<div>';
@@ -225,22 +360,25 @@
                         detailsHtml += '</div>';
                     }
 
-                    // عرض الكمية المتاحة في العمود المخصص
-                    $row.find('.availableQuantity').html(`
-                        <div class="available-quantity" title="${detailsHtml.replace(/"/g, '&quot;')}">
-                            ${formatMoney(totalAvailable)}
-                        </div>
-                    `);
+                    stockCache[itemId] = {
+                        totalAvailable: parseNumber(totalAvailable),
+                        detailsHtml: detailsHtml
+                    };
+                    updateStockDisplayForAllRows();
+                    calculateTotals();
 
-                    // جلب سعر الصنف
                     $.get('@Url.Action("GetItemPrice", "Sales")', { id: itemId }, function(priceRes) {
                         if (priceRes && priceRes.price) {
                             $row.find('.priceInput').val(formatMoney(priceRes.price));
                             calculateRowTotal($row);
+                            updateStockDisplayForAllRows();
                             calculateTotals();
                         }
                     });
                 });
+            }).on('select2:clear', function () {
+                updateStockDisplayForAllRows();
+                calculateTotals();
             });
         }
 
@@ -251,29 +389,29 @@
                 <tr data-row="${rowId}">
                     <td>
                         <input type="hidden" name="Lines.Index" value="${rowId}" />
-                        <select name="Lines[${rowId}].ItemId" class="form-control itemSelect" style="width:100%"></select>
+                        <select name="Lines[${rowId}].ItemId" class="form-control form-control-sm itemSelect" style="width:100%"></select>
                     </td>
                     <td class="availableQuantity text-center align-middle">
                         <span class="text-muted">-</span>
                     </td>
                     <td>
-                        <input type="number" name="Lines[${rowId}].Qty" class="form-control qtyInput" step="0.01" min="0" value="0" />
+                        <input type="number" name="Lines[${rowId}].Qty" class="form-control form-control-sm qtyInput text-center" step="0.01" min="0" value="0" />
                     </td>
                     <td>
-                        <input type="number" name="Lines[${rowId}].UnitPrice" class="form-control priceInput" step="0.01" min="0" value="0" />
+                        <input type="number" name="Lines[${rowId}].UnitPrice" class="form-control form-control-sm priceInput text-center" step="0.01" min="0" value="0" />
                     </td>
-                    <td class="text-end align-middle">
+                    <td class="text-center align-middle">
                         <span class="rowTotal">0.00</span>
                     </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-danger removeRow">×</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger removeRow" style="width:28px;height:28px;padding:0;line-height:28px;">
+                            <i class="bi bi-x"></i>
+                        </button>
                     </td>
                 </tr>
             `;
 
             $('#linesTableBody').append(html);
-
-            // تهيئة Select2 للصف الجديد
             initItemSelect2(`#linesTableBody tr:last .itemSelect`);
         }
 
@@ -289,10 +427,12 @@
         // التحقق من الكمية
         function validateQuantity($row) {
             const qty = parseNumber($row.find('.qtyInput').val());
-            const availText = $row.find('.availableQuantity').text().trim();
-            const available = parseNumber(availText);
+            const available = parseNumber($row.data('availableForRow'));
 
             if (available > 0 && qty > available) {
+                $row.find('.qtyInput').addClass('is-invalid');
+                return false;
+            } else if (available <= 0 && qty > 0 && getRowItemId($row) > 0) {
                 $row.find('.qtyInput').addClass('is-invalid');
                 return false;
             } else {
@@ -305,12 +445,12 @@
         function calculateTotals() {
             let subtotal = 0;
             let hasErrors = false;
+            updateStockDisplayForAllRows();
 
             $('#linesTableBody tr').each(function() {
                 const $row = $(this);
                 subtotal += parseNumber($row.find('.rowTotal').text());
 
-                // التحقق من صحة الكميات
                 if (!validateQuantity($row)) {
                     hasErrors = true;
                 }
@@ -318,25 +458,14 @@
 
             const discount = parseNumber($('#discount').val());
             const netTotal = Math.max(0, subtotal - discount);
+            const maxCashCanPay = netTotal;
 
-            // تحديث نوع الدفع
-            if ($('#paymentMode').val() === 'Cash') {
-                $('#paidAmount').val(formatMoney(netTotal)).prop('readonly', true);
-            } else {
-                $('#paidAmount').prop('readonly', false);
-            }
-
-            const paid = parseNumber($('#paidAmount').val());
-            const remaining = netTotal - paid;
-
-            // تحديث العرض
+            // Only calculate net and remaining based on total and discount
             $('#subTotalLabel').text(formatMoney(subtotal));
             $('#discountLabel').text(formatMoney(discount));
             $('#netTotalLabel').text(formatMoney(netTotal));
-            $('#paidLabel').text(formatMoney(paid));
-            $('#remainingLabel').text(formatMoney(remaining));
+            $('#remainingLabel').text(formatMoney(netTotal));
 
-            // تمكين/تعطيل زر الإرسال بناءً على وجود أخطاء
             if (hasErrors) {
                 $('#saleForm button[type="submit"]').prop('disabled', true);
             } else {
@@ -361,8 +490,10 @@
 
         // أحداث الصفحة
         $(document).ready(function() {
-            // تهيئة Select2 للعملاء
             initCustomerSelect2();
+            $('#customerSelect').on('change', function () {
+                calculateTotals();
+            });
 
             // إضافة أول صف
             createNewRow();
@@ -381,9 +512,10 @@
                     }
                     $(this).closest('tr').remove();
                     reindexRows();
+                    updateStockDisplayForAllRows();
                     calculateTotals();
                 } else {
-                    alert('لا يمكن حذف كل البنود، يجب وجود بند واحد على الأقل');
+                    Swal.fire('تنبيه', 'لا يمكن حذف كل البنود، يجب وجود بند واحد على الأقل', 'warning');
                 }
             });
 
@@ -392,11 +524,6 @@
                 const $row = $(this).closest('tr');
                 calculateRowTotal($row);
                 validateQuantity($row);
-                calculateTotals();
-            });
-
-            // تغيير نوع الدفع
-            $('#paymentMode').change(function() {
                 calculateTotals();
             });
 
@@ -410,30 +537,30 @@
                 calculateTotals();
             });
 
+            // حساب أولي
+            calculateTotals();
+
             // قبل إرسال النموذج
             $('#saleForm').submit(function(e) {
-                // التحقق من وجود عناصر
                 if ($('#linesTableBody tr').length === 0) {
                     e.preventDefault();
-                    alert('يجب إضافة بند واحد على الأقل');
+                    Swal.fire('خطأ', 'يجب إضافة بند واحد على الأقل', 'error');
                     return false;
                 }
 
-                // التحقق من اختيار العناصر
                 let hasError = false;
                 $('#linesTableBody tr').each(function() {
                     const $row = $(this);
                     if (!$row.find('.itemSelect').val()) {
                         hasError = true;
-                        alert('يجب اختيار صنف لكل بند');
+                        Swal.fire('خطأ', 'يجب اختيار صنف لكل بند', 'error');
                         e.preventDefault();
                         return false;
                     }
 
-                    // التحقق من الكميات
                     if (!validateQuantity($row)) {
                         hasError = true;
-                        alert('الكمية المدخلة أكبر من الكمية المتاحة');
+                        Swal.fire('خطأ', 'الكمية المدخلة أكبر من الكمية المتاحة', 'error');
                         e.preventDefault();
                         return false;
                     }
@@ -443,11 +570,8 @@
                     return false;
                 }
 
-                // تنسيق الأرقام
                 $('#discount').val(formatMoney($('#discount').val()));
-                $('#paidAmount').val(formatMoney($('#paidAmount').val()));
 
-                // إزالة formatting من حقول الجدول للإرسال
                 $('#linesTableBody tr').each(function() {
                     const $row = $(this);
                     $row.find('.qtyInput').val(parseNumber($row.find('.qtyInput').val()));

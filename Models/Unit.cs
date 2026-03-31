@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace AbuAmenPharma.Models
 {
@@ -6,7 +6,7 @@ namespace AbuAmenPharma.Models
     {
         public int Id { get; set; }
 
-        [Required, StringLength(50)]
+        [Required(ErrorMessage = "حقل الاسم مطلوب"), StringLength(50, ErrorMessage = "الحد الأقصى 50 حرفاً")]
         public string NameAr { get; set; } = string.Empty;
 
         [StringLength(50)]

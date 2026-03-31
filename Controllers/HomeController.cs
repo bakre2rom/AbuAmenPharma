@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +56,7 @@ namespace AbuAmenPharma.Controllers
             var activeBatchesQ =
                 from b in _context.ItemBatches.AsNoTracking()
                 join bb in batchBalancesQ on b.Id equals bb.BatchId
-                where bb.Balance > 0 && b.ExpiryDate != null
+                where bb.Balance > 0
                 select new { b.ExpiryDate, bb.Balance };
 
             // ✅ أرصدة الأصناف (GroupBy على ItemId مباشرة)
@@ -71,10 +71,11 @@ namespace AbuAmenPharma.Controllers
             // Top 5 items sold this month
             var topItems = await _context.SaleAllocations
                 .AsNoTracking()
-                .Where(a => a.SaleLine.Sale.IsPosted &&
+                .Where(a => a.SaleLine != null && a.SaleLine.Sale != null && a.SaleLine.Item != null &&
+                            a.SaleLine.Sale.IsPosted &&
                             a.SaleLine.Sale.SaleDate >= monthStart &&
                             a.SaleLine.Sale.SaleDate < monthStart.AddMonths(1))
-                .GroupBy(a => new { a.SaleLine.ItemId, a.SaleLine.Item.NameAr })
+                .GroupBy(a => new { a.SaleLine!.ItemId, NameAr = a.SaleLine!.Item!.NameAr })
                 .Select(g => new TopItemVM
                 {
                     ItemId = g.Key.ItemId,

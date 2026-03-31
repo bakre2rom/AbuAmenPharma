@@ -1,32 +1,40 @@
-﻿@model Unit
+@model Unit
 @{
-    ViewData["Title"] = "إضافة وحدة";
+    ViewData["Title"] = "تعديل وحدة";
 }
 
-<h3 class="mb-3">تعديل وحدة</h3>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-3 mt-3">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                <h3 class="mb-0 text-primary">تعديل وحدة</h3>
+                <p class="text-muted small">تعديل بيانات الوحدة المحددة وتحديثها في النظام</p>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="Id" />
 
-<form asp-action="Edit" method="post" class="card p-3">
-    <div asp-validation-summary="All" class="text-danger mb-2"></div>
-    
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label">اسم الدواء</label>
-            <input asp-for="NameAr" class="form-control" placeholder="unit name" />
-            <span asp-validation-for="NameAr" class="text-danger"></span>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">اسم الوحدة <span class="text-danger">*</span></label>
+                        <input asp-for="NameAr" class="form-control bg-light" placeholder="مثال: شريط، علبة، الخ..." />
+                        <span asp-validation-for="NameAr" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-check form-switch mb-4">
+                        <input class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" asp-for="IsActive">
+                        <label class="form-check-label fw-semibold ms-2" for="isActiveSwitch">تفعيل الوحدة</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                        <a class="btn btn-outline-secondary px-4" asp-action="Index">إلغاء</a>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm">حفظ التغييرات</button>
+                    </div>
+                </form>
+            </div>
         </div>
-
     </div>
-
-    <div class="form-check mb-3">
-        <input class="form-check-input" asp-for="IsActive" />
-        <label class="form-check-label">نشط</label>
-    </div>
-
-    <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-success">حفظ</button>
-        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
-    </div>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

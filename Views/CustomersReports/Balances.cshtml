@@ -1,4 +1,4 @@
-﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 
 @{
     ViewData["Title"] = "ملخص أرصدة العملاء";
@@ -33,7 +33,7 @@
                         serverSide: true,
                         searching: true,
                         lengthMenu: [10, 25, 50, 100],
-                        pageLength: 25,
+                        pageLength: 5,
                         order: [[3, 'desc']], // الرصيد تنازلي
                         ajax: {
                             url: '@Url.Action("BalancesData")',

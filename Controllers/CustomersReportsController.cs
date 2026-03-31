@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -298,14 +298,14 @@ public class CustomersReportsController : Controller
             .AsNoTracking()
             .Where(s => s.SalesmanId == salesmanId && s.SaleDate >= from && s.SaleDate <= to && s.IsPosted)
             .OrderBy(s => s.SaleDate)
-            .Select(s => new SalesmanStatementLineVM
-            {
-                Date = s.SaleDate,
-                SaleId = (int)s.Id,
-                CustomerName = s.Customer.Name,
-                PaymentMode = s.PaymentMode.ToString(),
-                NetTotal = s.NetTotal,
-                PaidAmount = s.PaidAmount,
+                .Select(s => new SalesmanStatementLineVM
+                {
+                    Date = s.SaleDate,
+                    SaleId = (int)s.Id,
+                    CustomerName = s.Customer != null ? s.Customer.Name : "-",
+                    PaymentMode = s.PaymentMode.ToString(),
+                    NetTotal = s.NetTotal,
+                    PaidAmount = s.PaidAmount,
                 RemainingAmount = s.RemainingAmount,
                 Notes = s.Notes
             })
@@ -340,14 +340,14 @@ public class CustomersReportsController : Controller
             .AsNoTracking()
             .Where(s => s.SalesmanId == salesmanId && s.SaleDate >= from && s.SaleDate <= to && s.IsPosted)
             .OrderBy(s => s.SaleDate)
-            .Select(s => new SalesmanStatementLineVM
-            {
-                Date = s.SaleDate,
-                SaleId = (int)s.Id,
-                CustomerName = s.Customer.Name,
-                PaymentMode = s.PaymentMode.ToString(),
-                NetTotal = s.NetTotal,
-                PaidAmount = s.PaidAmount,
+                .Select(s => new SalesmanStatementLineVM
+                {
+                    Date = s.SaleDate,
+                    SaleId = (int)s.Id,
+                    CustomerName = s.Customer != null ? s.Customer.Name : "-",
+                    PaymentMode = s.PaymentMode.ToString(),
+                    NetTotal = s.NetTotal,
+                    PaidAmount = s.PaidAmount,
                 RemainingAmount = s.RemainingAmount,
                 Notes = s.Notes
             })

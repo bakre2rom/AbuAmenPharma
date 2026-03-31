@@ -2,7 +2,7 @@
 @model List<ItemMovementVM>
 @{
     ViewData["Title"] = "تقرير حركة منتج";
-    var items = ViewBag.Items as List<Item>;
+    var items = ViewBag.Items as List<Item> ?? new List<Item>();
 }
 
 <h3 class="mb-3">تقرير حركة منتج</h3>

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AbuAmenPharma.Models
@@ -7,18 +7,18 @@ namespace AbuAmenPharma.Models
     {
         public int Id { get; set; }
 
-        [Required, StringLength(150)]
+        [Required(ErrorMessage = "حقل الاسم مطلوب"), StringLength(150, ErrorMessage = "الحد الأقصى 150 حرفاً")]
         public string NameAr { get; set; } = string.Empty;
         public string? GenericName { get; set; }
 
         [StringLength(50)]
         public string? BarCode { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "اختر الشركة المصنعة")]
         public int ManufacturerId { get; set; }
         public Manufacturer? Manufacturer { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "اختر الوحدة")]
         public int UnitId { get; set; }
         public Unit? Unit { get; set; }
 
@@ -39,14 +39,14 @@ namespace AbuAmenPharma.Models
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "اختر الصنف")]
         public int ItemId { get; set; }
         public Item? Item { get; set; }
 
-        [Required, StringLength(50)]
+        [Required(ErrorMessage = "رقم التشغيلة مطلوب"), StringLength(50)]
         public string BatchNo { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "تاريخ الانتهاء مطلوب")]
         public DateOnly ExpiryDate { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
@@ -76,15 +76,17 @@ namespace AbuAmenPharma.Models
         public long Id { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
 
-        [Required]
+        [Required(ErrorMessage = "اختر الصنف")]
         public int ItemId { get; set; }
         public Item? Item { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "اختر التشغيلة")]
         public int BatchId { get; set; }
         public ItemBatch? Batch { get; set; }
 
+        [Column(TypeName = "decimal(18,2)")]
         public decimal QtyIn { get; set; } = 0;
+        [Column(TypeName = "decimal(18,2)")]
         public decimal QtyOut { get; set; } = 0;
 
         [Column(TypeName = "decimal(18,2)")]

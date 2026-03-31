@@ -1,0 +1,121 @@
+@model AbuAmenPharma.ViewModels.CustomerAccountDetailsVM
+@{
+    ViewData["Title"] = "تفاصيل حساب العميل";
+}
+
+<div class="row mb-3 mt-2">
+    <div class="col-md-8">
+        <h3 class="fw-bold mb-1">تفاصيل حساب العميل: @Model.CustomerName</h3>
+        <div class="text-muted">
+            <span class="me-3">الهاتف: @(string.IsNullOrWhiteSpace(Model.Phone) ? "-" : Model.Phone)</span>
+            <span>المندوب: @(string.IsNullOrWhiteSpace(Model.SalesmanName) ? "-" : Model.SalesmanName)</span>
+        </div>
+    </div>
+    <div class="col-md-4 text-start">
+        <a class="btn btn-outline-secondary" asp-action="Index">
+            <i class="bi bi-arrow-right"></i> رجوع
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">إجمالي المدين (مبالغ مضافة على العميل)</div>
+                <div class="h4 mb-0 text-danger">@Model.TotalDebit.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">إجمالي الدائن (مبالغ مسددة/مخصومة)</div>
+                <div class="h4 mb-0 text-success">@Model.TotalCredit.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">الرصيد الحالي</div>
+                <div class="h4 mb-0 @(Model.CurrentBalance >= 0 ? "text-primary" : "text-warning")">@Model.CurrentBalance.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-white border-0 pt-3">
+        <h5 class="mb-0">حركة الحساب</h5>
+        <small class="text-muted">يوضح كل مبلغ مدين/دائن وبأي فاتورة أو سند مرتبط</small>
+    </div>
+    <div class="card-body p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="customerLedgerTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>نوع العملية</th>
+                        <th>المرجع</th>
+                        <th class="text-end">مدين</th>
+                        <th class="text-end">دائن</th>
+                        <th class="text-end">الرصيد بعد العملية</th>
+                        <th>ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var line in Model.Lines)
+                    {
+                        <tr>
+                            <td>@line.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@line.TypeName</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(line.ReferenceController))
+                                {
+                                    <a asp-controller="@line.ReferenceController" asp-action="@line.ReferenceAction" asp-route-id="@line.RefId">
+                                        @line.ReferenceLabel
+                                    </a>
+                                }
+                                else
+                                {
+                                    @line.ReferenceLabel
+                                }
+                            </td>
+                            <td class="text-end text-danger fw-semibold">@line.Debit.ToString("N2")</td>
+                            <td class="text-end text-success fw-semibold">@line.Credit.ToString("N2")</td>
+                            <td class="text-end fw-bold">@line.RunningBalance.ToString("N2")</td>
+                            <td>@(string.IsNullOrWhiteSpace(line.Notes) ? "-" : line.Notes)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/lib/datatables/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap.min.js"></script>
+    <script>
+        $(function () {
+            $('#customerLedgerTable').DataTable({
+                order: [[0, 'desc']],
+                pageLength: 5,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ابحث...",
+                    lengthMenu: "عرض _MENU_ سجل",
+                    info: "عرض _START_ إلى _END_ من إجمالي _TOTAL_ سجل",
+                    infoEmpty: "تعرض 0 إلى 0 من أصل 0 سجل",
+                    zeroRecords: "لا توجد بيانات",
+                    paginate: { first: "الأول", last: "الأخير", next: "التالي", previous: "السابق" }
+                }
+            });
+        });
+    </script>
+}

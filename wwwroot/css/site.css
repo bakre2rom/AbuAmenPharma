@@ -1,3 +1,27 @@
+@font-face {
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cairo";
+  src: url("/fonts/Cairo-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 html {
   font-size: 14px;
 }
@@ -18,5 +42,6 @@ html {
 }
 
 body {
+  font-family: "Cairo", "Segoe UI", Tahoma, Arial, sans-serif;
   margin-bottom: 60px;
 }

@@ -1,4 +1,4 @@
-﻿@using AbuAmenPharma.ViewModels
+@using AbuAmenPharma.ViewModels
 @model CustomerReceiptCreateVM
 @{
     ViewData["Title"] = "سند قبض";
@@ -17,12 +17,19 @@
 
         <div class="col-md-4 mb-3">
             <label class="form-label">العميل</label>
-            <select asp-for="CustomerId" class="form-control" id="customerSelect" style="width:100%"></select>
+            <div class="d-flex gap-1 align-items-start">
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <select asp-for="CustomerId" class="form-control" id="customerSelect" style="width:100%"></select>
+                </div>
+                <button type="button" class="btn btn-primary" style="height: 38px;" data-bs-toggle="modal" data-bs-target="#createCustomerModal" title="إضافة عميل سريع">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+            </div>
         </div>
 
         <div class="col-md-4 mb-3">
             <label class="form-label">المبلغ</label>
-            <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+            <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" required />
         </div>
     </div>
 
@@ -50,6 +57,34 @@
         <a class="btn btn-secondary" asp-action="Index">رجوع</a>
     </div>
 </form>
+
+<!-- Create Customer Modal -->
+<div class="modal fade" id="createCustomerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title">إضافة عميل جديد</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">اسم العميل <span class="text-danger">*</span></label>
+                    <input type="text" id="newCustomerName" class="form-control bg-light" placeholder="اسم العميل..." required />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">المندوب المسؤول <span class="text-danger">*</span></label>
+                    <select id="newCustomerSalesmanId" name="newCustomerSalesmanId" class="form-select bg-light" asp-items="ViewBag.SalesmanId" required>
+                        <option value="">اختر المندوب...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary px-4 shadow-sm" id="saveCustomerBtn">حفظ</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
@@ -141,6 +176,42 @@
 
         $(document).ready(function() {
             initCustomerSelect2();
+            
+            // Save Customer via AJAX
+            $('#saveCustomerBtn').click(function () {
+                var cName = $('#newCustomerName').val();
+                var salesmanId = $('#newCustomerSalesmanId').val();
+                if (!cName) {
+                    Swal.fire('خطأ', 'يرجى إدخال اسم العميل', 'error');
+                    return;
+                }
+                if (!salesmanId) {
+                    Swal.fire('خطأ', 'يرجى اختيار المندوب المسؤول', 'error');
+                    return;
+                }
+                
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                $.post('@Url.Action("CreateCustomerAjax", "CustomerReceipts")', { name: cName, salesmanId: salesmanId, __RequestVerificationToken: token }, function (res) {
+                    if (res && res.id) {
+                        var newOption = new Option(res.text, res.id, true, true);
+                        $('#customerSelect').append(newOption).trigger('change');
+                        $('#createCustomerModal').modal('hide');
+                        $('#newCustomerName').val('');
+                        $('#newCustomerSalesmanId').val('');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'نجاح',
+                            text: 'تمت إضافة العميل بنجاح',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire('خطأ', 'حدث خطأ غير متوقع', 'error');
+                    }
+                }).fail(function (xhr) {
+                    Swal.fire('خطأ', xhr.responseText || 'تعذر الاتصال بالخادم', 'error');
+                });
+            });
         })
     </script>
 }

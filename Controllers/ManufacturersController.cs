@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +24,18 @@ namespace AbuAmenPharma.Controllers
             manufacturer.NameAr = manufacturer.NameAr.Trim();
             _context.Add(manufacturer);
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "تمت العملية بنجاح";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAjax(string nameAr)
+        {
+            if (string.IsNullOrWhiteSpace(nameAr)) return BadRequest("الاسم مطلوب");
+            var obj = new Manufacturer { NameAr = nameAr.Trim(), IsActive = true };
+            _context.Add(obj);
+            await _context.SaveChangesAsync();
+            return Json(new { id = obj.Id, name = obj.NameAr });
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -37,17 +48,17 @@ namespace AbuAmenPharma.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Manufacturer manufacturer)
+        public async Task<IActionResult> Edit(Manufacturer manufacturer)
         {
-            if (id != manufacturer.Id) return NotFound();
             if (!ModelState.IsValid) return View(manufacturer);
 
-            var db = await _context.Manufacturers.FindAsync(id);
+            var db = await _context.Manufacturers.FindAsync(manufacturer.Id);
             if (db == null || !db.IsActive) return NotFound();
 
             db.NameAr = manufacturer.NameAr.Trim();
             db.Country = manufacturer.Country?.Trim();
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "تمت العملية بنجاح";
             return RedirectToAction(nameof(Index));
         }
 
@@ -70,6 +81,7 @@ namespace AbuAmenPharma.Controllers
                 manufacturer.IsActive = false;
                 await _context.SaveChangesAsync();
             }
+            TempData["SuccessMessage"] = "تمت العملية بنجاح";
             return RedirectToAction(nameof(Index));
         }
     }

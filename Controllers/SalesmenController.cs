@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +24,7 @@ public class SalesmenController : Controller
         _context.Salesmen.Add(model);
         await _context.SaveChangesAsync();
 
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
 
@@ -63,6 +64,7 @@ public class SalesmenController : Controller
             s.IsActive = false;
             await _context.SaveChangesAsync();
         }
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
 }

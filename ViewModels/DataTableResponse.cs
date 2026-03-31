@@ -1,4 +1,4 @@
-﻿namespace AbuAmenPharma.ViewModels
+namespace AbuAmenPharma.ViewModels
 {
     public class DataTableResponse
     {
@@ -11,10 +11,10 @@
     public class SaleRow
     {
         public int id { get; set; }
-        public string saleDate { get; set; }
-        public string customerName { get; set; }
-        public string salesmanName { get; set; }
-        public string paymentMode { get; set; }
+        public string saleDate { get; set; } = string.Empty;
+        public string customerName { get; set; } = string.Empty;
+        public string salesmanName { get; set; } = string.Empty;
+        public string paymentMode { get; set; } = string.Empty;
         public decimal netTotal { get; set; }
         public decimal paidAmount { get; set; }
         public decimal remainingAmount { get; set; }

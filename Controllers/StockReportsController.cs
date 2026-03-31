@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +32,7 @@ public class StockReportsController : Controller
         var data = await query
             .Where(x => x.Balance > 0)
             .Where(x => string.IsNullOrWhiteSpace(q) || x.ItemName.Contains(q) || x.BatchNo.Contains(q))
-            .OrderBy(x => x.ItemName).ThenBy(x => x.ExpiryDate == null).ThenBy(x => x.ExpiryDate).ThenBy(x => x.Id)
+            .OrderBy(x => x.ItemName).ThenBy(x => x.ExpiryDate).ThenBy(x => x.Id)
             .Select(x => new BatchStockVM
             {
                 BatchId = x.Id,
@@ -41,7 +41,7 @@ public class StockReportsController : Controller
                 BatchNo = x.BatchNo,
                 ExpiryDate = x.ExpiryDate,
                 Balance = x.Balance,
-                DaysToExpiry = x.ExpiryDate == null ? null : (x.ExpiryDate.DayNumber - today.DayNumber)
+                DaysToExpiry = x.ExpiryDate.DayNumber - today.DayNumber
             })
             .ToListAsync();
 
@@ -71,7 +71,6 @@ public class StockReportsController : Controller
 
         var data = await query
             .Where(x => x.Balance > 0)
-            .Where(x => x.ExpiryDate != null) // التنبيه فقط لما في تاريخ انتهاء
             .Where(x => x.ExpiryDate <= max) // قريب/منتهي
             .Where(x => string.IsNullOrWhiteSpace(q) || x.ItemName.Contains(q) || x.BatchNo.Contains(q))
             .OrderBy(x => x.ExpiryDate).ThenBy(x => x.ItemName)
@@ -83,7 +82,7 @@ public class StockReportsController : Controller
                 BatchNo = x.BatchNo,
                 ExpiryDate = x.ExpiryDate,
                 Balance = x.Balance,
-                DaysToExpiry = x.ExpiryDate == null ? null : (x.ExpiryDate.DayNumber - today.DayNumber)
+                DaysToExpiry = x.ExpiryDate.DayNumber - today.DayNumber
             })
             .ToListAsync();
 
@@ -162,18 +161,16 @@ public class StockReportsController : Controller
             .Where(x => x.Balance > 0)
             .Where(x => string.IsNullOrWhiteSpace(q) || x.ItemName.Contains(q) || x.BatchNo.Contains(q))
             .OrderBy(x => x.ItemName)
-            .ThenBy(x => x.ExpiryDate == null)     // الغير محدد في النهاية
             .ThenBy(x => x.ExpiryDate)
             .ThenBy(x => x.BatchNo)
             .ToListAsync();
 
         var data = dataRaw.Select(x =>
         {
-            int? d = x.ExpiryDate == null ? null : (x.ExpiryDate.DayNumber - today.DayNumber);
+            int d = x.ExpiryDate.DayNumber - today.DayNumber;
 
             string status;
-            if (x.ExpiryDate == null) status = "بدون انتهاء";
-            else if (d < 0) status = "منتهي";
+            if (d < 0) status = "منتهي";
             else if (d <= days) status = "قريب";
             else status = "سليم";
 

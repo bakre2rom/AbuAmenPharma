@@ -1,0 +1,199 @@
+@model IEnumerable<Supplier>
+@{
+    ViewData["Title"] = "إدارة الموردين";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-2 mt-1">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-truck me-1"></i> إدارة الموردين</h5>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createSupplierModal">
+                    <i class="bi bi-plus-lg"></i> إضافة مورد
+                </button>
+            </div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success py-2 px-3 small border-0 shadow-sm rounded-3">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger py-2 px-3 small border-0 shadow-sm rounded-3">@TempData["ErrorMessage"]</div>
+        }
+
+        <!-- Card Container -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-2">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle w-100" id="suppliersTable" style="margin-top: 5px; font-size: 0.88rem;">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="fw-semibold py-2">اسم المورد</th>
+                                <th class="fw-semibold py-2">الهاتف</th>
+                                <th class="fw-semibold py-2 text-center" style="width:140px;">العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model)
+                            {
+                                <tr>
+                                    <td><span class="fw-bold text-dark">@s.Name</span></td>
+                                    <td>@(string.IsNullOrWhiteSpace(s.Phone) ? "-" : s.Phone)</td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary floating-action-btn edit-supplier-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editSupplierModal"
+                                                    data-id="@s.Id"
+                                                    data-name="@s.Name"
+                                                    data-phone="@s.Phone"
+                                                    title="تعديل">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-outline-danger floating-action-btn disable-supplier-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#disableSupplierModal"
+                                                    data-id="@s.Id"
+                                                    data-name="@s.Name"
+                                                    title="تعطيل">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createSupplierModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title">إضافة مورد جديد</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">اسم المورد <span class="text-danger">*</span></label>
+                        <input name="name" class="form-control bg-light" placeholder="اسم المورد..." required oninvalid="this.setCustomValidity('اسم المورد مطلوب')" oninput="this.setCustomValidity('')" />
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold">الهاتف</label>
+                        <input name="phone" class="form-control bg-light" placeholder="رقم الهاتف (اختياري)" />
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editSupplierModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-secondary text-white border-0">
+                <h5 class="modal-title">تعديل مورد</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editSupplierId" name="id" />
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">اسم المورد <span class="text-danger">*</span></label>
+                        <input id="editSupplierName" name="name" class="form-control bg-light" required />
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold">الهاتف</label>
+                        <input id="editSupplierPhone" name="phone" class="form-control bg-light" />
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-secondary px-4 shadow-sm">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Disable Modal -->
+<div class="modal fade" id="disableSupplierModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title">تعطيل مورد</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Disable" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" id="disableSupplierId" name="id" />
+                    <p class="mb-0">هل أنت متأكد من تعطيل المورد: <strong id="disableSupplierName"></strong> ؟</p>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">تعطيل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/lib/datatables/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#suppliersTable').DataTable({
+                order: [[0, 'asc']],
+                pageLength: 5,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ابحث عن مورد...",
+                    lengthMenu: "عرض _MENU_ سجل",
+                    info: "عرض _START_ إلى _END_ من إجمالي _TOTAL_ سجل",
+                    infoEmpty: "تعرض 0 إلى 0 من أصل 0 سجل",
+                    zeroRecords: "لم يتم العثور على سجلات متطابقة",
+                    paginate: { first: "الأول", last: "الأخير", next: "التالي", previous: "السابق" }
+                }
+            });
+
+            $('.edit-supplier-btn').on('click', function () {
+                const btn = $(this);
+                $('#editSupplierId').val(btn.data('id'));
+                $('#editSupplierName').val(btn.data('name'));
+                $('#editSupplierPhone').val(btn.data('phone'));
+            });
+
+            $('.disable-supplier-btn').on('click', function () {
+                const btn = $(this);
+                $('#disableSupplierId').val(btn.data('id'));
+                $('#disableSupplierName').text(btn.data('name'));
+            });
+        });
+    </script>
+}

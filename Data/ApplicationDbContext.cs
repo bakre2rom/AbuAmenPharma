@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Models;
+using AbuAmenPharma.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

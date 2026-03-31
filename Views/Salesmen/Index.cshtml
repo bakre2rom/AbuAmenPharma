@@ -1,0 +1,201 @@
+@model IEnumerable<Salesman>
+@{
+    ViewData["Title"] = "إدارة المناديب";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-2 mt-1">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-person-badge me-1"></i> إدارة المناديب</h5>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createSalesmanModal">
+                    <i class="bi bi-plus-lg"></i> إضافة مندوب
+                </button>
+            </div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success py-2 px-3 small border-0 shadow-sm rounded-3">@TempData["SuccessMessage"]</div>
+        }
+
+        <!-- Card Container -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-2">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle w-100" id="salesmenTable" style="margin-top: 5px; font-size: 0.88rem;">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="fw-semibold py-2">اسم المندوب</th>
+                                <th class="fw-semibold py-2">الهاتف</th>
+                                <th class="fw-semibold py-2 text-center" style="width:140px;">العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model)
+                            {
+                                <tr>
+                                    <td><span class="fw-bold text-dark">@s.NameAr</span></td>
+                                    <td>@(string.IsNullOrWhiteSpace(s.Phone) ? "-" : s.Phone)</td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary floating-action-btn edit-salesman-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#editSalesmanModal"
+                                                    data-id="@s.Id"
+                                                    data-namear="@s.NameAr"
+                                                    data-phone="@s.Phone"
+                                                    title="تعديل">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-outline-danger floating-action-btn disable-salesman-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#disableSalesmanModal"
+                                                    data-id="@s.Id"
+                                                    data-namear="@s.NameAr"
+                                                    title="تعطيل">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal fade" id="createSalesmanModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title">إضافة مندوب جديد</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">اسم المندوب <span class="text-danger">*</span></label>
+                        <input name="NameAr" class="form-control bg-light" placeholder="اسم المندوب..." required oninvalid="this.setCustomValidity('اسم المندوب مطلوب')" oninput="this.setCustomValidity('')" />
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold">الهاتف</label>
+                        <input name="Phone" class="form-control bg-light" placeholder="رقم الهاتف (اختياري)" />
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editSalesmanModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-secondary text-white border-0">
+                <h5 class="modal-title">تعديل مندوب</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" id="editSalesmanId" name="id" />
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">اسم المندوب <span class="text-danger">*</span></label>
+                        <input id="editSalesmanNameAr" name="NameAr" class="form-control bg-light" required />
+                    </div>
+                    <div>
+                        <label class="form-label fw-semibold">الهاتف</label>
+                        <input id="editSalesmanPhone" name="Phone" class="form-control bg-light" />
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-secondary px-4 shadow-sm">حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Disable Modal -->
+<div class="modal fade" id="disableSalesmanModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title">تعطيل مندوب</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="Disable" method="post" asp-route-id="0">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <input type="hidden" id="disableSalesmanId" name="id" />
+                    <p class="mb-0">هل أنت متأكد من تعطيل المندوب: <strong id="disableSalesmanName"></strong> ؟</p>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-danger px-4 shadow-sm">تعطيل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="~/lib/datatables/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#salesmenTable').DataTable({
+                order: [[0, 'asc']],
+                pageLength: 5,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ابحث عن مندوب...",
+                    lengthMenu: "عرض _MENU_ سجل",
+                    info: "عرض _START_ إلى _END_ من إجمالي _TOTAL_ سجل",
+                    infoEmpty: "تعرض 0 إلى 0 من أصل 0 سجل",
+                    zeroRecords: "لم يتم العثور على سجلات متطابقة",
+                    paginate: { first: "الأول", last: "الأخير", next: "التالي", previous: "السابق" }
+                }
+            });
+
+            $('.edit-salesman-btn').on('click', function () {
+                const btn = $(this);
+                $('#editSalesmanId').val(btn.data('id'));
+                $('#editSalesmanNameAr').val(btn.data('namear'));
+                $('#editSalesmanPhone').val(btn.data('phone'));
+            });
+
+            $('.disable-salesman-btn').on('click', function () {
+                const btn = $(this);
+                $('#disableSalesmanId').val(btn.data('id'));
+                $('#disableSalesmanName').text(btn.data('namear'));
+            });
+
+            // Update the Disable form action dynamically
+            $('#disableSalesmanModal').on('show.bs.modal', function () {
+                var id = $('#disableSalesmanId').val();
+                $(this).find('form').attr('action', '/Salesmen/Disable/' + id);
+            });
+        });
+    </script>
+}

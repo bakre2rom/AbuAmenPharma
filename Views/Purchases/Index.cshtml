@@ -1,33 +1,58 @@
-﻿@{
+@{
     ViewData["Title"] = "المشتريات";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>المشتريات</h3>
-    <div class="d-flex gap-2">
-        <a class="btn btn-primary" asp-action="Create">فاتورة شراء جديدة</a>
-    </div>
-</div>
+<div class="row justify-content-center">
+    <div class="col-lg-12">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-2 mt-1">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-bag-check me-1"></i> إدارة المشتريات</h5>
+            <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm d-flex align-items-center gap-2" asp-action="Create">
+                    <i class="bi bi-plus-lg"></i> إضافة فاتورة
+                </a>
+            </div>
+        </div>
 
-<div class="card">
-    <div class="card-body">
-        <table class="table table-striped table-bordered" id="purchasesTable" style="width:100%">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>التاريخ</th>
-                    <th>المورد</th>
-                    <th>الإجمالي</th>
-                    <th>مرحل؟</th>
-                    <th>أجراءات</th>
-                </tr>
-            </thead>
-        </table>
+        <!-- Card Container -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-2">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle text-center w-100" id="purchasesTable" style="margin-top: 5px; font-size: 0.88rem;">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="fw-semibold py-2 text-center">رقم الفاتورة</th>
+                                <th class="fw-semibold py-2 text-center">المورد</th>
+                                <th class="fw-semibold py-2 text-center">التاريخ</th>
+                                <th class="fw-semibold py-2 text-center">الإجمالي</th>
+                                <th class="fw-semibold py-2 text-center">الحالة</th>
+                                <th class="fw-semibold py-2 text-center" style="width:120px;">العمليات</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @section Styles {
     <link href="~/lib/datatables/css/datatables.bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .table > :not(caption) > * > * {
+            padding: 0.6rem 0.4rem !important;
+            color: #495057;
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+        table.dataTable.table-striped > tbody > tr.odd > * {
+            box-shadow: none;
+        }
+    </style>
 }
 
 @section Scripts {
@@ -44,69 +69,62 @@
                     type: 'POST'
                 },
                 columns: [
-                    { data: 'id' },
+                    { 
+                        data: 'id',
+                        render: function(data) {
+                            return `<span class="fw-bold text-primary">PO-${data}#</span>`;
+                        }
+                    },
+                    { 
+                        data: 'supplierName',
+                        render: function(data) { return `<span class="fw-bold text-dark">${data || 'بدون مورد'}</span>`; }
+                    },
                     {
                         data: 'purchaseDate',
+                        render: function(data) { 
+                            if (!data) return '-';
+                            var date = new Date(data);
+                            return date.toISOString().split('T')[0];
+                        }
                     },
-                    { data: 'supplierName' },
                     {
                         data: 'netTotal',
                         render: function(data) {
-                            return Number(data).toFixed(2);
+                            return `<small class="text-muted pe-1">SDG</small> <span class="fw-bold text-success">${Number(data).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>`;
                         }
                     },
                     {
                         data: 'isPosted',
                         render: function(data) {
-                            if(data){
-                                return '<span>نعم</span>';
-                            }
-                            return '<span>لا</span>';
+                            if(data) return '<span class="badge rounded-pill bg-success px-3 py-2">مكتمل ومرحل</span>';
+                            return '<span class="badge rounded-pill bg-warning text-dark px-3 py-2">قيد التسعير</span>';
                         }
                     },
                     {
                         data: 'id',
                         render: function(data) {
-                            return `<a class="btn btn-sm btn-outline-primary" href="/Purchases/Details/${data}">تفاصيل</a>`;
+                            return `
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a class="btn btn-outline-secondary floating-action-btn" href="/Purchases/Details/${data}" data-bs-toggle="tooltip" title="عرض التفاصيل"><i class="bi bi-eye"></i></a>
+                                    <a class="btn btn-outline-info floating-action-btn" href="/Purchases/Print/${data}" data-bs-toggle="tooltip" title="طباعة الفاتورة"><i class="bi bi-printer"></i></a>
+                                </div>
+                            `;
                         }
                     }
                 ],
                 order: [[0, 'desc']],
-                pageLength: 25
+                pageLength: 5,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "ابحث عن أي شيء هنا...",
+                    lengthMenu: "عرض _MENU_ سجل",
+                    info: "عرض _START_ إلى _END_ من إجمالي _TOTAL_ سجل",
+                    infoEmpty: "تعرض 0 إلى 0 من أصل 0 سجل",
+                    zeroRecords: "لم يتم العثور على سجلات متطابقة",
+                    paginate: { first: "الأول", last: "الأخير", next: "التالي", previous: "السابق" },
+                    processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">جاري التحميل...</span></div>'
+                }
             });
         });
     </script>
 }
-
-@* <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>المشتريات</h3>
-    <a class="btn btn-primary" asp-action="Create">فاتورة شراء جديدة</a>
-</div>
-
-<table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>التاريخ</th>
-            <th>المورد</th>
-            <th>الإجمالي</th>
-            <th>مرحل؟</th>
-            <th>أجراءات</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var p in Model)
-        {
-            <tr>
-                <td>@p.Id</td>
-                <td>@p.PurchaseDate</td>
-                <td>@p.Supplier?.Name</td>
-                <td>@p.NetTotal</td>
-                <td>@(p.IsPosted ? "نعم" : "لا")</td>
-                <td>
-                    <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@p.Id">تفاصيل</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table> *@

@@ -1,4 +1,4 @@
-﻿using AbuAmenPharma.Data;
+using AbuAmenPharma.Data;
 using AbuAmenPharma.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +33,18 @@ public class UnitsController : Controller
         unit.NameAr = unit.NameAr.Trim();
         _context.Add(unit);
         await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateAjax(string nameAr)
+    {
+        if (string.IsNullOrWhiteSpace(nameAr)) return BadRequest("الاسم مطلوب");
+        var obj = new Unit { NameAr = nameAr.Trim(), IsActive = true };
+        _context.Add(obj);
+        await _context.SaveChangesAsync();
+        return Json(new { id = obj.Id, name = obj.NameAr });
     }
 
     public async Task<IActionResult> Edit(int? id)
@@ -46,17 +57,17 @@ public class UnitsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Unit unit)
+    public async Task<IActionResult> Edit(Unit unit)
     {
-        if (id != unit.Id) return NotFound();
         if (!ModelState.IsValid) return View(unit);
 
-        var db = await _context.Units.FindAsync(id);
+        var db = await _context.Units.FindAsync(unit.Id);
         if (db == null || !db.IsActive) return NotFound();
 
         db.NameAr = unit.NameAr.Trim();
         db.NameEn = unit.NameEn?.Trim();
         await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
 
@@ -79,6 +90,7 @@ public class UnitsController : Controller
             unit.IsActive = false;
             await _context.SaveChangesAsync();
         }
+        TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
 }

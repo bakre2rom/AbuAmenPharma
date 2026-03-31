@@ -36,13 +36,13 @@
         @foreach (var x in Model)
         {
             var days = x.DaysToExpiry;
-            var badge = days == null ? "" : (days < 0 ? "table-danger" : (days <= 30 ? "table-warning" : ""));
+            var badge = days < 0 ? "table-danger" : (days <= 30 ? "table-warning" : "");
             <tr class="@badge">
                 <td>@x.ItemName</td>
                 <td class="text-center">@x.BatchNo</td>
-                <td class="text-center">@((x.ExpiryDate?.ToString() ?? "-"))</td>
+                <td class="text-center">@x.ExpiryDate.ToString("yyyy-MM-dd")</td>
                 <td class="text-end"><strong>@x.Balance</strong></td>
-                <td class="text-center">@((days == null) ? "-" : days.ToString())</td>
+                <td class="text-center">@days</td>
             </tr>
         }
     </tbody>
