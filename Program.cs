@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// In IIS local deployments, EventLog writes can fail under restricted app-pool identities.
+builder.Logging.AddFilter("Microsoft.Extensions.Logging.EventLog", LogLevel.None);
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -81,6 +84,12 @@ using (var scope = app.Services.CreateScope())
 
         var result = await userManager.CreateAsync(adminUser, "Admin@12345");
         if (result.Succeeded)
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+    }
+    else
+    {
+        // If user already exists, ensure they are in the Admin role
+        if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
             await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 }

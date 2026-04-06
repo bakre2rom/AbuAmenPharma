@@ -1,2 +1,32 @@
-﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    // Global validation fix for live updates
+    $(function () {
+        // Trigger validation on change and input for all forms
+        $(document).on('change input', 'input, select, textarea', function () {
+            var $el = $(this);
+            var $form = $el.closest('form');
+            if ($form.length && $form.data('validator')) {
+                // If it's a select2, we might need a small delay or manual trigger
+                if ($el.hasClass('select2-hidden-accessible')) {
+                    $form.validate().element($el);
+                } else {
+                    $form.validate().element($el);
+                }
+            }
+        });
+
+        // Specific fix for Select2: unobtrusive validation doesn't always see the change
+        $(document).on('select2:select select2:unselect setSelect2Value', '.select2-hidden-accessible', function () {
+            var $el = $(this);
+            var $form = $el.closest('form');
+            if ($form.length && $form.data('validator')) {
+                setTimeout(function(){
+                    $form.validate().element($el);
+                }, 50);
+            }
+        });
+    });
+</script>

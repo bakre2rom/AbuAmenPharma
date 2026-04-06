@@ -134,37 +134,87 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        const createManufacturerUrl = '@Url.Action("CreateAjax", "Manufacturers")';
+        const createUnitUrl = '@Url.Action("CreateAjax", "Units")';
+
+        function normalizeName(value) {
+            return (value || '').trim().toLowerCase();
+        }
+
+        function findMatchingOption(selectElement, normalizedValue) {
+            return Array.from(selectElement.options).find(opt => normalizeName(opt.text) === normalizedValue) || null;
+        }
+
         document.getElementById('btnSaveManufacturer').addEventListener('click', function () {
-            const name = document.getElementById('newManufacturerName').value;
+            const name = document.getElementById('newManufacturerName').value.trim();
             if (!name) return alert('يرجى إدخال اسم الشركة');
             
-            fetch('/Manufacturers/CreateAjax', {
+            fetch(createManufacturerUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ 'nameAr': name })
-            }).then(r => r.json()).then(data => {
+            }).then(async r => {
+                const data = await r.json().catch(() => null);
+                if (!r.ok) {
+                    throw { data };
+                }
+                return data;
+            }).then(data => {
                 const opt = new Option(data.name, data.id, true, true);
                 document.getElementById('ManufacturerId').appendChild(opt);
                 bootstrap.Modal.getInstance(document.getElementById('createManufacturerModal')).hide();
                 document.getElementById('newManufacturerName').value = '';
                 Swal.fire('نجاح', 'تمت إضافة الشركة بنجاح', 'success');
+            }).catch(err => {
+                const message = err?.data?.message || err?.data || 'تعذر حفظ الشركة، حاول مرة أخرى.';
+                Swal.fire('خطأ', message, 'error');
             });
         });
 
         document.getElementById('btnSaveUnit').addEventListener('click', function () {
-            const name = document.getElementById('newUnitName').value;
+            const name = document.getElementById('newUnitName').value.trim();
             if (!name) return alert('يرجى إدخال اسم الوحدة');
+
+            const normalizedName = normalizeName(name);
+            const unitSelect = document.getElementById('UnitId');
+            const existingOption = findMatchingOption(unitSelect, normalizedName);
+            if (existingOption) {
+                unitSelect.value = existingOption.value;
+                Swal.fire('تنبيه', 'هذه الوحدة موجودة مسبقاً وتم اختيارها تلقائياً.', 'warning');
+                return;
+            }
             
-            fetch('/Units/CreateAjax', {
+            fetch(createUnitUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ 'nameAr': name })
-            }).then(r => r.json()).then(data => {
+            }).then(async r => {
+                const data = await r.json().catch(() => null);
+                if (!r.ok) {
+                    throw { status: r.status, data };
+                }
+                return data;
+            }).then(data => {
                 const opt = new Option(data.name, data.id, true, true);
-                document.getElementById('UnitId').appendChild(opt);
+                unitSelect.appendChild(opt);
                 bootstrap.Modal.getInstance(document.getElementById('createUnitModal')).hide();
                 document.getElementById('newUnitName').value = '';
                 Swal.fire('نجاح', 'تمت إضافة الوحدة بنجاح', 'success');
+            }).catch(err => {
+                const duplicateId = err?.data?.id;
+                const duplicateName = err?.data?.name;
+                const message = err?.data?.message || err?.data || 'تعذر حفظ الوحدة، حاول مرة أخرى.';
+
+                if (duplicateId) {
+                    let option = Array.from(unitSelect.options).find(o => o.value === String(duplicateId));
+                    if (!option) {
+                        option = new Option(duplicateName || name, duplicateId, true, true);
+                        unitSelect.appendChild(option);
+                    }
+                    unitSelect.value = String(duplicateId);
+                }
+
+                Swal.fire('تنبيه', message, 'warning');
             });
         });
 

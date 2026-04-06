@@ -7,27 +7,38 @@
 <h3 class="mb-3">سند قبض</h3>
 
 <form asp-action="Create" method="post" class="card p-3">
-    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
     <div class="row">
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <label class="form-label">التاريخ</label>
             <input asp-for="Date" class="form-control" type="datetime-local" />
         </div>
 
-        <div class="col-md-4 mb-3">
-            <label class="form-label">العميل</label>
-            <div class="d-flex gap-1 align-items-start">
-                <div class="flex-grow-1" style="min-width: 0;">
-                    <select asp-for="CustomerId" class="form-control" id="customerSelect" style="width:100%"></select>
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">العميل</label>
+                    <div class="d-flex gap-1 align-items-start">
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <select asp-for="CustomerId" class="form-control" id="customerSelect" style="width:100%"></select>
+                        </div>
+                        <button type="button" class="btn btn-primary" style="height: 38px;" data-bs-toggle="modal" data-bs-target="#createCustomerModal" title="إضافة عميل سريع">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
                 </div>
-                <button type="button" class="btn btn-primary" style="height: 38px;" data-bs-toggle="modal" data-bs-target="#createCustomerModal" title="إضافة عميل سريع">
-                    <i class="bi bi-plus-lg"></i>
-                </button>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">الرصيد المستحق الحالي</label>
+                    <div class="input-group">
+                        <input type="text" id="currentBalance" class="form-control fw-bold text-danger bg-light" readonly value="0.00" />
+                        <span class="input-group-text">ج.م</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <label class="form-label">المبلغ</label>
             <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" required />
         </div>
@@ -166,12 +177,30 @@
             });
 
             $('#customerSelect').on('change', function(){
-                loadInvoices($(this).val());
+                const cid = $(this).val();
+                loadInvoices(cid);
+                updateDueBalance(cid);
             });
+
+            async function updateDueBalance(customerId) {
+                if(!customerId) {
+                    $('#currentBalance').val('0.00');
+                    return;
+                }
+                try {
+                    const res = await $.get('@Url.Action("GetCustomerBalance", "CustomerReceipts")', { customerId });
+                    $('#currentBalance').val(res.balance.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+                } catch(e) {
+                    console.error("Balance fetch error", e);
+                }
+            }
 
             // تحميل أولي لو كان العميل مختار
             const initialCustomer = $('#customerSelect').val();
-            if(initialCustomer) loadInvoices(initialCustomer);
+            if(initialCustomer) {
+                loadInvoices(initialCustomer);
+                updateDueBalance(initialCustomer);
+            }
         });
 
         $(document).ready(function() {
@@ -179,7 +208,7 @@
             
             // Save Customer via AJAX
             $('#saveCustomerBtn').click(function () {
-                var cName = $('#newCustomerName').val();
+                var cName = ($('#newCustomerName').val() || '').trim();
                 var salesmanId = $('#newCustomerSalesmanId').val();
                 if (!cName) {
                     Swal.fire('خطأ', 'يرجى إدخال اسم العميل', 'error');
@@ -209,7 +238,18 @@
                         Swal.fire('خطأ', 'حدث خطأ غير متوقع', 'error');
                     }
                 }).fail(function (xhr) {
-                    Swal.fire('خطأ', xhr.responseText || 'تعذر الاتصال بالخادم', 'error');
+                    var response = xhr.responseJSON || {};
+                    var duplicateId = response.id;
+                    if (duplicateId) {
+                        var optionExists = $('#customerSelect option[value="' + duplicateId + '"]').length > 0;
+                        if (!optionExists) {
+                            var duplicateOption = new Option(response.text || cName, duplicateId, true, true);
+                            $('#customerSelect').append(duplicateOption);
+                        }
+                        $('#customerSelect').val(duplicateId).trigger('change');
+                    }
+
+                    Swal.fire('تنبيه', response.message || xhr.responseText || 'تعذر الاتصال بالخادم', 'warning');
                 });
             });
         })

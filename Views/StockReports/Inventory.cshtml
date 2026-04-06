@@ -1,4 +1,4 @@
-﻿@using AbuAmenPharma.ViewModels
+@using AbuAmenPharma.ViewModels
 @model List<InventoryStocktakeVM>
 @{
     ViewData["Title"] = "تقرير جرد المخزن";
@@ -18,7 +18,7 @@
             <input name="days" type="number" class="form-control" value="@days" min="1" />
         </div>
         <div class="col-md-6">
-            <label class="form-label">بحث (اسم الدواء / رقم الدفعة)</label>
+            <label class="form-label">بحث (اسم الدواء / رقم الباتش)</label>
             <input name="q" class="form-control" value="@q" />
         </div>
         <div class="col-md-3 d-flex align-items-end gap-2">
@@ -32,11 +32,11 @@
     <thead>
         <tr>
             <th>الدواء</th>
-            <th class="text-center">رقم الدفعة</th>
+            <th class="text-center">رقم الباتش</th>
             <th class="text-center">تاريخ الانتهاء</th>
             <th class="text-end">الكمية المتوفرة</th>
-            <th class="text-center">الحالة</th>
-            <th class="text-center">أيام للانتهاء</th>
+            <th class="text-end">سعر التكلفة</th>
+            <th class="text-end">الإجمالي</th>
         </tr>
     </thead>
     <tbody>
@@ -51,16 +51,16 @@
             foreach (var x in Model)
             {
                 var rowClass = x.Status == "منتهي" ? "table-danger"
-                : x.Status == "قريب" ? "table-warning"
-                : "";
+                             : x.Status == "قريب" ? "table-warning"
+                             : "";
 
                 <tr class="@rowClass">
                     <td>@x.ItemName</td>
                     <td class="text-center">@x.BatchNo</td>
                     <td class="text-center">@x.ExpiryDate.ToString("yyyy-MM-dd")</td>
                     <td class="text-end"><strong>@x.Balance</strong></td>
-                    <td class="text-center">@x.Status</td>
-                    <td class="text-center">@x.DaysToExpiry</td>
+                    <td class="text-end">@x.Cost.ToString("N2")</td>
+                    <td class="text-end">@x.Total.ToString("N2")</td>
                 </tr>
             }
         }
@@ -70,22 +70,25 @@
         <tr>
             <th colspan="3">الإجمالي</th>
             <th class="text-end">@Model.Sum(x => x.Balance)</th>
-            <th colspan="2"></th>
+            <th></th>
+            <th class="text-end">@Model.Sum(x => x.Total).ToString("N2")</th>
         </tr>
     </tfoot>
 </table>
 
 <style>
     @@media print {
-        form, .btn
+        form, .btn {
+            display: none !important;
+        }
 
-    {
-        display: none !important;
-    }
+        body {
+            margin: 0;
+        }
 
-    body {
-        margin: 0;
-    }
-
+        .table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
     }
 </style>

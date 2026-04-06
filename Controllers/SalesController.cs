@@ -1,4 +1,5 @@
 using AbuAmenPharma.Data;
+using AbuAmenPharma.Helpers;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -127,20 +128,45 @@ public class SalesController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateCustomerAjax(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             return BadRequest("اسم العميل مطلوب");
 
+        var normalizedName = NameNormalizer.NormalizeForLookup(name);
+        var existing = await _context.Customers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.IsActive && x.NameNormalized == normalizedName);
 
+        if (existing != null)
+            return Conflict(new { message = "هذا العميل موجود مسبقاً.", id = existing.Id, text = existing.Name });
 
         var customer = new Customer
         {
             Name = name.Trim(),
+            NameNormalized = normalizedName,
             IsActive = true
         };
         _context.Customers.Add(customer);
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Customers_NameNormalized_Active"))
+        {
+            existing = await _context.Customers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IsActive && x.NameNormalized == normalizedName);
+
+            return Conflict(new
+            {
+                message = "هذا العميل موجود مسبقاً.",
+                id = existing?.Id,
+                text = existing?.Name ?? name.Trim()
+            });
+        }
 
         return Json(new { id = customer.Id, text = customer.Name });
     }
@@ -522,4 +548,7 @@ public class SalesController : Controller
             selectedId
         );
     }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex, string indexName)
+        => ex.InnerException?.Message.Contains(indexName, StringComparison.OrdinalIgnoreCase) == true;
 }

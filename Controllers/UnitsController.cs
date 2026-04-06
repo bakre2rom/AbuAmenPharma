@@ -1,4 +1,5 @@
 using AbuAmenPharma.Data;
+using AbuAmenPharma.Helpers;
 using AbuAmenPharma.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,11 +29,33 @@ public class UnitsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Unit unit)
     {
+        if (string.IsNullOrWhiteSpace(unit.NameAr))
+            ModelState.AddModelError(nameof(unit.NameAr), "حقل الاسم مطلوب");
+
         if (!ModelState.IsValid) return View(unit);
 
         unit.NameAr = unit.NameAr.Trim();
+        unit.NameArNormalized = NameNormalizer.NormalizeForLookup(unit.NameAr);
+
+        var exists = await _context.Units.AnyAsync(x =>
+            x.IsActive && x.NameArNormalized == unit.NameArNormalized);
+        if (exists)
+        {
+            ModelState.AddModelError(nameof(unit.NameAr), "هذه الوحدة موجودة مسبقاً.");
+            return View(unit);
+        }
+
         _context.Add(unit);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Units_NameArNormalized_Active"))
+        {
+            ModelState.AddModelError(nameof(unit.NameAr), "هذه الوحدة موجودة مسبقاً.");
+            return View(unit);
+        }
+
         TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -40,10 +63,52 @@ public class UnitsController : Controller
     [HttpPost]
     public async Task<IActionResult> CreateAjax(string nameAr)
     {
-        if (string.IsNullOrWhiteSpace(nameAr)) return BadRequest("الاسم مطلوب");
-        var obj = new Unit { NameAr = nameAr.Trim(), IsActive = true };
+        if (string.IsNullOrWhiteSpace(nameAr))
+            return BadRequest(new { message = "الاسم مطلوب" });
+
+        var trimmedName = nameAr.Trim();
+        var normalizedName = NameNormalizer.NormalizeForLookup(trimmedName);
+
+        var existing = await _context.Units
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.IsActive && x.NameArNormalized == normalizedName);
+
+        if (existing != null)
+        {
+            return Conflict(new
+            {
+                message = "هذه الوحدة موجودة مسبقاً.",
+                id = existing.Id,
+                name = existing.NameAr
+            });
+        }
+
+        var obj = new Unit
+        {
+            NameAr = trimmedName,
+            NameArNormalized = normalizedName,
+            IsActive = true
+        };
         _context.Add(obj);
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Units_NameArNormalized_Active"))
+        {
+            existing = await _context.Units
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IsActive && x.NameArNormalized == normalizedName);
+
+            return Conflict(new
+            {
+                message = "هذه الوحدة موجودة مسبقاً.",
+                id = existing?.Id,
+                name = existing?.NameAr ?? trimmedName
+            });
+        }
+
         return Json(new { id = obj.Id, name = obj.NameAr });
     }
 
@@ -59,14 +124,39 @@ public class UnitsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Unit unit)
     {
+        if (string.IsNullOrWhiteSpace(unit.NameAr))
+            ModelState.AddModelError(nameof(unit.NameAr), "حقل الاسم مطلوب");
+
         if (!ModelState.IsValid) return View(unit);
 
         var db = await _context.Units.FindAsync(unit.Id);
         if (db == null || !db.IsActive) return NotFound();
 
         db.NameAr = unit.NameAr.Trim();
+        db.NameArNormalized = NameNormalizer.NormalizeForLookup(db.NameAr);
         db.NameEn = unit.NameEn?.Trim();
-        await _context.SaveChangesAsync();
+
+        var exists = await _context.Units.AnyAsync(x =>
+            x.IsActive &&
+            x.Id != db.Id &&
+            x.NameArNormalized == db.NameArNormalized);
+
+        if (exists)
+        {
+            ModelState.AddModelError(nameof(unit.NameAr), "هذه الوحدة موجودة مسبقاً.");
+            return View(unit);
+        }
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Units_NameArNormalized_Active"))
+        {
+            ModelState.AddModelError(nameof(unit.NameAr), "هذه الوحدة موجودة مسبقاً.");
+            return View(unit);
+        }
+
         TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -93,4 +183,7 @@ public class UnitsController : Controller
         TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex, string indexName)
+        => ex.InnerException?.Message.Contains(indexName, StringComparison.OrdinalIgnoreCase) == true;
 }

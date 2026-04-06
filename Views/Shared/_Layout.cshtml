@@ -6,7 +6,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - أبو أمن for Pharma</title>
+    <title>@ViewData["Title"] - أبو آمن for Pharma</title>
+    <link rel="icon" type="image/svg+xml" href="~/img/abuamen-mark.svg" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
     <link href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/lib/sweetalert2/dist/sweetalert2.min.css" />
@@ -20,8 +22,12 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-capsule"></i> أبو امن
+                <a class="navbar-brand app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/img/abuamen-mark.svg" asp-append-version="true" alt="شعار أبو آمن" class="app-brand-mark" />
+                    <span class="app-brand-copy">
+                        <span class="app-brand-title">ABU AMEN</span>
+                        <span class="app-brand-subtitle">أبو آمن للصيدليات</span>
+                    </span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
@@ -107,16 +113,9 @@
                                 <li><a class="dropdown-item" asp-controller="CustomersReports" asp-action="SalesmanStatement"><i class="bi bi-person-badge"></i>حسابات المناديب</a></li>
                                 
                                 <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">تحليل المبيعات</h6></li>
-                                <li><a class="dropdown-item" asp-controller="SalesReports" asp-action="Daily"><i class="bi bi-calendar-event"></i>تقرير المبيعات اليومي</a></li>
-                                <li><a class="dropdown-item" asp-controller="SalesReports" asp-action="Monthly"><i class="bi bi-calendar-check"></i>تقرير المبيعات الشهري</a></li>
-                                
-                                <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header">تقارير المخزون</h6></li>
-                                <li><a class="dropdown-item" asp-controller="InventoryReports" asp-action="Stock"><i class="bi bi-layers"></i>حركة المخزون العامة</a></li>
                                 <li><a class="dropdown-item" asp-controller="StockReports" asp-action="ItemMovement"><i class="bi bi-box-arrow-in-right"></i>حركة صنف محدد</a></li>
                                 <li><a class="dropdown-item" asp-controller="StockReports" asp-action="Inventory"><i class="bi bi-check2-square"></i>جرد المستودع</a></li>
-                                <li><a class="dropdown-item" asp-controller="InventoryReports" asp-action="Valuation"><i class="bi bi-currency-dollar"></i>تقييم قيمة المخزون</a></li>
                             </ul>
                         </li>
 
@@ -140,8 +139,7 @@
 
                     <!-- الجانب الأيسر مع البحث والإشعارات -->
                     <ul class="navbar-nav ms-auto">
-
-                    <li class="nav-item dropdown">
+                        <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i>
                             <span class="ms-1">الحساب</span>
@@ -199,7 +197,7 @@
         <div class="container-fluid px-lg-5">
             <div class="row align-items-center">
                 <div class="col-md-6 py-3">
-                    &copy; @DateTime.Now.Year - أبو أمن للصيدليات - نظام الإدارة المتكامل
+                    &copy; @DateTime.Now.Year - أبو آمن للصيدليات - نظام الإدارة المتكامل
                 </div>
                 <div class="col-md-6 text-md-start py-3">
                     <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none text-muted">الخصوصية</a>

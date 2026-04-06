@@ -1,4 +1,4 @@
-﻿@using AbuAmenPharma.ViewModels
+@using AbuAmenPharma.ViewModels
 @model List<BatchStockVM>
 @{
     ViewData["Title"] = "المخزون حسب الدفعة";
@@ -10,7 +10,7 @@
 <form method="get" class="card p-3 mb-3">
     <div class="row">
         <div class="col-md-6">
-            <label class="form-label">بحث (اسم الصنف / رقم الدفعة)</label>
+            <label class="form-label">بحث (اسم الصنف / رقم الباتش)</label>
             <input name="q" class="form-control" value="@q" />
         </div>
         <div class="col-md-2 d-flex align-items-end">

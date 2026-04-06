@@ -7,15 +7,32 @@
 }
 
 <div class="container">
-    <div class="header">
-        <div class="company-info">
-            <div class="company-name">شركة أبو أمن للأدوية</div>
-            <div class="invoice-title">مرتجع مبيعات</div>
+    <div class="header d-flex justify-content-between align-items-start border-bottom mb-4 pb-3">
+        <div class="header-right">
+            <div class="company-name">شركة أبو آمن للأدوية</div>
+            <div class="invoice-title-badge">مرتجع مبيعات</div>
+            
+            <div class="info-summary-grid">
+                <div class="summary-item">
+                    <span class="label">رقم المرتجع:</span>
+                    <span class="value">#@Model.Id</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">تاريخ المرتجع:</span>
+                    <span class="value">@Model.ReturnDate.ToString("yyyy-MM-dd")</span>
+                </div>
+                <div class="summary-item main-info">
+                    <span class="label">العميل:</span>
+                    <span class="value">@Model.Customer?.Name</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">فاتورة البيع:</span>
+                    <span class="value">#@Model.SaleId</span>
+                </div>
+            </div>
         </div>
-        <div class="invoice-details">
-            <div><strong>رقم المرتجع:</strong> #@Model.Id</div>
-            <div><strong>فاتورة البيع:</strong> #@Model.SaleId</div>
-            <div><strong>التاريخ:</strong> @Model.ReturnDate.ToString("yyyy-MM-dd")</div>
+        <div class="header-left d-flex align-items-center justify-content-center" style="width: 150px; height: 120px;">
+            <img src="@Url.Content("~/img/abuamen-mark.svg")" style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="شعار أبو آمن" />
         </div>
     </div>
 

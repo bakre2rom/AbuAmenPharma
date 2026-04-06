@@ -1,4 +1,4 @@
-﻿namespace AbuAmenPharma.ViewModels
+namespace AbuAmenPharma.ViewModels
 {
     public class SaleReturnCreateVM
     {
@@ -7,6 +7,7 @@
         public string CustomerName { get; set; } = "";
 
         public DateTime ReturnDate { get; set; } = DateTime.Now;
+        public decimal CustomerPendingAmount { get; set; } // Added for UI display
         public decimal Discount { get; set; } = 0;
         public string? Notes { get; set; }
 

@@ -7,14 +7,24 @@
 }
 
 <div class="container">
-    <div class="header">
-        <div class="company-info">
-            <div class="company-name">شركة أبو أمن للأدوية</div>
-            <div class="invoice-title">فاتورة بيع</div>
+    <div class="header d-flex justify-content-between align-items-start border-bottom mb-4 pb-3">
+        <div class="header-right">
+            <div class="company-name">شركة أبو آمن للأدوية</div>
+            <div class="invoice-title-badge">فاتورة بيع</div>
+            
+            <div class="info-summary-grid">
+                <div class="summary-item">
+                    <span class="label">رقم الفاتورة:</span>
+                    <span class="value">#@Model.Id</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">التاريخ:</span>
+                    <span class="value">@Model.SaleDate.ToString("yyyy-MM-dd")</span>
+                </div>
+            </div>
         </div>
-        <div class="invoice-details">
-            <div><strong>رقم الفاتورة:</strong> #@Model.Id</div>
-            <div><strong>التاريخ:</strong> @Model.SaleDate.ToString("yyyy-MM-dd")</div>
+        <div class="header-left d-flex align-items-center justify-content-center" style="width: 150px; height: 120px;">
+            <img src="@Url.Content("~/img/abuamen-mark.svg")" style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="شعار أبو آمن" />
         </div>
     </div>
 

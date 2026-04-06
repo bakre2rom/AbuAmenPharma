@@ -1,4 +1,4 @@
-﻿@using AbuAmenPharma.ViewModels
+@using AbuAmenPharma.ViewModels
 @model PurchaseReturnCreateVM
 @{
     ViewData["Title"] = "إنشاء مرتجع مشتريات";
@@ -12,12 +12,13 @@
 
     <div class="row">
         <div class="col-md-4 mb-3">
-            <label class="form-label">تاريخ المرتجع</label>
-            <input asp-for="ReturnDate" class="form-control" type="datetime-local" />
+            <label class="form-label fw-semibold">تاريخ المرتجع <span class="text-danger">*</span></label>
+            <input asp-for="ReturnDate" class="form-control" type="datetime-local" data-val="true" data-val-required="تاريخ المرتجع مطلوب" />
+            <span asp-validation-for="ReturnDate" class="text-danger small d-block"></span>
         </div>
         <div class="col-md-8 mb-3">
-            <label class="form-label">ملاحظات</label>
-            <input asp-for="Notes" class="form-control" />
+            <label class="form-label fw-semibold">ملاحظات</label>
+            <input asp-for="Notes" class="form-control" placeholder="ملاحظات..." />
         </div>
     </div>
 
@@ -57,7 +58,11 @@
     </table>
 
     <div class="d-flex gap-2">
-        <button class="btn btn-success">حفظ المرتجع</button>
-        <a class="btn btn-secondary" asp-action="Index">رجوع</a>
+        <button class="btn btn-success fw-bold px-4 shadow-sm">حفظ المرتجع</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">رجوع</a>
     </div>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

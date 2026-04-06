@@ -1,4 +1,4 @@
-﻿namespace AbuAmenPharma.ViewModels
+namespace AbuAmenPharma.ViewModels
 {
     public class InventoryStocktakeVM
     {
@@ -12,6 +12,8 @@
         public decimal Balance { get; set; }
 
         public int DaysToExpiry { get; set; }
+        public decimal Cost { get; set; }
+        public decimal Total => Balance * Cost;
         public string Status { get; set; } = ""; // منتهي/قريب/سليم
     }
 }

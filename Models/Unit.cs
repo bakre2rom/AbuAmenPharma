@@ -10,6 +10,9 @@ namespace AbuAmenPharma.Models
         public string NameAr { get; set; } = string.Empty;
 
         [StringLength(50)]
+        public string? NameArNormalized { get; set; }
+
+        [StringLength(50)]
         public string? NameEn { get; set; }
 
         public bool IsActive { get; set; } = true;

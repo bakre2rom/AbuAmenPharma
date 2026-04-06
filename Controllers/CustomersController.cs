@@ -1,4 +1,5 @@
 using AbuAmenPharma.Data;
+using AbuAmenPharma.Helpers;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -163,6 +164,9 @@ public class CustomersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Customer customer)
     {
+        if (string.IsNullOrWhiteSpace(customer.Name))
+            ModelState.AddModelError(nameof(customer.Name), "اسم العميل مطلوب.");
+
         if (customer.SalesmanId == null || customer.SalesmanId <= 0)
             ModelState.AddModelError(nameof(customer.SalesmanId), "اختر المندوب المسؤول عن العميل.");
 
@@ -178,10 +182,42 @@ public class CustomersController : Controller
         }
 
         customer.Name = customer.Name.Trim();
+        customer.NameNormalized = NameNormalizer.NormalizeForLookup(customer.Name);
         customer.Phone = customer.Phone?.Trim();
         customer.Address = customer.Address?.Trim();
+
+        var exists = await _context.Customers.AnyAsync(x =>
+            x.IsActive && x.NameNormalized == customer.NameNormalized);
+
+        if (exists)
+        {
+            ModelState.AddModelError(nameof(customer.Name), "هذا العميل موجود مسبقاً.");
+            ViewBag.SalesmanId = new SelectList(
+                await _context.Salesmen.Where(x => x.IsActive).OrderBy(x => x.NameAr).ToListAsync(),
+                "Id",
+                "NameAr",
+                customer.SalesmanId
+            );
+            return View(customer);
+        }
+
         _context.Customers.Add(customer);
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Customers_NameNormalized_Active"))
+        {
+            ModelState.AddModelError(nameof(customer.Name), "هذا العميل موجود مسبقاً.");
+            ViewBag.SalesmanId = new SelectList(
+                await _context.Salesmen.Where(x => x.IsActive).OrderBy(x => x.NameAr).ToListAsync(),
+                "Id",
+                "NameAr",
+                customer.SalesmanId
+            );
+            return View(customer);
+        }
 
         TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
@@ -208,6 +244,9 @@ public class CustomersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(Customer customer)
     {
+        if (string.IsNullOrWhiteSpace(customer.Name))
+            ModelState.AddModelError(nameof(customer.Name), "اسم العميل مطلوب.");
+
         if (customer.SalesmanId == null || customer.SalesmanId <= 0)
             ModelState.AddModelError(nameof(customer.SalesmanId), "اختر المندوب المسؤول عن العميل.");
 
@@ -226,12 +265,45 @@ public class CustomersController : Controller
         if (db == null || !db.IsActive) return NotFound();
 
         db.Name = customer.Name.Trim();
+        db.NameNormalized = NameNormalizer.NormalizeForLookup(db.Name);
         db.Phone = customer.Phone?.Trim();
         db.Address = customer.Address?.Trim();
         db.SalesmanId = customer.SalesmanId;
         db.IsActive = customer.IsActive;
 
-        await _context.SaveChangesAsync();
+        var exists = await _context.Customers.AnyAsync(x =>
+            x.IsActive &&
+            x.Id != db.Id &&
+            x.NameNormalized == db.NameNormalized);
+
+        if (exists)
+        {
+            ModelState.AddModelError(nameof(customer.Name), "هذا العميل موجود مسبقاً.");
+            ViewBag.SalesmanId = new SelectList(
+                await _context.Salesmen.Where(x => x.IsActive).OrderBy(x => x.NameAr).ToListAsync(),
+                "Id",
+                "NameAr",
+                customer.SalesmanId
+            );
+            return View(customer);
+        }
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Customers_NameNormalized_Active"))
+        {
+            ModelState.AddModelError(nameof(customer.Name), "هذا العميل موجود مسبقاً.");
+            ViewBag.SalesmanId = new SelectList(
+                await _context.Salesmen.Where(x => x.IsActive).OrderBy(x => x.NameAr).ToListAsync(),
+                "Id",
+                "NameAr",
+                customer.SalesmanId
+            );
+            return View(customer);
+        }
+
         TempData["SuccessMessage"] = "تمت العملية بنجاح";
         return RedirectToAction(nameof(Index));
     }
@@ -273,4 +345,7 @@ public class CustomersController : Controller
         CustomerLedgerType.SaleReturn => "مرتجع مبيعات",
         _ => "عملية"
     };
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex, string indexName)
+        => ex.InnerException?.Message.Contains(indexName, StringComparison.OrdinalIgnoreCase) == true;
 }

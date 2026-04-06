@@ -165,6 +165,15 @@ public class StockReportsController : Controller
             .ThenBy(x => x.BatchNo)
             .ToListAsync();
 
+        // جلب سعر التكلفة من آخر حركة دخول (Purchase) لكل باتش
+        var batchIds = dataRaw.Select(x => x.Id).ToList();
+        var costs = await _context.StockMovements
+            .AsNoTracking()
+            .Where(m => batchIds.Contains(m.BatchId) && m.QtyIn > 0)
+            .GroupBy(m => m.BatchId)
+            .Select(g => new { BatchId = g.Key, Cost = g.OrderByDescending(x => x.Date).ThenByDescending(x => x.Id).Select(x => x.UnitCost).FirstOrDefault() })
+            .ToDictionaryAsync(x => x.BatchId, x => x.Cost);
+
         var data = dataRaw.Select(x =>
         {
             int d = x.ExpiryDate.DayNumber - today.DayNumber;
@@ -173,6 +182,8 @@ public class StockReportsController : Controller
             if (d < 0) status = "منتهي";
             else if (d <= days) status = "قريب";
             else status = "سليم";
+
+            costs.TryGetValue(x.Id, out var cost);
 
             return new InventoryStocktakeVM
             {
@@ -183,7 +194,8 @@ public class StockReportsController : Controller
                 ExpiryDate = x.ExpiryDate,
                 Balance = x.Balance,
                 DaysToExpiry = d,
-                Status = status
+                Status = status,
+                Cost = cost
             };
         }).ToList();
 

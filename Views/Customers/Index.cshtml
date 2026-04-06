@@ -84,7 +84,7 @@
                 <h5 class="modal-title" id="createCustomerModalLabel">إضافة عميل جديد</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form asp-action="Create" method="post">
+            <form asp-action="Create" method="post" id="createCustomerForm">
                 @Html.AntiForgeryToken()
                 <div class="modal-body p-4">
                     <div class="mb-3">
@@ -122,7 +122,7 @@
                 <h5 class="modal-title" id="editCustomerModalLabel">تعديل بيانات العميل</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form asp-action="Edit" method="post">
+            <form asp-action="Edit" method="post" id="editCustomerForm">
                 @Html.AntiForgeryToken()
                 <div class="modal-body p-4">
                     <input type="hidden" id="editCustomerId" name="Id" />
@@ -214,6 +214,16 @@
 
     <script>
         $(document).ready(function () {
+            function normalizeName(name) {
+                return (name || '').trim().toLowerCase();
+            }
+
+            function existingCustomerNames() {
+                return $('#customersTable tbody tr td:first-child')
+                    .map(function () { return normalizeName($(this).text()); })
+                    .get();
+            }
+
             $('#customersTable').DataTable({
                 order: [[0, 'asc']],
                 pageLength: 5,
@@ -242,6 +252,53 @@
                 const btn = $(this);
                 $('#disableCustomerId').val(btn.data('id'));
                 $('#disableCustomerName').text(btn.data('name'));
+            });
+
+            $('#createCustomerForm').on('submit', function (e) {
+                const $nameInput = $(this).find('input[name="Name"]');
+                const normalized = normalizeName($nameInput.val());
+                $nameInput.val(($nameInput.val() || '').trim());
+
+                if (!normalized) {
+                    e.preventDefault();
+                    Swal.fire('خطأ', 'اسم العميل مطلوب.', 'error');
+                    return;
+                }
+
+                if (existingCustomerNames().includes(normalized)) {
+                    e.preventDefault();
+                    Swal.fire('تنبيه', 'هذا العميل موجود مسبقاً.', 'warning');
+                }
+            });
+
+            $('#editCustomerForm').on('submit', function (e) {
+                const editedId = $('#editCustomerId').val();
+                const $nameInput = $('#editCustomerName');
+                const normalized = normalizeName($nameInput.val());
+                $nameInput.val(($nameInput.val() || '').trim());
+
+                if (!normalized) {
+                    e.preventDefault();
+                    Swal.fire('خطأ', 'اسم العميل مطلوب.', 'error');
+                    return;
+                }
+
+                let exists = false;
+                $('#customersTable tbody tr').each(function () {
+                    const $row = $(this);
+                    const rowName = normalizeName($row.find('td:first-child').text());
+                    const rowId = String($row.find('.edit-customer-btn').data('id') || '');
+
+                    if (rowId !== String(editedId) && rowName === normalized) {
+                        exists = true;
+                        return false;
+                    }
+                });
+
+                if (exists) {
+                    e.preventDefault();
+                    Swal.fire('تنبيه', 'هذا العميل موجود مسبقاً.', 'warning');
+                }
             });
         });
     </script>

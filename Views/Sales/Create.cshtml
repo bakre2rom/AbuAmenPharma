@@ -6,7 +6,7 @@
 
 <form asp-action="Create" method="post" id="saleForm">
     @Html.AntiForgeryToken()
-    <div asp-validation-summary="All" class="text-danger mb-2"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
     <input type="hidden" name="UseCustomerCredit" value="false" />
     <input type="hidden" name="CustomerCreditUsed" value="0" />
 
@@ -55,16 +55,18 @@
                     <div class="card-body p-2 mt-n1">
                         <div class="row g-1 mb-2">
                             <div class="col-6">
-                                <label class="form-label tiny-label fw-semibold mb-0">التاريخ</label>
-                                <input asp-for="SaleDate" class="form-control form-control-sm rounded-2 bg-light py-0" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+                                <label class="form-label tiny-label fw-semibold mb-0">التاريخ <span class="text-danger">*</span></label>
+                                <input asp-for="SaleDate" class="form-control form-control-sm rounded-2 bg-light py-0" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" data-val="true" data-val-required="التاريخ مطلوب" />
+                                <span asp-validation-for="SaleDate" class="text-danger small d-block"></span>
                             </div>
                             <div class="col-12">
-                                <label class="form-label tiny-label fw-semibold mb-0">العميل</label>
+                                <label class="form-label tiny-label fw-semibold mb-0">العميل <span class="text-danger">*</span></label>
                                 <div class="d-flex gap-1">
-                                    <select asp-for="CustomerId" class="form-control form-control-sm rounded-2" id="customerSelect" style="width:100%"></select>
+                                    <select asp-for="CustomerId" class="form-control form-control-sm rounded-2" id="customerSelect" style="width:100%" data-val="true" data-val-required="اسم العميل مطلوب"></select>
                                     <button type="button" class="btn btn-sm btn-primary px-2" data-bs-toggle="modal" data-bs-target="#createCustomerModal"><i class="bi bi-plus-lg"></i></button>
                                 </div>
-                                <div class="form-text mt-1">سيتم اعتماد مندوب العميل تلقائياً من بيانات العميل.</div>
+                                <span asp-validation-for="CustomerId" class="text-danger small d-block"></span>
+                                <div class="form-text mt-0">سيتم اعتماد مندوب العميل تلقائياً من بيانات العميل.</div>
                             </div>
                             <div class="col-6">
                                 <label class="form-label tiny-label fw-semibold mb-0">الخصم</label>
@@ -211,13 +213,15 @@
         // Save Customer via AJAX
         $(document).ready(function() {
             $('#saveCustomerBtn').click(function () {
-                var cName = $('#newCustomerName').val();
+                var cName = ($('#newCustomerName').val() || '').trim();
                 if (!cName) {
                     Swal.fire('خطأ', 'يرجى إدخال اسم العميل', 'error');
                     return;
                 }
 
-                $.post('@Url.Action("CreateCustomerAjax", "Sales")', { name: cName }, function (res) {
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.post('@Url.Action("CreateCustomerAjax", "Sales")', { name: cName, __RequestVerificationToken: token }, function (res) {
                     if (res && res.id) {
                         var newOption = new Option(res.text, res.id, true, true);
                         $('#customerSelect').append(newOption).trigger('change');
@@ -234,7 +238,18 @@
                         Swal.fire('خطأ', 'حدث خطأ غير متوقع', 'error');
                     }
                 }).fail(function (xhr) {
-                    Swal.fire('خطأ', xhr.responseText || 'تعذر الاتصال بالخادم', 'error');
+                    var response = xhr.responseJSON || {};
+                    var duplicateId = response.id;
+                    if (duplicateId) {
+                        var optionExists = $('#customerSelect option[value="' + duplicateId + '"]').length > 0;
+                        if (!optionExists) {
+                            var duplicateOption = new Option(response.text || cName, duplicateId, true, true);
+                            $('#customerSelect').append(duplicateOption);
+                        }
+                        $('#customerSelect').val(duplicateId).trigger('change');
+                    }
+
+                    Swal.fire('تنبيه', response.message || xhr.responseText || 'تعذر الاتصال بالخادم', 'warning');
                 });
             });
         });
@@ -389,16 +404,19 @@
                 <tr data-row="${rowId}">
                     <td>
                         <input type="hidden" name="Lines.Index" value="${rowId}" />
-                        <select name="Lines[${rowId}].ItemId" class="form-control form-control-sm itemSelect" style="width:100%"></select>
+                        <select name="Lines[${rowId}].ItemId" class="form-control form-control-sm itemSelect" style="width:100%" data-val="true" data-val-required="الصنف مطلوب"></select>
+                        <span class="text-danger small field-validation-valid" data-valmsg-for="Lines[${rowId}].ItemId" data-valmsg-replace="true"></span>
                     </td>
                     <td class="availableQuantity text-center align-middle">
                         <span class="text-muted">-</span>
                     </td>
                     <td>
-                        <input type="number" name="Lines[${rowId}].Qty" class="form-control form-control-sm qtyInput text-center" step="0.01" min="0" value="0" />
+                        <input type="number" name="Lines[${rowId}].Qty" class="form-control form-control-sm qtyInput text-center" step="0.01" min="0.01" value="" data-val="true" data-val-required="الكمية مطلوبة" data-val-number="يجب أن يكون رقماً" placeholder="0" />
+                        <span class="text-danger small field-validation-valid" data-valmsg-for="Lines[${rowId}].Qty" data-valmsg-replace="true"></span>
                     </td>
                     <td>
-                        <input type="number" name="Lines[${rowId}].UnitPrice" class="form-control form-control-sm priceInput text-center" step="0.01" min="0" value="0" />
+                        <input type="number" name="Lines[${rowId}].UnitPrice" class="form-control form-control-sm priceInput text-center" step="0.01" min="0" value="" data-val="true" data-val-required="السعر مطلوب" data-val-number="يجب أن يكون رقماً" placeholder="0.00" />
+                        <span class="text-danger small field-validation-valid" data-valmsg-for="Lines[${rowId}].UnitPrice" data-valmsg-replace="true"></span>
                     </td>
                     <td class="text-center align-middle">
                         <span class="rowTotal">0.00</span>
@@ -413,6 +431,11 @@
 
             $('#linesTableBody').append(html);
             initItemSelect2(`#linesTableBody tr:last .itemSelect`);
+            
+            // Re-parse validation to include new elements
+            const form = $("#saleForm");
+            form.removeData("validator").removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse(form);
         }
 
         // حساب إجمالي الصف

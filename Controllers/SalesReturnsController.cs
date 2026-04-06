@@ -54,11 +54,16 @@ public class SalesReturnsController : Controller
             .Select(g => new { SaleLineId = g.Key, Qty = g.Sum(x => x.Qty) })
             .ToDictionaryAsync(x => x.SaleLineId, x => x.Qty);
 
+        var pendingAmount = await _context.CustomerLedgers
+            .Where(x => x.CustomerId == sale.CustomerId && x.IsActive)
+            .SumAsync(x => x.Debit - x.Credit);
+
         var vm = new SaleReturnCreateVM
         {
             SaleId = saleId,
             CustomerId = sale.CustomerId,
             CustomerName = sale.Customer?.Name ?? "",
+            CustomerPendingAmount = pendingAmount,
             ReturnDate = DateTime.Now,
             Lines = sale.Lines.Select(l =>
             {

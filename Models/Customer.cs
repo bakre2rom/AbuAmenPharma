@@ -12,6 +12,9 @@ namespace AbuAmenPharma.Models
         [Display(Name = "Name")]
         public string Name { get; set; } = string.Empty;
 
+        [StringLength(100)]
+        public string? NameNormalized { get; set; }
+
         [StringLength(20)]
         [Display(Name = "Phone")]
         public string? Phone { get; set; }

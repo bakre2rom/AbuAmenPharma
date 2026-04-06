@@ -54,6 +54,18 @@ namespace AbuAmenPharma.Data
 
             builder.Entity<StockMovement>()
                 .HasIndex(x => new { x.ItemId, x.BatchId, x.Date });
+
+            builder.Entity<Unit>()
+                .HasIndex(x => x.NameArNormalized)
+                .HasDatabaseName("IX_Units_NameArNormalized_Active")
+                .IsUnique()
+                .HasFilter("[IsActive] = 1 AND [NameArNormalized] IS NOT NULL");
+
+            builder.Entity<Customer>()
+                .HasIndex(x => x.NameNormalized)
+                .HasDatabaseName("IX_Customers_NameNormalized_Active")
+                .IsUnique()
+                .HasFilter("[IsActive] = 1 AND [NameNormalized] IS NOT NULL");
         }
     }
 }

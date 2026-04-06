@@ -45,6 +45,10 @@ namespace AbuAmenPharma.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("NameNormalized")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -53,6 +57,11 @@ namespace AbuAmenPharma.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NameNormalized")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Customers_NameNormalized_Active")
+                        .HasFilter("[IsActive] = 1 AND [NameNormalized] IS NOT NULL");
 
                     b.HasIndex("SalesmanId");
 
@@ -691,11 +700,20 @@ namespace AbuAmenPharma.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("NameArNormalized")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("NameEn")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NameArNormalized")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Units_NameArNormalized_Active")
+                        .HasFilter("[IsActive] = 1 AND [NameArNormalized] IS NOT NULL");
 
                     b.ToTable("Units");
                 });

@@ -1,4 +1,5 @@
 using AbuAmenPharma.Data;
+using AbuAmenPharma.Helpers;
 using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -64,6 +65,7 @@ public class CustomerReceiptsController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateCustomerAjax(string name, int salesmanId)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -73,14 +75,40 @@ public class CustomerReceiptsController : Controller
         if (salesman == null)
             return BadRequest("اختيار المندوب المسؤول عن العميل مطلوب");
 
+        var normalizedName = NameNormalizer.NormalizeForLookup(name);
+        var existing = await _context.Customers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.IsActive && x.NameNormalized == normalizedName);
+
+        if (existing != null)
+            return Conflict(new { message = "هذا العميل موجود مسبقاً.", id = existing.Id, text = existing.Name });
+
         var customer = new Customer
         {
             Name = name.Trim(),
+            NameNormalized = normalizedName,
             SalesmanId = salesman.Id,
             IsActive = true
         };
         _context.Customers.Add(customer);
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Customers_NameNormalized_Active"))
+        {
+            existing = await _context.Customers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IsActive && x.NameNormalized == normalizedName);
+
+            return Conflict(new
+            {
+                message = "هذا العميل موجود مسبقاً.",
+                id = existing?.Id,
+                text = existing?.Name ?? name.Trim()
+            });
+        }
 
         return Json(new { id = customer.Id, text = customer.Name });
     }
@@ -263,6 +291,19 @@ public class CustomerReceiptsController : Controller
         return Json(invoices);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetCustomerBalance(int customerId)
+    {
+        // Calculate due balance directly from unpaid/partially-paid posted sales invoices
+        // This is the single source of truth — RemainingAmount is updated by receipts, returns, etc.
+        var balance = await _context.Sales
+            .AsNoTracking()
+            .Where(s => s.CustomerId == customerId && s.IsPosted && s.RemainingAmount > 0)
+            .SumAsync(s => (decimal?)s.RemainingAmount) ?? 0m;
+
+        return Json(new { balance });
+    }
+
     public async Task<IActionResult> Disable(long id)
     {
         var rec = await _context.CustomerReceipts
@@ -350,4 +391,7 @@ public class CustomerReceiptsController : Controller
             return RedirectToAction(nameof(Index));
         }
     }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex, string indexName)
+        => ex.InnerException?.Message.Contains(indexName, StringComparison.OrdinalIgnoreCase) == true;
 }

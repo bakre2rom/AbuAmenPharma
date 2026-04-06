@@ -7,40 +7,47 @@
 
 <div class="container">
     <div class="header">
-        <div class="company-info">
-            <div class="company-name">شركة أبو أمن للأدوية</div>
-            <div class="invoice-title">فاتورة شراء</div>
+        <div class="header-right">
+            <div class="company-name">شركة أبو آمن للأدوية</div>
+            <div class="invoice-title-badge">فاتورة شراء</div>
+            
+            <div class="info-summary-grid">
+                <div class="summary-item">
+                    <span class="label">رقم الفاتورة:</span>
+                    <span class="value">#@Model.Id</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">التاريخ:</span>
+                    <span class="value">@Model.PurchaseDate.ToString("yyyy-MM-dd")</span>
+                </div>
+                <div class="summary-item main-info">
+                    <span class="label">المورد:</span>
+                    <span class="value">@Model.Supplier?.Name</span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">فاتورة المورد:</span>
+                    <span class="value">@(string.IsNullOrWhiteSpace(Model.InvoiceNo) ? "-" : Model.InvoiceNo)</span>
+                </div>
+            </div>
         </div>
-        <div class="invoice-details">
-            <div><strong>رقم الفاتورة:</strong> #@Model.Id</div>
-            <div><strong>التاريخ:</strong> @Model.PurchaseDate.ToString("yyyy-MM-dd")</div>
+        <div class="header-left d-flex align-items-center justify-content-center" style="width: 150px; height: 120px;">
+            <img src="@Url.Content("~/img/abuamen-mark.svg")" style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="شعار أبو آمن" />
         </div>
     </div>
 
-    <div class="info-grid">
-        <div class="info-item">
-            <strong>المورد</strong>
-            @Model.Supplier?.Name
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <div class="notes-strip">
+            <strong>ملاحظات:</strong> @Model.Notes
         </div>
-        <div class="info-item">
-            <strong>رقم فاتورة المورد</strong>
-            @(string.IsNullOrWhiteSpace(Model.InvoiceNo) ? "-" : Model.InvoiceNo)
-        </div>
-        @if (!string.IsNullOrWhiteSpace(Model.Notes))
-        {
-            <div class="info-item" style="grid-column: span 2;">
-                <strong>ملاحظات</strong>
-                @Model.Notes
-            </div>
-        }
-    </div>
+    }
 
     <table class="items-table">
         <thead>
             <tr>
                 <th class="text-center" style="width: 50px;">#</th>
                 <th>الصنف</th>
-                <th style="width: 120px;">رقم الدفعة</th>
+                <th style="width: 120px;">رقم الباتش</th>
                 <th style="width: 140px;">تاريخ الانتهاء</th>
                 <th class="text-center" style="width: 90px;">الكمية</th>
                 <th class="text-center" style="width: 100px;">سعر الشراء</th>

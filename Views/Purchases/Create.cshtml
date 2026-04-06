@@ -53,15 +53,17 @@
                             <div class="col-12">
                                 <label class="form-label tiny-label fw-semibold mb-0">المورد <span class="text-danger">*</span></label>
                                 <div class="d-flex gap-1">
-                                    <select asp-for="SupplierId" class="form-control form-control-sm rounded-2" id="supplierSelect" asp-items="ViewBag.SupplierId">
+                                    <select asp-for="SupplierId" class="form-control form-control-sm rounded-2" id="supplierSelect" asp-items="ViewBag.SupplierId" data-val="true" data-val-required="اسم المورد مطلوب">
                                         <option value="">...</option>
                                     </select>
                                     <button type="button" class="btn btn-sm btn-primary px-2" data-bs-toggle="modal" data-bs-target="#createSupplierModal"><i class="bi bi-plus-lg"></i></button>
                                 </div>
+                                <span asp-validation-for="SupplierId" class="text-danger small d-block"></span>
                             </div>
                             <div class="col-6">
                                 <label class="form-label tiny-label fw-semibold mb-0">التاريخ <span class="text-danger">*</span></label>
-                                <input asp-for="PurchaseDate" class="form-control form-control-sm rounded-2 bg-light py-0" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+                                <input asp-for="PurchaseDate" class="form-control form-control-sm rounded-2 bg-light py-0" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" data-val="true" data-val-required="التاريخ مطلوب" />
+                                <span asp-validation-for="PurchaseDate" class="text-danger small d-block"></span>
                             </div>
                             <div class="col-6">
                                 <label class="form-label tiny-label fw-semibold mb-0">رقم الفاتورة</label>
@@ -242,16 +244,20 @@
                 <tr data-row="${rowId}">
                     <td>
                         <input type="hidden" name="Lines.Index" value="${rowId}" />
-                        <select name="Lines[${rowId}].ItemId" class="form-control form-control-sm itemSelect" style="width:100%" required></select>
+                        <select name="Lines[${rowId}].ItemId" class="form-control form-control-sm itemSelect" style="width:100%" data-val="true" data-val-required="الصنف مطلوب"></select>
+                        <span class="text-danger small field-validation-valid" data-valmsg-for="Lines[${rowId}].ItemId" data-valmsg-replace="true"></span>
                     </td>
                     <td>
-                        <input type="date" name="Lines[${rowId}].ExpiryDate" class="form-control form-control-sm text-center" value="${defaultExpiry}" required />
+                        <input type="date" name="Lines[${rowId}].ExpiryDate" class="form-control form-control-sm text-center" value="${defaultExpiry}" data-val="true" data-val-required="التاريخ مطلوب" />
+                        <span class="text-danger small field-validation-valid" data-valmsg-for="Lines[${rowId}].ExpiryDate" data-valmsg-replace="true"></span>
                     </td>
                     <td>
-                        <input type="number" name="Lines[${rowId}].Qty" class="form-control form-control-sm qtyInput text-center" step="0.01" min="0.01" value="0" required />
+                        <input type="number" name="Lines[${rowId}].Qty" class="form-control form-control-sm qtyInput text-center" step="0.01" min="0.01" value="" data-val="true" data-val-required="الكمية مطلوبة" data-val-number="يجب أن يكون رقماً" placeholder="0" />
+                        <span class="text-danger small field-validation-valid" data-valmsg-for="Lines[${rowId}].Qty" data-valmsg-replace="true"></span>
                     </td>
                     <td>
-                        <input type="number" name="Lines[${rowId}].UnitCost" class="form-control form-control-sm priceInput text-center" step="0.01" min="0" value="0" required />
+                        <input type="number" name="Lines[${rowId}].UnitCost" class="form-control form-control-sm priceInput text-center" step="0.01" min="0.01" value="" data-val="true" data-val-required="السعر مطلوب" data-val-number="يجب أن يكون رقماً" placeholder="0.00" />
+                        <span class="text-danger small field-validation-valid" data-valmsg-for="Lines[${rowId}].UnitCost" data-valmsg-replace="true"></span>
                     </td>
                     <td class="text-center align-middle">
                         <span class="rowTotal">0.00</span>
@@ -266,6 +272,11 @@
 
             $('#linesTableBody').append(html);
             initItemSelect2(`#linesTableBody tr:last .itemSelect`);
+            
+            // Re-parse validation to include new elements
+            const form = $("#purchaseForm");
+            form.removeData("validator").removeData("unobtrusiveValidation");
+            $.validator.unobtrusive.parse(form);
         }
 
         function calculateTotals() {
