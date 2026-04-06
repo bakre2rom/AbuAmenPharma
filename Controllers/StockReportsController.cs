@@ -1,5 +1,7 @@
 using AbuAmenPharma.Data;
+using AbuAmenPharma.Models;
 using AbuAmenPharma.ViewModels;
+using AbuAmenPharma.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +10,13 @@ using Microsoft.EntityFrameworkCore;
 public class StockReportsController : Controller
 {
     private readonly ApplicationDbContext _context;
-    public StockReportsController(ApplicationDbContext context) => _context = context;
+    private readonly IStockService _stockService;
+
+    public StockReportsController(ApplicationDbContext context, IStockService stockService)
+    {
+        _context = context;
+        _stockService = stockService;
+    }
 
     // 1) رصيد حسب الدفعة (كل الدفعات اللي رصيدها > 0)
     public async Task<IActionResult> StockByBatch(string? q)
@@ -91,12 +99,17 @@ public class StockReportsController : Controller
         return View(data);
     }
 
-    public async Task<IActionResult> ItemMovement(int? itemId, DateTime? from, DateTime? to)
+    public async Task<IActionResult> ItemMovement(int? itemId, DateTime? from, DateTime? to, StockRefType? refType)
     {
         ViewBag.Items = await _context.Items
             .Where(x => x.IsActive)
             .OrderBy(x => x.NameAr)
             .ToListAsync();
+
+        ViewBag.ItemId = itemId;
+        ViewBag.From = from?.ToString("yyyy-MM-dd");
+        ViewBag.To = to?.ToString("yyyy-MM-dd");
+        ViewBag.RefType = refType;
 
         if (itemId == null)
             return View(new List<ItemMovementVM>());
@@ -110,6 +123,9 @@ public class StockReportsController : Controller
 
         if (to.HasValue)
             query = query.Where(x => x.Date <= to.Value);
+
+        if (refType.HasValue)
+            query = query.Where(x => x.RefType == refType.Value);
 
         var movements = await query
             .OrderBy(x => x.Date)
@@ -126,7 +142,7 @@ public class StockReportsController : Controller
             result.Add(new ItemMovementVM
             {
                 Date = m.Date,
-                RefType = m.RefType.ToString(),
+                RefType = GetRefTypeAr(m.RefType),
                 RefId = m.RefId,
                 BatchNo = m.Batch?.BatchNo,
                 QtyIn = m.QtyIn,
@@ -138,11 +154,24 @@ public class StockReportsController : Controller
         return View(result);
     }
 
+    private string GetRefTypeAr(StockRefType type)
+    {
+        return type switch
+        {
+            StockRefType.Purchase => "مشتريات",
+            StockRefType.PurchaseReturn => "مرتجع مشتريات",
+            StockRefType.Sale => "مبيعات",
+            StockRefType.SaleReturn => "مرتجع مبيعات",
+            StockRefType.Adjust => "تسوية جردية",
+            StockRefType.SaleReturnDisable => "إلغاء مرتجع مبيعات",
+            _ => type.ToString()
+        };
+    }
+
     public async Task<IActionResult> Inventory(int days = 90, string? q = null)
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        // Query: Batch + Item + sum(movements)
         var query =
             from b in _context.ItemBatches.AsNoTracking()
             join i in _context.Items.AsNoTracking() on b.ItemId equals i.Id
@@ -154,6 +183,7 @@ public class StockReportsController : Controller
                 ItemName = i.NameAr,
                 b.BatchNo,
                 b.ExpiryDate,
+                b.PurchasePrice,
                 Balance = movs.Sum(x => x.QtyIn - x.QtyOut)
             };
 
@@ -162,28 +192,12 @@ public class StockReportsController : Controller
             .Where(x => string.IsNullOrWhiteSpace(q) || x.ItemName.Contains(q) || x.BatchNo.Contains(q))
             .OrderBy(x => x.ItemName)
             .ThenBy(x => x.ExpiryDate)
-            .ThenBy(x => x.BatchNo)
             .ToListAsync();
-
-        // جلب سعر التكلفة من آخر حركة دخول (Purchase) لكل باتش
-        var batchIds = dataRaw.Select(x => x.Id).ToList();
-        var costs = await _context.StockMovements
-            .AsNoTracking()
-            .Where(m => batchIds.Contains(m.BatchId) && m.QtyIn > 0)
-            .GroupBy(m => m.BatchId)
-            .Select(g => new { BatchId = g.Key, Cost = g.OrderByDescending(x => x.Date).ThenByDescending(x => x.Id).Select(x => x.UnitCost).FirstOrDefault() })
-            .ToDictionaryAsync(x => x.BatchId, x => x.Cost);
 
         var data = dataRaw.Select(x =>
         {
             int d = x.ExpiryDate.DayNumber - today.DayNumber;
-
-            string status;
-            if (d < 0) status = "منتهي";
-            else if (d <= days) status = "قريب";
-            else status = "سليم";
-
-            costs.TryGetValue(x.Id, out var cost);
+            string status = d < 0 ? "منتهي" : (d <= days ? "قريب" : "سليم");
 
             return new InventoryStocktakeVM
             {
@@ -195,10 +209,11 @@ public class StockReportsController : Controller
                 Balance = x.Balance,
                 DaysToExpiry = d,
                 Status = status,
-                Cost = cost
+                Cost = x.PurchasePrice 
             };
         }).ToList();
 
+        ViewBag.TotalValue = data.Sum(x => x.Total);
         ViewBag.Days = days;
         ViewBag.Q = q ?? "";
         return View(data);

@@ -1,0 +1,26 @@
+@using AbuAmenPharma.ViewModels
+@model ERPLabeledInputVM
+@{
+    string label = Model.Label ?? "";
+    string name = Model.Name ?? "";
+    string value = Model.Value?.ToString() ?? "";
+    string type = Model.Type ?? "text";
+    bool required = Model.Required;
+    string placeholder = Model.Placeholder ?? "";
+}
+
+<div class="mb-3">
+    @if (!string.IsNullOrEmpty(label))
+    {
+        <label class="form-label fw-semibold text-dark mb-1">@label @if(required){<span class="text-danger">*</span>}</label>
+    }
+    
+    <input id="@Model.Id" name="@name" type="@type" value="@value" 
+           class="form-control @(Model.CssClass ?? "")" 
+           placeholder="@placeholder"
+           @(required ? "required" : "")
+           @(Model.Readonly == true ? "readonly" : "")
+           @(Html.Raw(Model.Attributes ?? "")) />
+    
+    <span class="text-danger small field-validation-valid" data-valmsg-for="@name" data-valmsg-replace="true"></span>
+</div>

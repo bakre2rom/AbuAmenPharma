@@ -1,69 +1,132 @@
-﻿@using AbuAmenPharma.ViewModels
+@using AbuAmenPharma.Models
+@using AbuAmenPharma.ViewModels
 @model List<ItemMovementVM>
 @{
     ViewData["Title"] = "تقرير حركة منتج";
     var items = ViewBag.Items as List<Item> ?? new List<Item>();
+    var itemId = ViewBag.ItemId as int?;
+    var from = ViewBag.From as string;
+    var to = ViewBag.To as string;
+    var refTypeValue = ViewBag.RefType?.ToString();
 }
 
-<h3 class="mb-3">تقرير حركة منتج</h3>
-
-<form method="get" class="card p-3 mb-3">
-    <div class="row">
-
-        <div class="col-md-4">
-            <label class="form-label">الصنف</label>
-            <select name="itemId" class="form-select" required>
-                <option value="">-- اختر الصنف --</option>
-                @foreach (var item in items)
-                {
-                    <option value="@item.Id">@item.NameAr</option>
-                }
-            </select>
-        </div>
-
-        <div class="col-md-3">
-            <label class="form-label">من تاريخ</label>
-            <input type="date" name="from" class="form-control" />
-        </div>
-
-        <div class="col-md-3">
-            <label class="form-label">إلى تاريخ</label>
-            <input type="date" name="to" class="form-control" />
-        </div>
-
-        <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-primary w-100">عرض</button>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="mb-1 text-primary fw-bold">تقرير حركة منتج</h3>
+        <p class="text-muted mb-0">كشف مفصل بحركات المخزون لصنف محدد خلال فترة</p>
     </div>
-</form>
+    <div class="d-print-none">
+        <button onclick="window.print()" class="btn btn-outline-secondary">
+            <i class="bi bi-printer me-1"></i> طباعة
+        </button>
+    </div>
+</div>
 
-@if (Model.Count > 0)
+<div class="card shadow-sm mb-4 d-print-none border-0 overflow-hidden">
+    <div class="card-header bg-white py-3">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-filter me-2 text-primary"></i>خيارات التصفية</h6>
+    </div>
+    <div class="card-body bg-light">
+        <form method="get">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold small text-muted">الصنف</label>
+                    <select name="itemId" class="form-select @(itemId == null ? "is-invalid" : "")" required>
+                        <option value="">-- اختر الصنف --</option>
+                        @foreach (var item in items)
+                        {
+                            <option value="@item.Id" selected="@(itemId == item.Id)">@item.NameAr</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small text-muted">من تاريخ</label>
+                    <input type="date" name="from" class="form-control" value="@from" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small text-muted">إلى تاريخ</label>
+                    <input type="date" name="to" class="form-control" value="@to" />
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small text-muted">نوع الحركة</label>
+                    <select name="refType" class="form-select">
+                        <option value="">كل الأنواع</option>
+                        <option value="Purchase" selected="@(refTypeValue == "Purchase")">مشتريات</option>
+                        <option value="PurchaseReturn" selected="@(refTypeValue == "PurchaseReturn")">مرتجع مشتريات</option>
+                        <option value="Sale" selected="@(refTypeValue == "Sale")">مبيعات</option>
+                        <option value="SaleReturn" selected="@(refTypeValue == "SaleReturn")">مرتجع مبيعات</option>
+                        <option value="Adjust" selected="@(refTypeValue == "Adjust")">تسوية جردية</option>
+                        <option value="SaleReturnDisable" selected="@(refTypeValue == "SaleReturnDisable")">إلغاء مرتجع مبيعات</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary w-100 py-2">
+                        <i class="bi bi-funnel me-1"></i> عرض
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (itemId != null)
 {
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>التاريخ</th>
-                <th>نوع الحركة</th>
-                <th>رقم المرجع</th>
-                <th>الدفعة</th>
-                <th class="text-center">وارد</th>
-                <th class="text-center">صادر</th>
-                <th class="text-center">الرصيد</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var row in Model)
-            {
-                <tr>
-                    <td>@row.Date.ToString("yyyy-MM-dd")</td>
-                    <td>@row.RefType</td>
-                    <td>@row.RefId</td>
-                    <td>@row.BatchNo</td>
-                    <td class="text-center text-success">@row.QtyIn</td>
-                    <td class="text-center text-danger">@row.QtyOut</td>
-                    <td class="text-center"><strong>@row.BalanceAfter</strong></td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    if (Model.Count > 0)
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th class="ps-3">التاريخ</th>
+                                <th>نوع الحركة</th>
+                                <th>رقم المرجع</th>
+                                <th>الدفعة</th>
+                                <th class="text-center">وارد</th>
+                                <th class="text-center">صادر</th>
+                                <th class="text-center pe-3">الرصيد</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model)
+                            {
+                                <tr>
+                                    <td class="ps-3 text-nowrap">@row.Date.ToString("yyyy/MM/dd HH:mm")</td>
+                                    <td>
+                                        <span class="badge @(row.QtyIn > 0 ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger") border px-2">
+                                            @row.RefType
+                                        </span>
+                                    </td>
+                                    <td>#@row.RefId</td>
+                                    <td><code class="text-dark">@row.BatchNo</code></td>
+                                    <td class="text-center fw-bold text-success">@(row.QtyIn > 0 ? row.QtyIn.ToString("N2") : "-")</td>
+                                    <td class="text-center fw-bold text-danger">@(row.QtyOut > 0 ? row.QtyOut.ToString("N2") : "-")</td>
+                                    <td class="text-center pe-3 fw-bold">@row.BalanceAfter.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info border-0 shadow-sm">
+            <i class="bi bi-info-circle me-2"></i> لا توجد حركات مسجلة لهذا الصنف خلال الفترة المحددة.
+        </div>
+    }
+}
+else
+{
+    <div class="text-center py-5 text-muted bg-light rounded shadow-sm border">
+        <i class="bi bi-box-seam display-1 mb-3 text-secondary opacity-50"></i>
+        <h4>يرجى اختيار صنف لعرض تقرير حركته</h4>
+        <p>استخدم خيارات التصفية أعلاه للبدء</p>
+    </div>
 }

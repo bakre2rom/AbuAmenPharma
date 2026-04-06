@@ -28,20 +28,20 @@
         </div>
     </div>
 
-    <div class="info-grid">
-        <div class="info-item">
-            <strong>العميل</strong>
-            @Model.Customer?.Name
+    <div class="invoice-metadata">
+        <div class="metadata-item">
+            <span class="label">العميل:</span>
+            <span class="value">@Model.Customer?.Name</span>
         </div>
-        <div class="info-item">
-            <strong>نوع الدفع</strong>
-            @(Model.PaymentMode == SalePaymentMode.Cash ? "نقدي" : "آجل")
+        <div class="metadata-item">
+            <span class="label">نوع الدفع:</span>
+            <span class="value">@(Model.PaymentMode == SalePaymentMode.Cash ? "نقدي" : "آجل")</span>
         </div>
         @if (!string.IsNullOrWhiteSpace(Model.Notes))
         {
-            <div class="info-item" style="grid-column: span 2;">
-                <strong>ملاحظات</strong>
-                @Model.Notes
+            <div class="metadata-item">
+                <span class="label">ملاحظات:</span>
+                <span class="value">@Model.Notes</span>
             </div>
         }
     </div>
@@ -51,7 +51,7 @@
             <tr>
                 <th class="text-center" style="width: 50px;">#</th>
                 <th>الصنف</th>
-                <th style="width: 220px;">الدفعات</th>
+                <th style="width: 220px;">رقم الباتش</th>
                 <th style="width: 220px;">تاريخ الانتهاء</th>
                 <th class="text-center" style="width: 80px;">الكمية</th>
                 <th class="text-center" style="width: 100px;">السعر</th>
@@ -123,13 +123,6 @@
                 <td class="label">الصافي النهائي</td>
                 <td class="value">@Model.NetTotal.ToString("N2")</td>
             </tr>
-            @if (Model.RemainingAmount > 0 && Model.PaymentMode == SalePaymentMode.Credit)
-            {
-                <tr>
-                    <td class="label">المتبقي المطلوب</td>
-                    <td class="value">@Model.RemainingAmount.ToString("N2")</td>
-                </tr>
-            }
         </table>
     </div>
 

@@ -11,36 +11,41 @@
             <div class="company-name">شركة أبو آمن للأدوية</div>
             <div class="invoice-title-badge">فاتورة شراء</div>
             
-            <div class="info-summary-grid">
-                <div class="summary-item">
+            <div class="invoice-metadata" style="background:transparent; border:none; padding:0; margin-bottom:5px;">
+                <div class="metadata-item">
                     <span class="label">رقم الفاتورة:</span>
                     <span class="value">#@Model.Id</span>
                 </div>
-                <div class="summary-item">
+                <div class="metadata-item">
                     <span class="label">التاريخ:</span>
                     <span class="value">@Model.PurchaseDate.ToString("yyyy-MM-dd")</span>
                 </div>
-                <div class="summary-item main-info">
-                    <span class="label">المورد:</span>
-                    <span class="value">@Model.Supplier?.Name</span>
-                </div>
-                <div class="summary-item">
-                    <span class="label">فاتورة المورد:</span>
-                    <span class="value">@(string.IsNullOrWhiteSpace(Model.InvoiceNo) ? "-" : Model.InvoiceNo)</span>
-                </div>
             </div>
+            
+    <div class="invoice-metadata">
+        <div class="metadata-item">
+            <span class="label">المورد:</span>
+            <span class="value">@Model.Supplier?.Name</span>
+        </div>
+        <div class="metadata-item">
+            <span class="label">فاتورة المورد:</span>
+            <span class="value">@(string.IsNullOrWhiteSpace(Model.InvoiceNo) ? "-" : Model.InvoiceNo)</span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+        {
+            <div class="metadata-item">
+                <span class="label">ملاحظات:</span>
+                <span class="value">@Model.Notes</span>
+            </div>
+        }
+    </div>
         </div>
         <div class="header-left d-flex align-items-center justify-content-center" style="width: 150px; height: 120px;">
             <img src="@Url.Content("~/img/abuamen-mark.svg")" style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="شعار أبو آمن" />
         </div>
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.Notes))
-    {
-        <div class="notes-strip">
-            <strong>ملاحظات:</strong> @Model.Notes
-        </div>
-    }
+
 
     <table class="items-table">
         <thead>

@@ -106,6 +106,42 @@ public class AdminUsersController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // إعادة تعيين كلمة المرور
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(string id, string newPassword)
+    {
+        if (string.IsNullOrWhiteSpace(newPassword))
+        {
+            TempData["ErrorMessage"] = "كلمة المرور الجديدة مطلوبة.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null) return NotFound();
+
+        // إزالة كلمة المرور الحالية وإضافة الجديدة (Reset)
+        var removeResult = await _userManager.RemovePasswordAsync(user);
+        if (removeResult.Succeeded || removeResult.Errors.Any(e => e.Code == "UserHasNoPassword"))
+        {
+            var addResult = await _userManager.AddPasswordAsync(user, newPassword);
+            if (addResult.Succeeded)
+            {
+                TempData["SuccessMessage"] = $"تم تغيير كلمة المرور للمستخدم {user.Email} بنجاح.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = string.Join(", ", addResult.Errors.Select(e => e.Description));
+            }
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "فشل إزالة كلمة المرور القديمة.";
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task EnsureRolesExist()
     {
         string[] roles = { "Admin", "Operator" };

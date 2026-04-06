@@ -1,0 +1,45 @@
+@model dynamic
+@{
+    string id = Model.Id ?? "erpModal";
+    string title = Model.Title ?? "Modal Title";
+    string formAction = Model.FormAction ?? "";
+    string formMethod = Model.FormMethod ?? "post";
+    string modalSize = Model.Size ?? ""; // modal-lg, modal-xl
+    string headerClass = Model.HeaderClass ?? "bg-primary text-white";
+    string submitBtnClass = Model.SubmitBtnClass ?? "btn-primary";
+    string submitBtnText = Model.SubmitBtnText ?? "حفظ";
+}
+
+<div class="modal fade" id="@id" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog @modalSize">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header @headerClass border-0 rounded-top-4">
+                <h5 class="modal-title fw-bold">@title</h5>
+                <button type="button" class="btn-close @(headerClass.Contains("text-white") ? "btn-close-white" : "")" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(formAction))
+            {
+                <form asp-action="@formAction" method="@formMethod">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body p-4 bg-white">
+                        @Model.Content
+                    </div>
+                    <div class="modal-footer bg-light border-0 rounded-bottom-4">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn @submitBtnClass px-4 shadow-sm fw-bold">@submitBtnText</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="modal-body p-4 bg-white">
+                    @Model.Content
+                </div>
+                <div class="modal-footer bg-light border-0 rounded-bottom-4">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">إغلاق</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

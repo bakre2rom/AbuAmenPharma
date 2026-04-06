@@ -6,24 +6,42 @@
 }
 
 <div class="container">
-    <div class="header d-flex justify-content-between align-items-start border-bottom mb-4 pb-3">
+    <div class="header">
         <div class="header-right">
             <div class="company-name">شركة أبو آمن للأدوية</div>
             <div class="invoice-title-badge">مرتجع مشتريات</div>
             
-            <div class="info-summary-grid">
-                <div class="summary-item">
+            <div class="invoice-metadata" style="background:transparent; border:none; padding:0; margin-bottom:5px;">
+                <div class="metadata-item">
                     <span class="label">رقم المرتجع:</span>
                     <span class="value">#@Model.Id</span>
                 </div>
-                <div class="summary-item">
+                <div class="metadata-item">
                     <span class="label">تاريخ المرتجع:</span>
                     <span class="value">@Model.ReturnDate.ToString("yyyy-MM-dd")</span>
                 </div>
-                <div class="summary-item main-info">
-                    <span class="label">فاتورة الشراء:</span>
+                <div class="metadata-item">
+                    <span class="label">فاتورة الشراء الأصلية:</span>
                     <span class="value">#@Model.PurchaseId</span>
                 </div>
+            </div>
+
+            <div class="invoice-metadata">
+                <div class="metadata-item">
+                    <span class="label">المورد:</span>
+                    <span class="value">@Model.Supplier?.Name</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="label">فاتورة المورد:</span>
+                    <span class="value">@(string.IsNullOrWhiteSpace(Model.Purchase?.InvoiceNo) ? "-" : Model.Purchase!.InvoiceNo)</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <div class="metadata-item">
+                        <span class="label">ملاحظات:</span>
+                        <span class="value">@Model.Notes</span>
+                    </div>
+                }
             </div>
         </div>
         <div class="header-left d-flex align-items-center justify-content-center" style="width: 150px; height: 120px;">
@@ -31,32 +49,14 @@
         </div>
     </div>
 
-    <div class="info-grid">
-        <div class="info-item">
-            <strong>المورد</strong>
-            @Model.Supplier?.Name
-        </div>
-        <div class="info-item">
-            <strong>رقم فاتورة المورد</strong>
-            @(string.IsNullOrWhiteSpace(Model.Purchase?.InvoiceNo) ? "-" : Model.Purchase!.InvoiceNo)
-        </div>
-        @if (!string.IsNullOrWhiteSpace(Model.Notes))
-        {
-            <div class="info-item" style="grid-column: span 2;">
-                <strong>ملاحظات</strong>
-                @Model.Notes
-            </div>
-        }
-    </div>
-
     <table class="items-table">
         <thead>
             <tr>
                 <th class="text-center" style="width: 50px;">#</th>
                 <th>الصنف</th>
-                <th style="width: 120px;">رقم الباتش</th>
-                <th style="width: 140px;">تاريخ الانتهاء</th>
-                <th class="text-center" style="width: 90px;">الكمية</th>
+                <th style="width: 150px;">رقم الباتش</th>
+                <th style="width: 150px;">تاريخ الانتهاء</th>
+                <th class="text-center" style="width: 80px;">الكمية</th>
                 <th class="text-center" style="width: 100px;">سعر الشراء</th>
                 <th class="text-center" style="width: 120px;">الإجمالي</th>
             </tr>
@@ -83,7 +83,7 @@
     <div class="totals-section">
         <table class="totals-table">
             <tr class="grand-total">
-                <td class="label">إجمالي المرتجع</td>
+                <td class="label">إجمالي قيمة المرتجع</td>
                 <td class="value">@Model.Total.ToString("N2")</td>
             </tr>
         </table>

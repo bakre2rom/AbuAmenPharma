@@ -58,7 +58,41 @@ body {
     padding: 3px 12px;
     border-radius: 4px;
     display: inline-block;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+}
+
+.invoice-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px 30px;
+    padding: 10px 15px;
+    background-color: #f8fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.metadata-item {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metadata-item .label {
+    color: #718096;
+    font-weight: 600;
+}
+
+.metadata-item .value {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.metadata-item:not(:last-child)::after {
+    content: "|";
+    margin-right: 15px;
+    color: #cbd5e0;
 }
 
 .info-summary-grid {

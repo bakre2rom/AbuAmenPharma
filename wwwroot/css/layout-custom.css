@@ -1,108 +1,151 @@
 .navbar {
-    padding: 0.5rem 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-    background: linear-gradient(180deg, #ffffff 0%, #f4fbfa 100%);
+    padding: 0.25rem 1.5rem;
+    box-shadow: 0 1px 15px rgba(0, 0, 0, 0.04);
+    background: #fff;
+    border-bottom: 1px solid #f0f2f5;
+    z-index: 1050;
 }
 
 .navbar-brand {
-    font-weight: bold;
-    color: #0b4f87 !important;
-    font-size: 1.25rem;
+    padding: 0.5rem 0;
 }
 
 .app-brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.85rem;
-    white-space: normal;
+    gap: 0.75rem;
     text-decoration: none;
 }
 
 .app-brand-mark {
-    width: 52px;
-    height: 52px;
-    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    transition: transform 0.3s ease;
+}
+
+.app-brand:hover .app-brand-mark {
+    transform: scale(1.05);
 }
 
 .app-brand-copy {
     display: flex;
     flex-direction: column;
-    line-height: 1.1;
+    line-height: 1.2;
 }
 
 .app-brand-title {
-    color: #0b4f87;
-    font-size: 1.2rem;
+    color: #1a202c;
+    font-size: 1.1rem;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.02em;
 }
 
 .app-brand-subtitle {
-    color: #2e8f8b;
-    font-size: 0.82rem;
-    font-weight: 700;
+    color: #718096;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
-.nav-item {
-    margin: 0 2px;
+.navbar-nav .nav-item {
+    margin: 0 4px;
 }
 
-.nav-link {
-    font-weight: 500;
-    padding: 0.5rem 1rem !important;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+.navbar-nav .nav-link {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #4a5568 !important;
+    padding: 0.6rem 0.9rem !important;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
 }
 
-.nav-link:hover {
-    background-color: #f8f9fa;
-    color: #0d6efd !important;
+.navbar-nav .nav-link i {
+    font-size: 1.25rem;
+    margin: 0;
+    color: #a0aec0;
+    transition: color 0.2s ease;
 }
 
-.nav-link i {
-    margin-left: 6px;
-    font-size: 1.1rem;
+.navbar-nav .nav-link:hover {
+    background-color: #f7fafc;
+    color: #2b6cb0 !important;
 }
 
+.navbar-nav .nav-link:hover i,
+.navbar-nav .nav-link.active i {
+    color: #3182ce;
+}
+
+.navbar-nav .nav-link.active {
+    background-color: #ebf8ff;
+    color: #2b6cb0 !important;
+}
+
+/* Dropdowns */
 .dropdown-menu {
-    border: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
-    border-radius: 8px;
-    padding: 0.5rem 0;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 0.6rem;
     margin-top: 0.5rem;
+    min-width: 200px;
+    animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .dropdown-item {
-    padding: 0.6rem 1.5rem;
+    padding: 0.6rem 1rem;
     font-weight: 500;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #4a5568;
+    transition: all 0.15s ease;
 }
 
 .dropdown-item i {
-    margin-left: 8px;
+    font-size: 1.1rem;
     width: 20px;
-    color: #6c757d;
+    text-align: center;
+    color: #a0aec0;
 }
 
 .dropdown-item:hover {
-    background-color: #f8f9fa;
-    color: #0d6efd;
+    background-color: #f7fafc;
+    color: #2b6cb0;
 }
 
 .dropdown-item:hover i {
-    color: #0d6efd;
+    color: #3182ce;
 }
 
 .dropdown-header {
-    color: #6c757d;
-    font-size: 0.85rem;
-    font-weight: bold;
-    padding: 0.5rem 1.5rem;
+    color: #a0aec0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.5rem 1rem;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
-.navbar-nav .dropdown-toggle::after {
-    margin-right: 6px;
-    vertical-align: middle;
+.navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+    background-color: #f7fafc;
 }
 
 .badge-notification {
@@ -114,11 +157,22 @@
 }
 
 .card-body {
-    padding: 0.75rem !important;
+    padding: 1.25rem !important;
 }
 
 .table {
-    font-size: 0.88rem !important;
+    font-size: 0.9rem !important;
+}
+
+.table thead th {
+    background-color: #f8fafc;
+    color: #4a5568;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1rem 0.75rem !important;
+    border-bottom: 2px solid #edf2f7;
 }
 
 .table > :not(caption) > * > * {

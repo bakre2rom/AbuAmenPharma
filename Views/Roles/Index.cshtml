@@ -1,0 +1,119 @@
+@model List<Microsoft.AspNetCore.Identity.IdentityRole>
+@{
+    ViewData["Title"] = "إدارة الصلاحيات";
+}
+
+<partial name="ERP_Components/_ERPRowActionsStyles" />
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-1">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-shield-check me-2 text-primary"></i> إدارة صلاحيات النظام</h5>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-primary px-3 rounded-pill shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createRoleModal">
+                    <i class="bi bi-plus-lg"></i> صلاحية جديدة
+                </button>
+            </div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success py-2 px-3 small border-0 shadow-sm rounded-3 mb-3">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger py-2 px-3 small border-0 shadow-sm rounded-3 mb-3">@TempData["ErrorMessage"]</div>
+        }
+
+        <!-- Card Container -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-3">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="rolesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>اسم الصلاحية</th>
+                                <th class="text-center" style="width:120px;">العمليات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model)
+                            {
+                                <tr>
+                                    <td><span class="fw-bold text-dark fs-6">@r.Name</span></td>
+                                    <td>
+                                        <div class="row-actions justify-content-center">
+                                            @if (r.Name != "Admin")
+                                            {
+                                                <!-- Delete Role -->
+                                                <form asp-action="Delete" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@r.Id" />
+                                                    <button type="button" class="row-btn row-btn-delete confirm-delete" title="حذف الصلاحية">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-light text-muted border px-3 mt-1">أساسية</span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Role Modal -->
+<div class="modal fade" id="createRoleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title fw-bold">إضافة صلاحية جديدة</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4 bg-white">
+                    <partial name="ERP_Components/_ERPLabeledInput" model='new AbuAmenPharma.ViewModels.ERPLabeledInputVM { Label = "اسم الصلاحية", Name = "roleName", Required = true, Placeholder = "مثال: Accountant أو PharmaStaff" }' />
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm fw-bold">حفظ الصلاحية</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.confirm-delete').on('click', function(e) {
+                e.preventDefault();
+                const form = $(this).closest('form');
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: "لا يمكن التراجع عن حذف هذه الصلاحية!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'نعم، حذف',
+                    cancelButtonText: 'إلغاء'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

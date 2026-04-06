@@ -30,6 +30,45 @@ public class InventoryReportsController : Controller
         return View("Stock", data); // Can share the same view as Stock, just handles IsValuationReport = true
     }
 
+    public async Task<IActionResult> PricingList()
+    {
+        var query = from b in _context.ItemBatches.AsNoTracking()
+                    join i in _context.Items.AsNoTracking() on b.ItemId equals i.Id
+                    join m in _context.Manufacturers.AsNoTracking() on i.ManufacturerId equals m.Id
+                    join u in _context.Units.AsNoTracking() on i.UnitId equals u.Id
+                    join mv in _context.StockMovements.AsNoTracking() on b.Id equals mv.BatchId into movs
+                    where b.IsActive && i.IsActive
+                    select new
+                    {
+                        ItemName = i.NameAr,
+                        BatchNo = b.BatchNo,
+                        Manufacturer = m.NameAr,
+                        Unit = u.NameAr,
+                        ExpiryDate = b.ExpiryDate,
+                        SellPrice = b.SellPrice,
+                        Balance = movs.Sum(x => x.QtyIn - x.QtyOut)
+                    };
+
+        var dataRaw = await query
+            .Where(x => x.Balance > 0)
+            .OrderBy(x => x.Manufacturer)
+            .ThenBy(x => x.ItemName)
+            .ToListAsync();
+
+        var data = dataRaw.Select(x => new PricingListVM
+        {
+            ItemName = x.ItemName,
+            BatchNo = x.BatchNo,
+            Manufacturer = x.Manufacturer,
+            Unit = x.Unit,
+            ExpiryDate = x.ExpiryDate,
+            SellPrice = x.SellPrice,
+            Balance = x.Balance
+        }).ToList();
+
+        return View(data);
+    }
+
     private async Task<List<InventoryStockVM>> GetStockDataAsync(string? q)
     {
         var query = from b in _context.ItemBatches.AsNoTracking()

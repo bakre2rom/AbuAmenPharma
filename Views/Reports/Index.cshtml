@@ -1,0 +1,200 @@
+@{
+    ViewData["Title"] = "مركز التقارير";
+}
+
+<div class="reports-header mb-5 text-center py-4 bg-primary text-white rounded shadow-sm">
+    <h1 class="display-5 fw-bold mb-2"><i class="bi bi-file-earmark-bar-graph me-2"></i>مركز التقارير</h1>
+    <p class="lead mb-0 opacity-75">نظام أبو آمن للصيدليات - تحليل البيانات واتخاذ القرار</p>
+</div>
+
+<div class="row g-4">
+    <!-- Sales Reports Section -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 report-category-card">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-cart-check me-2 text-success"></i>تقارير المبيعات</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a asp-controller="SalesReports" asp-action="Aging" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">تحليل أعمار الديون</h6>
+                                <p class="mb-0 text-muted small">متابعة الديون المتأخرة وتصنيفها حسب الفترة الزمنية</p>
+                            </div>
+                            <i class="bi bi-chevron-left text-muted opacity-50"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action py-3 disabled opacity-50">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">تحليل المبيعات اليومي <span class="badge bg-secondary opacity-75 small">قريباً</span></h6>
+                                <p class="mb-0 text-muted small">مقارنة المبيعات عبر الأيام والأصناف الأكثر مبيعاً</p>
+                            </div>
+                            <i class="bi bi-chevron-left text-muted opacity-50"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Reports Section -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 report-category-card">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-boxes me-2 text-primary"></i>تقارير المخزون والأصناف</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a asp-controller="InventoryReports" asp-action="PricingList" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">قائمة الأسعار المحدثة</h6>
+                                <p class="mb-0 text-muted small">كشف بأسعار المبيع الحالية للأصناف المتوفرة</p>
+                            </div>
+                            <i class="bi bi-tag text-primary"></i>
+                        </div>
+                    </a>
+                    <a asp-controller="StockReports" asp-action="ItemMovement" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">حركة صنف محدد</h6>
+                                <p class="mb-0 text-muted small">مسار الصادر والوارد لصنف معين بالتاريخ والمرجع</p>
+                            </div>
+                            <i class="bi bi-arrow-left-right text-info"></i>
+                        </div>
+                    </a>
+                    <a asp-controller="StockReports" asp-action="Inventory" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">جرد المستودع الحالي</h6>
+                                <p class="mb-0 text-muted small">كتاب الجرد الكلي للكميات المتاحة ومكان تواجدها</p>
+                            </div>
+                            <i class="bi bi-clipboard-check text-success"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Reports Section -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 report-category-card">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-cash-coin me-2 text-warning"></i>التقارير المالية والمحاسبية</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a asp-controller="InventoryReports" asp-action="Valuation" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">تقرير تقييم المخزون</h6>
+                                <p class="mb-0 text-muted small">حساب التكلفة الإجمالية للمخزون (سعر الشراء)</p>
+                            </div>
+                            <i class="bi bi-calculator text-dark"></i>
+                        </div>
+                    </a>
+                    <a asp-controller="CustomersReports" asp-action="Balances" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">أرصدة العملاء والمديونيات</h6>
+                                <p class="mb-0 text-muted small">صافي المديونية لكل عميل وحالة الحساب الحالية</p>
+                            </div>
+                            <i class="bi bi-people text-secondary"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer/Supplier Reports Section -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 report-category-card">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-person-lines-fill me-2 text-info"></i>تقارير العملاء والشركاء</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a asp-controller="CustomersReports" asp-action="Statement" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">كشف حساب عميل مفصل</h6>
+                                <p class="mb-0 text-muted small">كل العمليات والسدادات الخاصة بعميل محدد</p>
+                            </div>
+                            <i class="bi bi-file-earmark-text text-primary"></i>
+                        </div>
+                    </a>
+                    <a asp-controller="CustomersReports" asp-action="SalesmanStatement" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-dark fw-bold">تقرير عملاء المناديب</h6>
+                                <p class="mb-0 text-muted small">تتبع مبيعات وتحصيلات المناديب عبر عملائهم</p>
+                            </div>
+                            <i class="bi bi-person-badge text-warning"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Alerts Section -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card h-100 shadow-sm border-0 report-category-card">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-lightning text-danger me-2"></i>تقارير المتابعة والتنبيهات</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a asp-controller="Items" asp-action="LowStock" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-danger fw-bold">تقرير نواقص الأدوية</h6>
+                                <p class="mb-0 text-muted small">الأصناف التي وصلت لحد إعادة الطلب أو نفدت</p>
+                            </div>
+                            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                        </div>
+                    </a>
+                    <a asp-controller="Items" asp-action="Expiring" class="list-group-item list-group-item-action py-3">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1 text-warning fw-bold">تنبيهات تاريخ الانتهاء</h6>
+                                <p class="mb-0 text-muted small">الأصناف القاربة على الانتهاء خلال فترة محددة</p>
+                            </div>
+                            <i class="bi bi-calendar-x text-warning"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .report-category-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .report-category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .list-group-item {
+        border-start: 1px solid #eee;
+        transition: background-color 0.2s;
+    }
+    .list-group-item:hover {
+        background-color: #f8f9ff;
+    }
+    .list-group-item h6 {
+        font-size: 1rem;
+    }
+    .reports-header {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    }
+    [dir="rtl"] .list-group-item .bi-chevron-left {
+        transform: rotate(0deg);
+    }
+</style>

@@ -2,11 +2,12 @@
     ViewData["Title"] = "المبيعات";
 }
 
+<partial name="ERP_Components/_ERPRowActionsStyles" />
+
 <div class="row justify-content-center">
     <div class="col-lg-12">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-2 mt-1">
-            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-cart3 me-1"></i> إدارة المبيعات</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-1">
+            <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-cart3 me-2 text-primary"></i> إدارة المبيعات</h5>
             <div class="d-flex gap-2">
                 <a class="btn btn-sm btn-outline-success px-3 rounded-pill shadow-sm d-flex align-items-center gap-2" asp-controller="CustomerReceipts" asp-action="Create">
                     <i class="bi bi-wallet2"></i> سند قبض
@@ -17,20 +18,19 @@
             </div>
         </div>
 
-        <!-- Card Container -->
         <div class="card shadow-sm border-0 rounded-4">
-            <div class="card-body p-2">
+            <div class="card-body p-3">
                 <div class="table-responsive">
-                    <table class="table table-sm table-hover align-middle text-center w-100" id="salesTable" style="margin-top: 5px; font-size: 0.88rem;">
-                        <thead class="table-light text-muted">
+                    <table class="table table-hover align-middle text-center w-100" id="salesTable">
+                        <thead class="table-light">
                             <tr>
-                                <th class="fw-semibold py-2 text-center">رقم الفاتورة</th>
-                                <th class="fw-semibold py-2 text-center">العميل</th>
-                                <th class="fw-semibold py-2 text-center">المندوب</th>
-                                <th class="fw-semibold py-2 text-center">التاريخ</th>
-                                <th class="fw-semibold py-2 text-center">الإجمالي</th>
-                                <th class="fw-semibold py-2 text-center">الحالة</th>
-                                <th class="fw-semibold py-2 text-center" style="width:120px;">العمليات</th>
+                                <th class="text-center">رقم الفاتورة</th>
+                                <th class="text-center">العميل</th>
+                                <th class="text-center">المندوب</th>
+                                <th class="text-center">التاريخ</th>
+                                <th class="text-center">الإجمالي</th>
+                                <th class="text-center">الحالة</th>
+                                <th class="text-center" style="width:120px;">العمليات</th>
                             </tr>
                         </thead>
                     </table>
@@ -42,103 +42,16 @@
 
 @section Styles {
     <link href="~/lib/datatables/css/datatables.bootstrap.min.css" rel="stylesheet" />
-    <style>
-        .table > :not(caption) > * > * {
-            padding: 0.6rem 0.4rem !important;
-            color: #495057;
-        }
-        .dataTables_wrapper .dataTables_filter input {
-            border-radius: 8px;
-            padding: 8px;
-            border: 1px solid #dee2e6;
-            margin-bottom: 15px;
-        }
-        table.dataTable.table-striped > tbody > tr.odd > * {
-            box-shadow: none;
-        }
-    </style>
 }
 
 @section Scripts {
     <script src="~/lib/datatables/js/jquery.datatables.min.js"></script>
     <script src="~/lib/datatables/js/datatables.bootstrap.min.js"></script>
 
-    <script>
-        $(document).ready(function() {
-            $('#salesTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: '@Url.Action("GetSalesData", "Sales")',
-                    type: 'POST'
-                },
-                columns: [
-                    { 
-                        data: 'id',
-                        render: function(data) {
-                            return `<span class="fw-bold text-primary">INV-${data}#</span>`;
-                        }
-                    },
-                    { 
-                        data: 'customerName',
-                        render: function(data) { return `<span class="fw-bold text-dark">${data || 'بدون عميل'}</span>`; }
-                    },
-                    { data: 'salesmanName', defaultContent: '-' },
-                    {
-                        data: 'saleDate',
-                        render: function(data) { 
-                            if (!data) return '-';
-                            var date = new Date(data);
-                            return date.toISOString().split('T')[0];
-                        }
-                    },
-                    {
-                        data: 'netTotal',
-                        render: function(data) {
-                            return `<small class="text-muted pe-1">SDG</small> <span class="fw-bold text-success">${Number(data).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>`;
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(row) {
-                            if (row.remainingAmount <= 0) {
-                                return '<span class="badge rounded-pill bg-success px-3 py-2">مدفوع بالكامل</span>';
-                            } else if (row.paidAmount > 0) {
-                                return `<span class="badge rounded-pill bg-warning text-dark px-3 py-2">مدفوع جزئياً</span>
-                                        <div class="small text-muted mt-1">متبقي: ${Number(row.remainingAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</div>`;
-                            } else if (row.paymentMode === 'Cash') {
-                                return '<span class="badge rounded-pill bg-success px-3 py-2">نقدي</span>';
-                            } else {
-                                return `<span class="badge rounded-pill bg-danger px-3 py-2">آجل</span>
-                                        <div class="small text-muted mt-1">متبقي: ${Number(row.remainingAmount).toLocaleString(undefined, {minimumFractionDigits: 2})}</div>`;
-                            }
-                        }
-                    },
-                    {
-                        data: 'id',
-                        render: function(data) {
-                            return `
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a class="btn btn-outline-secondary floating-action-btn" href="/Sales/Details/${data}" data-bs-toggle="tooltip" title="عرض التفاصيل"><i class="bi bi-eye"></i></a>
-                                    <a class="btn btn-outline-info floating-action-btn" href="/Sales/Print/${data}" data-bs-toggle="tooltip" title="طباعة الفاتورة"><i class="bi bi-printer"></i></a>
-                                </div>
-                            `;
-                        }
-                    }
-                ],
-                order: [[0, 'desc']],
-                pageLength: 5,
-                language: {
-                    search: "_INPUT_",
-                    searchPlaceholder: "ابحث عن أي شيء هنا...",
-                    lengthMenu: "عرض _MENU_ سجل",
-                    info: "عرض _START_ إلى _END_ من إجمالي _TOTAL_ سجل",
-                    infoEmpty: "تعرض 0 إلى 0 من أصل 0 سجل",
-                    zeroRecords: "لم يتم العثور على سجلات متطابقة",
-                    paginate: { first: "الأول", last: "الأخير", next: "التالي", previous: "السابق" },
-                    processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">جاري التحميل...</span></div>'
-                }
-            });
-        });
-    </script>
+    <partial name="ERP_Components/_ERPDataTableScript" model='new AbuAmenPharma.ViewModels.ERPDataTableConfig { 
+        TableId = "salesTable", 
+        AjaxUrl = Url.Action("GetSalesData", "Sales"),
+        ColumnsJson = "[{\"data\":\"id\",\"render\":function(data){return `<span class=\\\"fw-bold text-primary\\\">INV-${data}#</span>`;}},{\"data\":\"customerName\",\"render\":function(data){return `<span class=\\\"fw-bold text-dark\\\">${data||\"بدون عميل\"}</span>`;}},{\"data\":\"salesmanName\",\"defaultContent\":\"-\"},{\"data\":\"saleDate\",\"render\":function(data){if(!data)return \"-\";return new Date(data).toISOString().split(\"T\")[0];}},{\"data\":\"netTotal\",\"render\":function(data){return `<span class=\\\"fw-bold text-success\\\">${Number(data).toLocaleString(undefined,{minimumFractionDigits:2})}</span> <small class=\\\"text-muted\\\">جنيه سوداني</small>`;}},{\"data\":null,\"render\":function(row){if(row.remainingAmount<=0)return `<span class=\\\"badge rounded-pill bg-success px-3\\\">مدفوع</span>`;if(row.paidAmount>0)return `<span class=\\\"badge rounded-pill bg-warning text-dark px-3\\\">جزئي</span>`;return `<span class=\\\"badge rounded-pill bg-danger px-3\\\">آجل</span>`;}},{\"data\":\"id\",\"render\":function(data){return `<div class=\\\"row-actions\\\"><a href=\\\"/Sales/Details/${data}\\\" class=\\\"row-btn row-btn-view\\\" title=\\\"عرض\\\"><i class=\\\"bi bi-eye\\\"></i></a><a href=\\\"/Sales/Print/${data}\\\" target=\\\"_blank\\\" class=\\\"row-btn row-btn-print\\\" title=\\\"طباعة\\\"><i class=\\\"bi bi-printer\\\"></i></a></div>`;}}]",
+        PageLength = 6
+    }' />
 }

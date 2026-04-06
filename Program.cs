@@ -1,4 +1,5 @@
 using AbuAmenPharma.Data;
+using AbuAmenPharma.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IFinancialService, FinancialService>();
+builder.Services.AddScoped<IStockService, StockService>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

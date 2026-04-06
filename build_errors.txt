@@ -1,17 +1,21 @@
   Determining projects to restore...
   All projects are up-to-date for restore.
-C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(264,48): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
-C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(281,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
-C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(298,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
-C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(306,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(199,22): error CS1519: Invalid token '=' in a member declaration [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(199,28): error CS1519: Invalid token ';' in a member declaration [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(200,19): error CS1519: Invalid token '=' in a member declaration [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(200,23): error CS1519: Invalid token '??' in a member declaration [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(201,25): error CS1001: Identifier expected [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(203,1): error CS1022: Type or namespace definition, or end-of-file expected [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
 
 Build FAILED.
 
-C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(264,48): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
-C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(281,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
-C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(298,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
-C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\SalesController.cs(306,44): error CS1061: 'SaleCreateVM' does not contain a definition for 'SalesmanId' and no accessible extension method 'SalesmanId' accepting a first argument of type 'SaleCreateVM' could be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(199,22): error CS1519: Invalid token '=' in a member declaration [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(199,28): error CS1519: Invalid token ';' in a member declaration [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(200,19): error CS1519: Invalid token '=' in a member declaration [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(200,23): error CS1519: Invalid token '??' in a member declaration [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(201,25): error CS1001: Identifier expected [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(203,1): error CS1022: Type or namespace definition, or end-of-file expected [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
     0 Warning(s)
-    4 Error(s)
+    6 Error(s)
 
-Time Elapsed 00:00:05.28
+Time Elapsed 00:00:01.52

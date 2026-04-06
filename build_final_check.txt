@@ -1,0 +1,27 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Purchases\Index.cshtml(49,6): error RZ1035: Missing close angle for tag helper 'partial'. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(77,6): error RZ1035: Missing close angle for tag helper 'partial'. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Services\IStockService.cs(19,122): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Services\StockService.cs(18,135): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Purchases\Index.cshtml(52,23): error CS1010: Newline in constant [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Purchases\Index.cshtml(52,239): error CS1513: } expected [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(80,23): error CS1010: Newline in constant [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(80,240): error CS1513: } expected [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(54,28): error CS0826: No best type found for implicitly-typed array [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+
+Build FAILED.
+
+C:\Users\le\AbuAmen\AbuAmenPharma\Services\IStockService.cs(19,122): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Services\StockService.cs(18,135): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Purchases\Index.cshtml(49,6): error RZ1035: Missing close angle for tag helper 'partial'. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(77,6): error RZ1035: Missing close angle for tag helper 'partial'. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Purchases\Index.cshtml(52,23): error CS1010: Newline in constant [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Purchases\Index.cshtml(52,239): error CS1513: } expected [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(80,23): error CS1010: Newline in constant [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(80,240): error CS1513: } expected [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(54,28): error CS0826: No best type found for implicitly-typed array [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+    2 Warning(s)
+    7 Error(s)
+
+Time Elapsed 00:00:03.62

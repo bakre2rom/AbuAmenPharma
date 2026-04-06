@@ -1,0 +1,56 @@
+@using AbuAmenPharma.ViewModels
+@model ERPDataTableConfig
+@{
+    // Safe defaults are now handled by the ViewModel constructor/initializers
+}
+
+<script>
+    $(document).ready(function() {
+        var tableId = '#@Model.TableId';
+        
+        if ($.fn.DataTable.isDataTable(tableId)) {
+            $(tableId).DataTable().destroy();
+        }
+
+        var table = $(tableId).DataTable({
+            processing: true,
+            serverSide: @(Model.IsServerSide ? "true" : "false"),
+            ajax: {
+                url: '@Model.AjaxUrl',
+                type: 'POST',
+                error: function (xhr, error, thrown) {
+                    console.error("DataTable Error (@Model.TableId): ", error, thrown);
+                }
+            },
+            columns: @Html.Raw(Model.ColumnsJson),
+            order: @Html.Raw(Model.Order),
+            pageLength: @Model.PageLength,
+            language: {
+                search: "",
+                searchPlaceholder: "بحث سريع...",
+                lengthMenu: "عرض _MENU_",
+                info: "عرض _START_ إلى _END_ من _TOTAL_",
+                infoEmpty: "لا توجد سجلات",
+                infoFiltered: "(مصفى من _MAX_)",
+                zeroRecords: "لم يتم العثور على نتائج",
+                paginate: {
+                    first: "«",
+                    last: "»",
+                    next: "›",
+                    previous: "‹"
+                },
+                processing: '<div class="spinner-border text-primary spinner-border-sm" role="status"></div>'
+            },
+            dom: "<'row mb-2'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                 "<'row'<'col-sm-12'tr>>" +
+                 "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            drawCallback: function() {
+                $('.row-btn').tooltip();
+                if(typeof onDataTableDraw === 'function') onDataTableDraw('@Model.TableId');
+            }
+        });
+
+        $(tableId + '_filter input').addClass('form-control form-control-sm border-0 bg-light px-3').css('width', '250px');
+        $(tableId + '_length select').addClass('form-select form-select-sm border-0 bg-light');
+    });
+</script>

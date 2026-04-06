@@ -1,0 +1,39 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Purchases\Index.cshtml(49,6): error RZ1035: Missing close angle for tag helper 'partial'. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(77,6): error RZ1035: Missing close angle for tag helper 'partial'. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\CustomerReceiptsController.cs(14,22): error CS0246: The type or namespace name 'IFinancialService' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\CustomerReceiptsController.cs(16,69): error CS0246: The type or namespace name 'IFinancialService' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Services\IStockService.cs(19,122): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Services\StockService.cs(18,135): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(4,39): error CS0246: The type or namespace name 'Controller' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(3,2): error CS0246: The type or namespace name 'AuthorizeAttribute' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(3,2): error CS0246: The type or namespace name 'Authorize' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(6,22): error CS0246: The type or namespace name 'ApplicationDbContext' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(9,35): error CS0246: The type or namespace name 'ApplicationDbContext' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(16,23): error CS0246: The type or namespace name 'IActionResult' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(55,23): error CS0246: The type or namespace name 'IActionResult' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(96,23): error CS0246: The type or namespace name 'IActionResult' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(143,23): error CS0246: The type or namespace name 'IActionResult' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+
+Build FAILED.
+
+C:\Users\le\AbuAmen\AbuAmenPharma\Services\IStockService.cs(19,122): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Services\StockService.cs(18,135): warning CS8625: Cannot convert null literal to non-nullable reference type. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Purchases\Index.cshtml(49,6): error RZ1035: Missing close angle for tag helper 'partial'. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Views\Sales\Index.cshtml(77,6): error RZ1035: Missing close angle for tag helper 'partial'. [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\CustomerReceiptsController.cs(14,22): error CS0246: The type or namespace name 'IFinancialService' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\CustomerReceiptsController.cs(16,69): error CS0246: The type or namespace name 'IFinancialService' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(4,39): error CS0246: The type or namespace name 'Controller' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(3,2): error CS0246: The type or namespace name 'AuthorizeAttribute' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(3,2): error CS0246: The type or namespace name 'Authorize' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(6,22): error CS0246: The type or namespace name 'ApplicationDbContext' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(9,35): error CS0246: The type or namespace name 'ApplicationDbContext' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(16,23): error CS0246: The type or namespace name 'IActionResult' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(55,23): error CS0246: The type or namespace name 'IActionResult' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(96,23): error CS0246: The type or namespace name 'IActionResult' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+C:\Users\le\AbuAmen\AbuAmenPharma\Controllers\StockReportsController.cs(143,23): error CS0246: The type or namespace name 'IActionResult' could not be found (are you missing a using directive or an assembly reference?) [C:\Users\le\AbuAmen\AbuAmenPharma\AbuAmenPharma.csproj]
+    2 Warning(s)
+    13 Error(s)
+
+Time Elapsed 00:00:02.30

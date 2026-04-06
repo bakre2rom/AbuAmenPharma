@@ -1,0 +1,39 @@
+@model dynamic
+@{
+    // Expected dynamic model: { ViewUrl, EditUrl, DeleteUrl, PrintUrl, ItemId, Confirmed (bool) }
+    string viewUrl = Model.ViewUrl ?? "";
+    string editUrl = Model.EditUrl ?? "";
+    string deleteUrl = Model.DeleteUrl ?? "";
+    string printUrl = Model.PrintUrl ?? "";
+    string itemId = Model.ItemId?.ToString() ?? "";
+}
+
+<div class="row-actions">
+    @if (!string.IsNullOrEmpty(viewUrl))
+    {
+        <a href="@viewUrl" class="row-btn row-btn-view" title="عرض التفاصيل">
+            <i class="bi bi-eye"></i>
+        </a>
+    }
+
+    @if (!string.IsNullOrEmpty(editUrl) && (Model.Confirmed == null || !Model.Confirmed))
+    {
+        <a href="@editUrl" class="row-btn row-btn-edit" title="تعديل">
+            <i class="bi bi-pencil-square"></i>
+        </a>
+    }
+
+    @if (!string.IsNullOrEmpty(printUrl))
+    {
+        <a href="@printUrl" target="_blank" class="row-btn row-btn-print" title="طباعة">
+            <i class="bi bi-printer"></i>
+        </a>
+    }
+
+    @if (!string.IsNullOrEmpty(deleteUrl))
+    {
+        <a href="@deleteUrl" class="row-btn row-btn-delete" title="حذف" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+            <i class="bi bi-trash"></i>
+        </a>
+    }
+</div>

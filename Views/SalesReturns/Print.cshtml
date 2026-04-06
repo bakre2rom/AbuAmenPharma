@@ -7,28 +7,38 @@
 }
 
 <div class="container">
-    <div class="header d-flex justify-content-between align-items-start border-bottom mb-4 pb-3">
+    <div class="header">
         <div class="header-right">
             <div class="company-name">شركة أبو آمن للأدوية</div>
             <div class="invoice-title-badge">مرتجع مبيعات</div>
             
-            <div class="info-summary-grid">
-                <div class="summary-item">
+            <div class="invoice-metadata" style="background:transparent; border:none; padding:0; margin-bottom:5px;">
+                <div class="metadata-item">
                     <span class="label">رقم المرتجع:</span>
                     <span class="value">#@Model.Id</span>
                 </div>
-                <div class="summary-item">
+                <div class="metadata-item">
                     <span class="label">تاريخ المرتجع:</span>
                     <span class="value">@Model.ReturnDate.ToString("yyyy-MM-dd")</span>
                 </div>
-                <div class="summary-item main-info">
+                <div class="metadata-item">
+                    <span class="label">فاتورة البيع الأصلية:</span>
+                    <span class="value">#@Model.SaleId</span>
+                </div>
+            </div>
+
+            <div class="invoice-metadata">
+                <div class="metadata-item">
                     <span class="label">العميل:</span>
                     <span class="value">@Model.Customer?.Name</span>
                 </div>
-                <div class="summary-item">
-                    <span class="label">فاتورة البيع:</span>
-                    <span class="value">#@Model.SaleId</span>
-                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <div class="metadata-item">
+                        <span class="label">ملاحظات:</span>
+                        <span class="value">@Model.Notes</span>
+                    </div>
+                }
             </div>
         </div>
         <div class="header-left d-flex align-items-center justify-content-center" style="width: 150px; height: 120px;">
@@ -36,32 +46,14 @@
         </div>
     </div>
 
-    <div class="info-grid">
-        <div class="info-item">
-            <strong>العميل</strong>
-            @Model.Customer?.Name
-        </div>
-        <div class="info-item">
-            <strong>إجمالي المرتجع</strong>
-            @Model.NetTotal.ToString("N2")
-        </div>
-        @if (!string.IsNullOrWhiteSpace(Model.Notes))
-        {
-            <div class="info-item" style="grid-column: span 2;">
-                <strong>ملاحظات</strong>
-                @Model.Notes
-            </div>
-        }
-    </div>
-
     <table class="items-table">
         <thead>
             <tr>
                 <th class="text-center" style="width: 50px;">#</th>
                 <th>الصنف</th>
-                <th style="width: 220px;">الدفعات</th>
-                <th style="width: 220px;">تاريخ الانتهاء</th>
-                <th class="text-center" style="width: 90px;">الكمية</th>
+                <th style="width: 150px;">رقم الباتش</th>
+                <th style="width: 150px;">تاريخ الانتهاء</th>
+                <th class="text-center" style="width: 80px;">الكمية</th>
                 <th class="text-center" style="width: 100px;">السعر</th>
                 <th class="text-center" style="width: 120px;">الإجمالي</th>
             </tr>
@@ -75,34 +67,16 @@
                     <tr>
                         <td class="text-center">@(i++)</td>
                         <td>@line.Item?.NameAr</td>
-                        <td>
-                            @if (lineAllocs.Count == 0)
-                            {
-                                <span class="muted">-</span>
-                            }
-                            else
-                            {
-                                <div class="line-list">
-                                    @foreach (var a in lineAllocs)
-                                    {
-                                        <div>@a.Batch?.BatchNo</div>
-                                    }
-                                </div>
+                        <td class="text-center">
+                            @if (lineAllocs.Count == 0) { <span class="muted">-</span> }
+                            else {
+                                foreach (var a in lineAllocs) { <div>@a.Batch?.BatchNo</div> }
                             }
                         </td>
-                        <td>
-                            @if (lineAllocs.Count == 0)
-                            {
-                                <span class="muted">-</span>
-                            }
-                            else
-                            {
-                                <div class="line-list">
-                                    @foreach (var a in lineAllocs)
-                                    {
-                                        <div>@(a.Batch != null ? a.Batch.ExpiryDate.ToString("yyyy-MM-dd") : "-")</div>
-                                    }
-                                </div>
+                        <td class="text-center">
+                            @if (lineAllocs.Count == 0) { <span class="muted">-</span> }
+                            else {
+                                foreach (var a in lineAllocs) { <div>@(a.Batch != null ? a.Batch.ExpiryDate.ToString("yyyy-MM-dd") : "-")</div> }
                             }
                         </td>
                         <td class="text-center">@line.Qty.ToString("0.##")</td>
@@ -117,7 +91,7 @@
     <div class="totals-section">
         <table class="totals-table">
             <tr>
-                <td class="label">الإجمالي</td>
+                <td class="label">إجمالي البنود</td>
                 <td class="value">@Model.SubTotal.ToString("N2")</td>
             </tr>
             @if (Model.Discount > 0)
@@ -128,7 +102,7 @@
                 </tr>
             }
             <tr class="grand-total">
-                <td class="label">الصافي النهائي</td>
+                <td class="label">صافي قيمة المرتجع</td>
                 <td class="value">@Model.NetTotal.ToString("N2")</td>
             </tr>
         </table>
