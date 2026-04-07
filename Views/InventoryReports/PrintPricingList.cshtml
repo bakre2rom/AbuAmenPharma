@@ -17,7 +17,7 @@
             <th class="text-center">البادش</th>
             <th class="text-center">الوحدة</th>
             <th class="text-center">تاريخ الانتهاء</th>
-            <th class="text-center pe-3">سعر الشراء</th>
+            <th class="text-center pe-3">سعر البيع</th>
         </tr>
     </thead>
     <tbody>
@@ -42,7 +42,7 @@
                 <td class="text-center">@item.BatchNo</td>
                 <td class="text-center">@item.Unit</td>
                 <td class="text-center">@item.ExpiryDate.ToString("yyyy/MM/dd")</td>
-                <td class="text-center pe-3 fw-bold">@item.PurchasePrice.ToString("N3")</td>
+                <td class="text-center pe-3 fw-bold">@item.SellPrice.ToString("N3")</td>
             </tr>
         }
     </tbody>

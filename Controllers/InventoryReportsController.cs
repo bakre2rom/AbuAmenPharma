@@ -53,7 +53,7 @@ public class InventoryReportsController : Controller
                         Manufacturer = m.NameAr,
                         Unit = u.NameAr,
                         ExpiryDate = b.ExpiryDate,
-                        PurchasePrice = b.PurchasePrice,
+                        SellPrice = b.SellPrice,
                         Balance = movs.Sum(x => x.QtyIn - x.QtyOut)
                     };
 
@@ -71,7 +71,7 @@ public class InventoryReportsController : Controller
             Manufacturer = x.Manufacturer,
             Unit = x.Unit,
             ExpiryDate = x.ExpiryDate,
-            PurchasePrice = x.PurchasePrice,
+            SellPrice = x.SellPrice,
             Balance = x.Balance
         }).ToList();
     }

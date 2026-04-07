@@ -8,7 +8,7 @@ namespace AbuAmenPharma.ViewModels
         public string Manufacturer { get; set; } = "";
         public string Unit { get; set; } = "";
         public DateOnly ExpiryDate { get; set; }
-        public decimal PurchasePrice { get; set; }
+        public decimal SellPrice { get; set; }
         public decimal Balance { get; set; }
     }
 }

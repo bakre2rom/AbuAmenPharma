@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h3 class="mb-1 text-primary fw-bold">قائمة أسعار التشغيلات</h3>
-        <p class="text-muted mb-0">كشف مرجعي لأسعار الشراء والباتشات المتوفرة (مرتب حسب الشركة المصنعة)</p>
+        <p class="text-muted mb-0">كشف مرجعي لأسعار البيع والباتشات المتوفرة (مرتب حسب الشركة المصنعة)</p>
     </div>
     <div class="d-print-none">
         <a asp-action="PrintPricingList" target="_blank" class="btn btn-primary shadow-sm me-2">
@@ -34,7 +34,7 @@
                         <th>البادش (Batch)</th>
                         <th>الوحدة</th>
                         <th class="text-center">تاريخ الانتهاء</th>
-                        <th class="text-center pe-3">سعر الشراء</th>
+                        <th class="text-center pe-3">سعر البيع</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -65,8 +65,8 @@
                                 }
                                 <span class="badge @badgeClass font-monospace px-2">@item.ExpiryDate.ToString("yyyy/MM/dd")</span>
                             </td>
-                            <td class="text-center pe-3 fw-bold fs-6 text-primary">
-                                @item.PurchasePrice.ToString("N3") <small class="fw-normal text-muted" style="font-size: 0.7rem">ج.س</small>
+                            <td class="text-center pe-3 fw-bold fs-6 text-success">
+                                @item.SellPrice.ToString("N3") <small class="fw-normal text-muted" style="font-size: 0.7rem">ج.س</small>
                             </td>
                         </tr>
                     }
