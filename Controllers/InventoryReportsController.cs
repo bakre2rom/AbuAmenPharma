@@ -3,6 +3,7 @@ using AbuAmenPharma.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
 
 [Authorize(Roles = "Admin,Operator")]
 public class InventoryReportsController : Controller
@@ -27,10 +28,16 @@ public class InventoryReportsController : Controller
         var data = await GetStockDataAsync(q);
         data.ForEach(d => d.IsValuationReport = true);
         ViewBag.Q = q ?? "";
-        return View("Stock", data); // Can share the same view as Stock, just handles IsValuationReport = true
+        return View("Stock", data);
     }
 
-    public async Task<IActionResult> PricingList()
+    public async Task<IActionResult> PrintPricingList()
+    {
+        var data = await GetPricingListDataAsync();
+        return View(data);
+    }
+
+    private async Task<List<PricingListVM>> GetPricingListDataAsync()
     {
         var query = from b in _context.ItemBatches.AsNoTracking()
                     join i in _context.Items.AsNoTracking() on b.ItemId equals i.Id
@@ -41,11 +48,12 @@ public class InventoryReportsController : Controller
                     select new
                     {
                         ItemName = i.NameAr,
+                        ScientificName = i.GenericName ?? "",
                         BatchNo = b.BatchNo,
                         Manufacturer = m.NameAr,
                         Unit = u.NameAr,
                         ExpiryDate = b.ExpiryDate,
-                        SellPrice = b.SellPrice,
+                        PurchasePrice = b.PurchasePrice,
                         Balance = movs.Sum(x => x.QtyIn - x.QtyOut)
                     };
 
@@ -55,17 +63,22 @@ public class InventoryReportsController : Controller
             .ThenBy(x => x.ItemName)
             .ToListAsync();
 
-        var data = dataRaw.Select(x => new PricingListVM
+        return dataRaw.Select(x => new PricingListVM
         {
             ItemName = x.ItemName,
+            ScientificName = x.ScientificName,
             BatchNo = x.BatchNo,
             Manufacturer = x.Manufacturer,
             Unit = x.Unit,
             ExpiryDate = x.ExpiryDate,
-            SellPrice = x.SellPrice,
+            PurchasePrice = x.PurchasePrice,
             Balance = x.Balance
         }).ToList();
+    }
 
+    public async Task<IActionResult> PricingList()
+    {
+        var data = await GetPricingListDataAsync();
         return View(data);
     }
 

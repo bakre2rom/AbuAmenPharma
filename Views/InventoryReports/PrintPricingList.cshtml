@@ -1,0 +1,49 @@
+@using AbuAmenPharma.ViewModels
+@model List<PricingListVM>
+@{
+    Layout = "_PrintLayout";
+    ViewData["Title"] = "طباعة قائمة الأسعار";
+    ViewData["ReportTitle"] = "قائمة أسعار الأدوية والتشغيلات";
+    ViewData["ShowMetadata"] = true;
+    ViewData["ReportPeriod"] = DateTime.Today.ToString("yyyy/MM/dd");
+}
+
+<table class="report-table">
+    <thead>
+        <tr>
+            <th class="ps-3 d-none">الشركة المصنعة</th> <!-- Hidden but used for logic if needed -->
+            <th>اسم الدواء / الصنف</th>
+            <th>الاسم العلمي</th>
+            <th class="text-center">البادش</th>
+            <th class="text-center">الوحدة</th>
+            <th class="text-center">تاريخ الانتهاء</th>
+            <th class="text-center pe-3">سعر الشراء</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            string lastManufacturer = "";
+        }
+        @foreach (var item in Model)
+        {
+            if (item.Manufacturer != lastManufacturer)
+            {
+                <tr class="group-row">
+                    <td colspan="6" class="ps-3 py-2">
+                        @item.Manufacturer
+                    </td>
+                </tr>
+                lastManufacturer = item.Manufacturer;
+            }
+            <tr>
+                <td class="d-none">@item.Manufacturer</td>
+                <td class="ps-3 fw-bold">@item.ItemName</td>
+                <td class="text-muted" style="font-size: 0.9em;">@item.ScientificName</td>
+                <td class="text-center">@item.BatchNo</td>
+                <td class="text-center">@item.Unit</td>
+                <td class="text-center">@item.ExpiryDate.ToString("yyyy/MM/dd")</td>
+                <td class="text-center pe-3 fw-bold">@item.PurchasePrice.ToString("N3")</td>
+            </tr>
+        }
+    </tbody>
+</table>

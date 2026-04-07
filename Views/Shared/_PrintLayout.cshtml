@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Abu Amen Pharma</title>
+    <link rel="stylesheet" href="~/css/report-print.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
+</head>
+<body class="report-print-body">
+    <div class="report-container">
+        <!-- Report Header -->
+        <header class="report-header">
+            <div class="report-logo-container">
+                <img src="/images/logo.png" alt="Logo" class="report-logo" />
+            </div>
+            <div class="report-title-container">
+                <h1 class="report-title">@ViewData["ReportTitle"]</h1>
+                <p style="margin: 5px 0 0; font-size: 14px; color: #555;">مجمع أبو آمن الطبي - صيدلية أبو آمن</p>
+            </div>
+            <div class="report-info-container">
+                <div>تاريخ الطباعة: @DateTime.Now.ToString("yyyy/MM/dd HH:mm")</div>
+                <div>المستخدم: @User.Identity?.Name</div>
+            </div>
+        </header>
+
+        <!-- Report Metadata -->
+        @if (ViewData["ShowMetadata"] as bool? == true)
+        {
+            <div class="report-metadata">
+                <div class="metadata-item">
+                    <span class="metadata-label">الفترة:</span>
+                    <span>@ViewData["ReportPeriod"]</span>
+                </div>
+                @RenderSection("Metadata", required: false)
+            </div>
+        }
+
+        <!-- Report Content -->
+        <main class="report-content">
+            @RenderBody()
+        </main>
+
+        <!-- Report Footer -->
+        <footer class="report-footer">
+            <div>نظام إدارة صيدلية أبو آمن - جميع الحقوق محفوظة &copy; @DateTime.Now.Year</div>
+            <div class="no-print" style="margin-top: 20px; display: flex; justify-content: center; gap: 10px;">
+                <button onclick="downloadReport()" class="btn-download-pdf" style="padding: 10px 20px; background: #2e7d32; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                     تحميل كملف PDF
+                </button>
+                <button onclick="window.print()" class="btn-print" style="padding: 10px 20px; background: #1a237e; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                     طباعة مباشرة
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadReport() {
+            const element = document.querySelector('.report-container');
+            const opt = {
+                margin: 10,
+                filename: '@(ViewData["Title"])_@(DateTime.Now.ToString("yyyyMMdd")).pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            // Hide the footer actions during PDF generation
+            const actions = document.querySelector('.no-print');
+            actions.style.display = 'none';
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                actions.style.display = 'flex';
+            });
+        }
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
